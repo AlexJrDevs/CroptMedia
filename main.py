@@ -62,7 +62,6 @@ from backend.reusable_scripts import *
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        print("Test")
 
         # SETUP MAIN WINDOw
         # Load widgets from "gui\uis\main_window\ui_main.py"
