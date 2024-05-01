@@ -273,28 +273,23 @@ class MainWindow(QMainWindow):
     def update_transcript_widget(self, transcript_location):
         self.ui.transcript_widget.load_srt_file(transcript_location)
     
-    def edit_video_attributes(self, sender, text):
-        try:
-            if self.video_processing_thread:
-                if sender == "Watermark":
-                    self.video_processing_thread.edit_attributes(watermark=text)
-                    print("Watermark: ", text)
-                
-                elif sender == "Text_color":
-                    self.video_processing_thread.edit_attributes(text_color=text)
-                
-                elif sender == "Characters_show":
-                    self.video_processing_thread.edit_attributes(length=text)
-        except Exception as e:
-            print("Error setting attributes: ", e)
-
 
     # VIDEO TEXT PREVIEW
-    def show_text_preview(self, text):
-        self.ui.video_player_main.create_preview_text(text)
+    def create_preview_text(self, text_data):
+        self.preview_text = CreatePreviewText(text_data, self.ui.video_player_main.video_item)
+        self.preview_text.text_duration_changed.connect(self.update_text_duration)
+        self.preview_text.add_text_items.connect(self.update_preview_text)
+        self.preview_text.create_preview_text()
 
-    def text_preview_widgets(self, widgets, graphics_scene):
-        self.ui.text_settings.update_available_text(widgets, graphics_scene)
+    def update_text_duration(self, text_data):
+        self.ui.video_player_main.text_data = text_data
+
+    def update_preview_text(self, text_data):
+        self.ui.text_settings.text_widgets = [item[0] for item in text_data]
+        self.ui.video_player_main.text_data = text_data
+
+    def text_preview_widgets(self, preview_text, graphics_scene):
+        self.ui.text_settings.update_available_text(preview_text, graphics_scene)
 
  
     

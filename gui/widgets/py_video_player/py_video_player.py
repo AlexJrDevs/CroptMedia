@@ -16,16 +16,12 @@ bright_style = """
 
 
 class PyVideoPlayer(QWidget):
-
-    text_preview_done = Signal(list, QWidget)
     
     def __init__(self, parent):
         super(PyVideoPlayer, self).__init__(parent)
         self.parent = parent
 
-        self.text_preview_widgets = []
         self.text_data=[]
-        self.previous_text = {}
 
         self.mediaPlayer = QMediaPlayer()
         self.audioOutput = QAudioOutput()
@@ -182,8 +178,9 @@ class PyVideoPlayer(QWidget):
         self.play_button.setEnabled(True)
         self.play()
         self.video_item.setSize(self.mediaPlayer.videoSink().videoSize())
-        for text in self.text_preview_widgets:
-            text.setPos(self.graphic_scene.sceneRect().center().x() - text.boundingRect().center().x(), self.graphic_scene.sceneRect().center().y() - text.boundingRect().center().y())
+
+        for text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in self.text_data:
+            text_preview.setPos(self.graphic_scene.sceneRect().center().x() - text_preview.boundingRect().center().x(), self.graphic_scene.sceneRect().center().y() - text_preview.boundingRect().center().y())
 
 
 
@@ -251,86 +248,6 @@ class PyVideoPlayer(QWidget):
     def reset_media(self):
         self.mediaPlayer.stop()
 
-    
-    def create_preview_text(self, data_list):
-
-        for duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in data_list:
-            text_preview = PyGraphicsTextItem(parent=self.video_item)
-            text_preview.setDefaultTextColor(QColor("White"))
-            text_edit_widget.font().setPointSize(int(90))
-            text_preview.setFont(text_edit_widget.font())
-            text_preview.setPlainText(text_edit_widget.toPlainText())
-            
-            text_preview.setFlags(QGraphicsTextItem.ItemIsSelectable | QGraphicsTextItem.ItemIsMovable | QGraphicsTextItem.ItemIsFocusable)
-
-            self.text_preview_widgets.append(text_preview)
-            self.text_data.append([text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds])
-
-            text_preview.document().contentsChange.connect(partial(self.text_changed, text_item=text_preview))
-            text_edit_widget.textChanged.connect(partial(self.text_edit_changed, text_edit_widget))
-            duration_line_edit.textChanged.connect(partial(self.change_text_duration, duration_line_edit))
-
-        self.text_preview_done.emit(self.text_preview_widgets, self.graphic_scene)
-
-    def text_changed(self, position, charsRemoved, charsAdded, text_item):
-        current_text = text_item.toPlainText()
-        previous_text = self.previous_text.get(text_item, None)
-        
-        # Check if there's a change in text
-        if current_text != previous_text:
-            for text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in self.text_data:
-                if text_preview == text_item:
-                    text_edit_widget.blockSignals(True)  # Disconnect signal temporarily
-                    text_edit_widget.setPlainText(current_text)
-                    self.previous_text[text_item] = current_text
-                    text_edit_widget.blockSignals(False)  # Reconnect signal
-                    break
-
-
-    def text_edit_changed(self, text_edit):
-        new_text = text_edit.toPlainText()
-        cursor_position = text_edit.textCursor().position()
-
-        for text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in self.text_data:
-            if text_edit_widget == text_edit:
-                text_preview.blockSignals(True)  # Disconnect signal temporarily
-                text_preview.setPlainText(new_text)
-                # Restore cursor position in text_edit
-                cursor = text_edit_widget.textCursor()
-                cursor.setPosition(cursor_position)
-                text_edit_widget.setTextCursor(cursor)
-                text_edit_widget.blockSignals(False)  # Reconnect signal
-                break
-
-    def change_text_duration(self, time, *args):
-        for index, (text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds) in enumerate(self.text_data):
-            if duration_line_edit == time:
-                text = duration_line_edit.text()
-                match = re.match(r'(\d{2}:\d{2}:\d{2},\d{2,3}) \-\-\> (\d{2}:\d{2}:\d{2},\d{2,3})', text)
-                print("Update: ", text)
-                if match:
-                    start_time, end_time = match.group(1, 2)
-                    
-                    start_parts = start_time.split(':')
-                    start_hours = int(start_parts[0])
-                    start_minutes = int(start_parts[1])
-                    start_seconds, start_milliseconds = map(int, start_parts[2].split(','))
-                    start_total_milliseconds = (start_hours * 3600 + start_minutes * 60 + start_seconds) * 1000 + start_milliseconds
-                    
-                    end_parts = end_time.split(':')
-                    end_hours = int(end_parts[0])
-                    end_minutes = int(end_parts[1])
-                    end_seconds, end_milliseconds = map(int, end_parts[2].split(','))
-                    end_total_milliseconds = (end_hours * 3600 + end_minutes * 60 + end_seconds) * 1000 + end_milliseconds
-
-                    print("Start Time (ms):", start_total_milliseconds)
-                    print("End Time (ms):", end_total_milliseconds)
-                    
-                    # Update the tuple in self.text_data with new start and end times
-                    self.text_data[index] = (text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds)
-                else:
-                    print("Invalid time format")
-                
 
 
 

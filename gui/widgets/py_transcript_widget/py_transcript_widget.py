@@ -3,9 +3,6 @@ from qt_core import *
 
 from functools import partial
 
-# IMPORT DATA CLASSES
-# ///////////////////////////////////////////////////////////////
-from dataclasses import dataclass
 
 # Define the stylesheet
 stylesheet = """
@@ -68,7 +65,7 @@ class PyTranscriptWidget(QWidget):
     transcript_text = Signal(tuple)
 
     def __init__(self, parent):
-        super(PyTranscriptWidget, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         
         self._button_color = QColor("#343B48")
@@ -81,7 +78,7 @@ class PyTranscriptWidget(QWidget):
 
         # Transcript Line Edit
         self.transcript_line_edit = QLineEdit("Transcript will appear here...")
-        self.transcript_line_edit.setReadOnly(False)
+        self.transcript_line_edit.setReadOnly(True)
         self.transcript_line_edit.setStyleSheet("border: none;")
 
         # Scroll Container
@@ -125,10 +122,6 @@ class PyTranscriptWidget(QWidget):
 
 
     def load_srt_file(self, file_path):
-        for i in range(self.scroll_layout.count()):
-            widget = self.scroll_layout.itemAt(i).widget()
-            if widget is not None:
-                widget.deleteLater()
 
         try:
             self.transcript_line_edit.hide()
@@ -160,7 +153,6 @@ class PyTranscriptWidget(QWidget):
 
 
                         text_edit = QTextEdit()
-                        text_edit.setAlignment(Qt.AlignCenter)
                         text_edit.setSizeAdjustPolicy(QAbstractScrollArea.AdjustIgnored)
                         text_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                         text_edit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)

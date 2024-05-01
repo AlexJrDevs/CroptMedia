@@ -17,10 +17,12 @@ QPushButton {{
 """
 
 class PyTextSettings(QWidget):
-    def __init__(self,):
+    def __init__(self, main_player):
         super().__init__()
 		
-        
+        self.text_widgets = ()
+        self.video_player = main_player
+
         self.item_widget_text = QWidget()
         self.item_layout_text = QGridLayout(self.item_widget_text)
 
@@ -221,10 +223,7 @@ class PyTextSettings(QWidget):
 
     # UPDATES ANYTHING WITH FONT
     # ///////////////////////////////////////////////////////////////
-        
-    def update_available_text(self, text_list, graphics_scene):
-        self.text_widgets = text_list
-        self.graphics_scene = graphics_scene
+
 
  
         
@@ -239,7 +238,7 @@ class PyTextSettings(QWidget):
                 cursor = widget.textCursor()
                 format = cursor.charFormat()
 
-                scene_rect = self.graphics_scene.sceneRect()
+                scene_rect = self.video_player.graphic_scene.sceneRect()
                 text_rect = widget.boundingRect()
 
                 if not cursor.hasSelection():

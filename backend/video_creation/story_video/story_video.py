@@ -1,12 +1,9 @@
 import os
 import random
-from moviepy.editor import VideoFileClip, clips_array, CompositeVideoClip
 
 import datetime
 
 import subprocess
-
-
 
 from ...reusable_scripts import *
 
@@ -35,12 +32,6 @@ class StoryVideo(QThread):
         self.temp_dir = os.path.abspath(r'backend\tempfile')
         self.files_list = []
 
-        self.video_width = 1080 # Used To Find Middle Of Vide
-
-        self.text_clips_stroke = []
-        self.text_clips = []
-        self.watermark_text_stroke = None
-        self.watermark_text = None
 
         self.subtitle_segments = []
 

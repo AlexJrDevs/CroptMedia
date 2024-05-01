@@ -272,12 +272,11 @@ class UI_MainWindow(object):
         self.video_player_main = PyVideoPlayer(parent=parent)
         self.load_pages.video_play.addWidget(self.video_player_main)
         self.load_pages.subclip_layout.addWidget(self.video_player_subclip)
-        self.video_player_main.text_preview_done.connect(parent.text_preview_widgets)
 
         # ADD TRANSCRIPT TO LAYOUT
         self.transcript_widget = PyTranscriptWidget(parent)
         self.load_pages.transcript.addWidget(self.transcript_widget)
-        self.transcript_widget.transcript_text.connect(parent.show_text_preview)
+        self.transcript_widget.transcript_text.connect(parent.create_preview_text)
 
         # ADD VIDEO UPLOAD TO LAYOUT
         self.upload_video = PyVideoUpload(parent)
@@ -285,8 +284,7 @@ class UI_MainWindow(object):
         self.create_video_btn = PyCreateSubclip(self.upload_video, parent) # Button to create the video
         self.load_pages.create_subclip.addWidget(self.create_video_btn)
 
-        self.text_settings = PyTextSettings()
-        #self.load_pages.text_settings_label.lower()
+        self.text_settings = PyTextSettings(self.video_player_main)
         self.load_pages.text_settings_layout.addWidget(self.text_settings)
 
 

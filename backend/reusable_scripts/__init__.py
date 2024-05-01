@@ -16,19 +16,14 @@
 
 # COMPLETION BARLOAD
 # ///////////////////////////////////////////////////////////////
-from .bar_logger import BarLogger
+from . bar_logger import BarLogger
 
 # TRANSCRIBE AUDIO
 # ///////////////////////////////////////////////////////////////
-from .audio_transcribe.audio_transcribe import AudioTranscribe
+from . audio_transcribe.audio_transcribe import AudioTranscribe
 
-# TEXT STYLES:
-# ///////////////////////////////////////////////////////////////
 
-# TEXT STYLE 1
+# CREATE TEXT
 # ///////////////////////////////////////////////////////////////
-from . text_styles import Watermark
+from . create_preview_text  import CreatePreviewText
 
-# TEXT STYLE 1
-# ///////////////////////////////////////////////////////////////
-from . text_styles import TextStyle1
