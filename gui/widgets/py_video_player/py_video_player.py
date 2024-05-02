@@ -4,7 +4,7 @@ from functools import partial
 import re
 
 
-from gui.widgets import PyIconButton, PySlider, PyGraphicsTextItem, PyGraphicsScene, PyGraphicsView
+from gui.widgets import PyIconButton, PySlider,  PyGraphicsScene, PyGraphicsView
 
 dark_style = """
             background-color: #2C313C; border-radius: 8px;
@@ -170,8 +170,6 @@ class PyVideoPlayer(QWidget):
         self.graphic_scene.sceneRectChanged.connect(self.itemsPos)
 
 
-
-
     def setMedia(self, fileName):
         self.mediaPlayer.setSource(QUrl.fromLocalFile(fileName))
         self.mediaPlayer.setAudioOutput(self.audioOutput)
@@ -244,13 +242,6 @@ class PyVideoPlayer(QWidget):
     def handleError(self):
         self.play_button.setEnabled(False)
         print("Error: " + self.mediaPlayer.errorString())
-
-    def reset_media(self):
-        self.mediaPlayer.stop()
-
-
-
-
 
     def itemsPos(self, sceneRect):
             if sceneRect != self.graphics_view.rect():

@@ -9,6 +9,10 @@ from ...reusable_scripts import *
 
 from qt_core import *
 
+# LOAD UI MAIN
+# ///////////////////////////////////////////////////////////////
+from gui.uis.windows.main_window.functions_main_window import *
+
 
 class StoryVideo(QThread):
 
@@ -110,7 +114,7 @@ class StoryVideo(QThread):
             
             else:
                 self.subclip_amount = 0
-                print("Video creation done")
+                self.creating_video.emit("Subclips Completed")
         except Exception as e:
             print("Error occurred:", str(e))
     

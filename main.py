@@ -208,6 +208,8 @@ class MainWindow(QMainWindow):
     def logindata(self):
         self.is_logged_in = MainFunctions.login_system(self)
         print(self.is_logged_in)
+
+
     
     # PAGE 2
     # ///////////////////////////////////////////////////////////////
@@ -215,21 +217,29 @@ class MainWindow(QMainWindow):
 
 
     # Save Files Locations
-    def save_file_paths(self, video, gameplay = None):
-        self.video_path = video
-        self.gameplay_path = gameplay
+    def save_file_paths(self, video=None, gameplay=None):
+        if video:
+            print("Video Uploaded")
+            self.video_path = video
+
+        if gameplay:
+            print("Gameplay Uploaded")
+            self.gameplay_path = gameplay
     
     # Creates Thread To Capture Images From Video
     def create_video_thumbnails(self):
-        self.thumbnail_thread  = PyThumbnailCapture(self.video_path)
-        self.thumbnail_thread.thumbnail_completed.connect(self.video_player_screen)
-        self.thumbnail_thread.start()
+        if self.video_path and self.gameplay_path:
+            self.thumbnail_thread  = PyThumbnailCapture(self.video_path)
+            self.thumbnail_thread.thumbnail_completed.connect(self.video_player_screen)
+            self.thumbnail_thread.start()
+
 
     # Updates Video Player & Resets Loading Bar
     def video_player_screen(self, thumbnails = None):
         if thumbnails: # Checks wether its a Subclip or Normal video
             self.ui.video_player_subclip.setMedia(self.video_path, thumbnails)
             MainFunctions.set_page2_page(self, self.ui.load_pages.subclip_page_2)
+            self.ui.upload_video.reset_folder_icon()
         else:
             MainFunctions.set_video_page(self, self.ui.load_pages.video_page)
             video_filename = self.video_processing_thread.get_output_files()
@@ -237,11 +247,10 @@ class MainWindow(QMainWindow):
             SetupMainWindow.set_progressbar_value(self, 0)  # Reset progress bar
 
 
-
-
     # THIS WILL BE CHANGED TO ALLOW DIFFERENT PAGES AS VIDEO PLAYERS AND CREATE DIFFERENT VIDEOS
     # Video Creation
-    def tiktok_creation(self, subclip_duration):
+
+    def create_video(self, subclip_duration):
 
         MainFunctions.set_video_page(self, self.ui.load_pages.loading_video)
         MainFunctions.set_page2_page(self, self.ui.load_pages.main_page_2)
@@ -251,45 +260,48 @@ class MainWindow(QMainWindow):
         self.video_processing_thread.creating_video.connect(self.update_text_loading)
         self.video_processing_thread.start()
 
+        self.video_path = None
+        self.gameplay_path = None
 
+    # creates preview text and manages the sync between the TextEdit, TextLine and GraphicsText
+    def create_preview_text(self, text_data):
 
-    # Creates Next Video
-    def create_next_video(self):
-        self.ui.video_player_main.reset_media()
-        MainFunctions.set_video_page(self, self.ui.load_pages.loading_video)
-        self.video_processing_thread.start()
+        if hasattr(self, 'preview_text') and self.preview_text:
+            self.preview_text.delete_text()
+            self.preview_text.create_preview_text(text_data)
 
+        else:
+            self.preview_text = CreatePreviewText(self.ui.video_player_main.video_item, self.ui.video_player_main.graphic_scene)
+            self.preview_text.text_data_updated.connect(self.update_preview_text)
+            self.preview_text.create_preview_text(text_data)
 
-    # Updates Loading Bar Accurate
+    # Updates text start and end time, and gives references of GraphicsText to the text settings
+    def update_preview_text(self, text_data):
+        self.ui.text_settings.text_widgets = [item[0] for item in text_data]
+        self.ui.video_player_main.text_data = text_data
+
+    # Sets the actual value for the loading bar
     def update_loading_bar(self, value):
         SetupMainWindow.set_progressbar_value(self, value)
         if float(value) >= 100:
             self.video_player_screen()
             SetupMainWindow.resize_main_widget(self)
-
+        
+    # Sets a text below the value to show what it is creating
     def update_text_loading(self, text):
-        SetupMainWindow.set_progressbar_text(self, text)
+        if text == "Subclips Completed":
+            MainFunctions.set_video_page(self, self.ui.load_pages.upload_page)
+        else:
+            SetupMainWindow.set_progressbar_text(self, text)
 
     def update_transcript_widget(self, transcript_location):
         self.ui.transcript_widget.load_srt_file(transcript_location)
+
+    def create_next_video(self):
+        self.ui.video_player_main.mediaPlayer.stop()
+        self.video_processing_thread.start()
+        MainFunctions.set_video_page(self, self.ui.load_pages.loading_video)
     
-
-    # VIDEO TEXT PREVIEW
-    def create_preview_text(self, text_data):
-        self.preview_text = CreatePreviewText(text_data, self.ui.video_player_main.video_item)
-        self.preview_text.text_duration_changed.connect(self.update_text_duration)
-        self.preview_text.add_text_items.connect(self.update_preview_text)
-        self.preview_text.create_preview_text()
-
-    def update_text_duration(self, text_data):
-        self.ui.video_player_main.text_data = text_data
-
-    def update_preview_text(self, text_data):
-        self.ui.text_settings.text_widgets = [item[0] for item in text_data]
-        self.ui.video_player_main.text_data = text_data
-
-    def text_preview_widgets(self, preview_text, graphics_scene):
-        self.ui.text_settings.update_available_text(preview_text, graphics_scene)
 
  
     

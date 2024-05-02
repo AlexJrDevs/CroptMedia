@@ -281,8 +281,6 @@ class UI_MainWindow(object):
         # ADD VIDEO UPLOAD TO LAYOUT
         self.upload_video = PyVideoUpload(parent)
         self.load_pages.files_upload.addWidget(self.upload_video)
-        self.create_video_btn = PyCreateSubclip(self.upload_video, parent) # Button to create the video
-        self.load_pages.create_subclip.addWidget(self.create_video_btn)
 
         self.text_settings = PyTextSettings(self.video_player_main)
         self.load_pages.text_settings_layout.addWidget(self.text_settings)

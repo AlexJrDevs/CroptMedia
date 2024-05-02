@@ -83,6 +83,7 @@ class PyGraphicsTextItem(QGraphicsTextItem):
 
 
     def paint(self, painter, option, widget):
+        super().paint(painter, option, widget)
         painter.save()
         painter.setClipRect(self.scene().sceneRect())
         super().paint(painter, option, widget)

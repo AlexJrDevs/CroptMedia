@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_pagesysjxZI.ui'
+## Form generated from reading UI file 'main_pagesvKwZaS.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -364,12 +364,11 @@ class Ui_MainPages(object):
 
         self.gridLayout_14.addWidget(self.files_bg, 1, 0, 1, 1)
 
-        self.create_subclip = QVBoxLayout()
-        self.create_subclip.setObjectName(u"create_subclip")
+        self.create_subclips_btn = QPushButton(self.upload_page)
+        self.create_subclips_btn.setObjectName(u"create_subclips_btn")
 
-        self.gridLayout_14.addLayout(self.create_subclip, 2, 0, 1, 1)
+        self.gridLayout_14.addWidget(self.create_subclips_btn, 2, 0, 1, 1)
 
-        self.gridLayout_14.setRowStretch(1, 1)
         self.video_pages.addWidget(self.upload_page)
         self.loading_video = QWidget()
         self.loading_video.setObjectName(u"loading_video")
@@ -532,7 +531,8 @@ class Ui_MainPages(object):
         self.retranslateUi(MainPages)
 
         self.pages.setCurrentIndex(1)
-        self.video_pages.setCurrentIndex(2)
+        self.page_2_layout.setCurrentIndex(0)
+        self.video_pages.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainPages)
@@ -546,6 +546,7 @@ class Ui_MainPages(object):
         self.password_text.setText(QCoreApplication.translate("MainPages", u"Password", None))
         self.password_entry.setPlaceholderText(QCoreApplication.translate("MainPages", u"Password", None))
         self.login_btn.setText(QCoreApplication.translate("MainPages", u"Login", None))
+        self.create_subclips_btn.setText(QCoreApplication.translate("MainPages", u"Create Subclips", None))
         self.create_next_button.setText(QCoreApplication.translate("MainPages", u"Next", None))
     # retranslateUi
 

@@ -206,6 +206,7 @@ class SetupMainWindow:
         # Page 1
 
         self.ui.load_pages.login_btn.clicked.connect(self.logindata)
+        self.ui.load_pages.create_subclips_btn.clicked.connect(self.create_video_thumbnails)
         self.ui.load_pages.create_next_button.clicked.connect(self.create_next_video)
 
         

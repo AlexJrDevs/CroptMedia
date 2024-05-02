@@ -16,4 +16,4 @@
 
 # PY VIDEO UPLOAD
 # ///////////////////////////////////////////////////////////////
-from . py_video_upload import PyVideoUpload, PyCreateSubclip
+from . py_video_upload import PyVideoUpload

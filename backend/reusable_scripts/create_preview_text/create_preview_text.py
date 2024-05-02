@@ -7,44 +7,49 @@ from gui.widgets import PyGraphicsTextItem
 import re
 
 class CreatePreviewText(QObject):
-    add_text_items = Signal(tuple)
-    text_duration_changed = Signal(tuple)
+    text_data_updated = Signal(tuple)
 
-    def __init__(self, transcript_and_duration, video_item):
+    def __init__(self, video_item, graphics_scene):
         super().__init__()
 
         self.text_preview_widgets = []
         self.text_data = []
         self.previous_text = {}
 
-        self.transcript_and_duration = transcript_and_duration
         self.video_item = video_item
+        self.graphics_scene = graphics_scene
 
         
     # CREATES THE QGRAPHICSTEXTITEM FOR THE VIDEO
     # ///////////////////////////////////////////////////////////////
 
-    def create_preview_text(self):
+    def create_preview_text(self, transcript_and_duration):
+        try:
+  
+            for duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in transcript_and_duration:
+                text_preview = PyGraphicsTextItem()
+                text_preview.setDefaultTextColor(QColor("White"))
+                text_edit_widget.font().setPointSize(int(90))
+                text_preview.setFont(text_edit_widget.font())
+                text_preview.setPlainText(text_edit_widget.toPlainText())
+                print("New Text: ", text_edit_widget.toPlainText())
+                
+                text_preview.setFlags(QGraphicsTextItem.ItemIsSelectable | QGraphicsTextItem.ItemIsMovable | QGraphicsTextItem.ItemIsFocusable)
 
-        for duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in self.transcript_and_duration:
-            text_preview = PyGraphicsTextItem(parent=self.video_item)
-            text_preview.setDefaultTextColor(QColor("White"))
-            text_edit_widget.font().setPointSize(int(90))
-            text_preview.setFont(text_edit_widget.font())
-            text_preview.setPlainText(text_edit_widget.toPlainText())
-            
-            text_preview.setFlags(QGraphicsTextItem.ItemIsSelectable | QGraphicsTextItem.ItemIsMovable | QGraphicsTextItem.ItemIsFocusable)
+                self.text_data.append([text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds])
 
-            self.text_data.append([text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds])
+                # Connect contentsChange signal and store the connection object
+                text_preview.document().contentsChange.connect(partial(self.change_text_edit, text_item=text_preview))
 
-            text_preview.document().contentsChange.connect(partial(self.change_text_edit, text_item=text_preview))
-            text_edit_widget.textChanged.connect(partial(self.change_text_preview, text_edit_widget))
-            duration_line_edit.textChanged.connect(partial(self.change_text_duration, duration_line_edit))
+                text_edit_widget.textChanged.connect(partial(self.change_text_preview, text_edit_widget))
+                duration_line_edit.textChanged.connect(partial(self.change_text_duration, duration_line_edit))
 
-            text_preview.hide()
+                text_preview.hide()
+                self.graphics_scene.addItem(text_preview)
 
-        self.text_duration_changed.emit(self.text_data)
-        self.add_text_items.emit(self.text_data)
+            self.text_data_updated.emit(self.text_data)
+        except Exception as e:
+            print("Error creating: ", e)
 
     # UPDATES THE TEXT EDIT TO SYNC TO TEXT_PREVIEW
     # ///////////////////////////////////////////////////////////////
@@ -56,7 +61,7 @@ class CreatePreviewText(QObject):
         # Check if there's a change in text
         if current_text != previous_text:
             for text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in self.text_data:
-                if text_preview == text_item:
+                if text_preview == text_item and text_edit_widget:
                     text_edit_widget.blockSignals(True)  # Disconnect signal temporarily
                     text_edit_widget.setPlainText(current_text)
                     self.previous_text[text_item] = current_text
@@ -89,7 +94,6 @@ class CreatePreviewText(QObject):
             if duration_line_edit == time:
                 text = duration_line_edit.text()
                 match = re.match(r'(\d{2}:\d{2}:\d{2},\d{2,3}) \-\-\> (\d{2}:\d{2}:\d{2},\d{2,3})', text)
-                print("Update: ", text)
                 if match:
                     start_time, end_time = match.group(1, 2)
                     
@@ -104,12 +108,29 @@ class CreatePreviewText(QObject):
                     end_minutes = int(end_parts[1])
                     end_seconds, end_milliseconds = map(int, end_parts[2].split(','))
                     end_total_milliseconds = (end_hours * 3600 + end_minutes * 60 + end_seconds) * 1000 + end_milliseconds
-
-                    print("Start Time (ms):", start_total_milliseconds)
-                    print("End Time (ms):", end_total_milliseconds)
                     
                     # Update the tuple in self.text_data with new start and end times
                     self.text_data[index] = (text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds)
-                    self.text_duration_changed.emit(self.text_data)
+                    self.text_data_updated.emit(self.text_data)
                 else:
                     print("Invalid time format")
+
+
+    # DELETES EVERYTHING
+    # ///////////////////////////////////////////////////////////////
+    def delete_text(self):
+        try:
+            for text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in self.text_data:
+
+                print("Deleted")
+                for item in self.graphics_scene.items():
+                    if isinstance(item, QGraphicsTextItem):
+                        self.graphics_scene.removeItem(item)
+
+                text_preview.deleteLater()
+                text_edit_widget.deleteLater()
+                duration_line_edit.deleteLater()
+    
+            self.text_data.clear()
+        except:
+            print("Error in delete Text")

@@ -106,5 +106,5 @@ from . py_transcript_widget import PyTranscriptWidget
 
 # VIDEO UPLOAD
 # ///////////////////////////////////////////////////////////////
-from . py_video_upload import PyVideoUpload, PyCreateSubclip
+from . py_video_upload import PyVideoUpload
 

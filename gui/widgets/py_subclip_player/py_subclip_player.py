@@ -240,7 +240,7 @@ class PySubclipPlayer(QWidget):
         self.mediaPlayer.stop()
         if self.range_slider.isVisible():
             subclip_duration = self.range_slider.grab_handles_values()
-            self.parent.tiktok_creation(subclip_duration)
+            self.parent.create_video(subclip_duration)
 
 
 

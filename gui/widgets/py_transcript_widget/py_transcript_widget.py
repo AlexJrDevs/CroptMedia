@@ -128,6 +128,8 @@ class PyTranscriptWidget(QWidget):
             with open(file_path, 'r') as file:
                 srt_lines = file.readlines()
 
+                self.text_and_duration.clear()
+
                 for line in srt_lines:
                     if '-->' in line:
                         start, end = line.strip().split(' --> ')
@@ -153,7 +155,6 @@ class PyTranscriptWidget(QWidget):
 
 
                         text_edit = QTextEdit()
-                        text_edit.setSizeAdjustPolicy(QAbstractScrollArea.AdjustIgnored)
                         text_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                         text_edit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
                         text_edit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
