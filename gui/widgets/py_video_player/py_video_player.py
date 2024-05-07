@@ -1,8 +1,7 @@
 
 from qt_core import *
-from functools import partial
-import re
 
+import datetime, os
 
 from gui.widgets import PyIconButton, PySlider,  PyGraphicsScene, PyGraphicsView
 
@@ -16,11 +15,12 @@ bright_style = """
 
 
 class PyVideoPlayer(QWidget):
-    
+
     def __init__(self, parent):
         super(PyVideoPlayer, self).__init__(parent)
         self.parent = parent
 
+        self.text_html= []
         self.text_data=[]
 
         self.mediaPlayer = QMediaPlayer()
@@ -169,17 +169,43 @@ class PyVideoPlayer(QWidget):
 
         self.graphic_scene.sceneRectChanged.connect(self.itemsPos)
 
+    def extract_text_data(self):
+        for index, (text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds) in enumerate(self.text_data):
+
+            text_preview.toHtml()
+            stroke_size, stroke_color = text_preview.grab_stroke_data()
+            
+            start_time = self.milliseconds_to_time(start_total_milliseconds)
+            end_time = self.milliseconds_to_time(end_total_milliseconds)
+
+            temp_location = os.path.abspath(r'backend\tempfile')
+            text_html_location = os.path.join(temp_location, f"Subtitle_{index}.html")
+
+            with open(text_html_location, "w") as file:
+                file.write(text_preview.toHtml())
+
+            self.text_html.append([text_html_location, stroke_size, stroke_color, start_time, end_time])
+            print("aDDED")
+            file.close()
+        
+        return self.text_html
+    
+    def milliseconds_to_time(self, milliseconds):
+        seconds = milliseconds // 1000
+        minutes, seconds = divmod(seconds, 60)
+        hours, minutes = divmod(minutes, 60)
+        return "{:02d}:{:02d}:{:02d}.{:02d}".format(hours, minutes, seconds, milliseconds % 1000 // 10)
+
 
     def setMedia(self, fileName):
         self.mediaPlayer.setSource(QUrl.fromLocalFile(fileName))
         self.mediaPlayer.setAudioOutput(self.audioOutput)
         self.play_button.setEnabled(True)
-        self.play()
+        self.mediaPlayer.play()
         self.video_item.setSize(self.mediaPlayer.videoSink().videoSize())
 
         for text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in self.text_data:
             text_preview.setPos(self.graphic_scene.sceneRect().center().x() - text_preview.boundingRect().center().x(), self.graphic_scene.sceneRect().center().y() - text_preview.boundingRect().center().y())
-
 
 
     def play(self):
@@ -257,17 +283,4 @@ class PyVideoPlayer(QWidget):
 
     def resizeEvent(self, event):
         self.resize_graphic_scene()
-
-
-
-
-            
-    
-
-
-    
-    
-
-    
-
 

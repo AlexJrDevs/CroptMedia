@@ -122,3 +122,6 @@ class PyGraphicsTextItem(QGraphicsTextItem):
         ))
 
         print("Update Color")
+
+    def grab_stroke_data(self):
+        return (self._outline_size, self._outline_color)

@@ -32,7 +32,6 @@ class StoryVideo(QThread):
 
         # NOT EDITABLE PUBLICALLY
         # //////////////////////////////////////////////////////
-        self.video_dir = os.path.abspath('completed_videos')
         self.temp_dir = os.path.abspath(r'backend\tempfile')
         self.files_list = []
 
@@ -70,8 +69,8 @@ class StoryVideo(QThread):
                 bottom_video_start= random.uniform(0, top_video_start - duration)
 
 
-                output_file = os.path.join(self.video_dir, f"Video_{timestamp}.mp4")
-                audio_file = os.path.join(self.video_dir, f"Video_{timestamp}.mp3")
+                output_file = os.path.join(self.temp_dir, f"Video_{timestamp}.mp4")
+                audio_file = os.path.join(self.temp_dir, f"Video_{timestamp}.mp3")
 
                 self.files_list.append(output_file)
                 

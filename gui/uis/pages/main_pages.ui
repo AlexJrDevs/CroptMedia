@@ -539,7 +539,7 @@ border-radius: 15px;
                       </widget>
                      </item>
                      <item row="2" column="0">
-                      <widget class="QPushButton" name="files_confirm_btn">
+                      <widget class="QPushButton" name="create_subclips_btn">
                        <property name="text">
                         <string>Create Subclips</string>
                        </property>

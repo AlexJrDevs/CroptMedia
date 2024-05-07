@@ -87,6 +87,7 @@ class MainWindow(QMainWindow):
         # ///////////////////////////////////////////////////////////////
         self.percentage_logger = BarLogger()
         self.audio_transcript = AudioTranscribe()
+        self.export_video = ExportVideo()
 
         self.percentage_logger.loading_percent.connect(self.update_loading_bar)
 
@@ -299,8 +300,10 @@ class MainWindow(QMainWindow):
 
     def create_next_video(self):
         self.ui.video_player_main.mediaPlayer.stop()
-        self.video_processing_thread.start()
         MainFunctions.set_video_page(self, self.ui.load_pages.loading_video)
+        text_data = self.ui.video_player_main.extract_text_data()
+        self.export_video.create_video(text_data, self.video_processing_thread.get_output_files())
+        #self.video_processing_thread.start()
     
 
  
