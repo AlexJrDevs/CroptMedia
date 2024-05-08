@@ -239,8 +239,8 @@ class PySubclipPlayer(QWidget):
     def create_video(self):
         self.mediaPlayer.stop()
         if self.range_slider.isVisible():
-            subclip_duration = self.range_slider.grab_handles_values()
-            self.parent.create_video(subclip_duration)
+            subclip_durations = self.range_slider.grab_handles_values()
+            self.parent.create_video(subclip_durations)
 
 
 
@@ -301,7 +301,6 @@ class PySubclipPlayer(QWidget):
             self.play_button.set_icon("gui/images/svg_icons/icon_pause.svg")
         else:
             self.play_button.set_icon("gui/images/svg_icons/icon_play.svg")
-            print("PAUSED")
 
     def positionChanged(self, position):
         self.range_slider.set_value(position)

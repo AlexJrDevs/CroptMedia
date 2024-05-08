@@ -72,7 +72,7 @@ from . py_line_edit import PyLineEdit
 
 # PY CUSTOM GRAPHIC TEXT
 # ///////////////////////////////////////////////////////////////
-from . py_custom_graphic_text import PyGraphicsTextItem
+from . py_graphics_text_item import PyGraphicsTextItem
 
 # PY GRAPHIC SCENE
 # ///////////////////////////////////////////////////////////////

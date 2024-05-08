@@ -87,7 +87,6 @@ class MainWindow(QMainWindow):
         # ///////////////////////////////////////////////////////////////
         self.percentage_logger = BarLogger()
         self.audio_transcript = AudioTranscribe()
-        self.export_video = ExportVideo()
 
         self.percentage_logger.loading_percent.connect(self.update_loading_bar)
 
@@ -235,30 +234,34 @@ class MainWindow(QMainWindow):
             self.thumbnail_thread.start()
 
 
-    # Updates Video Player & Resets Loading Bar
-    def video_player_screen(self, thumbnails = None):
-        if thumbnails: # Checks wether its a Subclip or Normal video
-            self.ui.video_player_subclip.setMedia(self.video_path, thumbnails)
+    # Updates Video Player & Resets Loading Bar | *args are the thumbnails or video path
+    def video_player_screen(self, *args):
+        sender = self.sender()
+
+        if sender == self.thumbnail_thread: # Checks wether its a Subclip or Normal video
+
+            self.ui.video_player_subclip.setMedia(self.video_path, *args)
             MainFunctions.set_page2_page(self, self.ui.load_pages.subclip_page_2)
             self.ui.upload_video.reset_folder_icon()
+
         else:
+            self.video_filename = args[0]
             MainFunctions.set_video_page(self, self.ui.load_pages.video_page)
-            video_filename = self.video_processing_thread.get_output_files()
-            self.ui.video_player_main.setMedia(video_filename)
-            SetupMainWindow.set_progressbar_value(self, 0)  # Reset progress bar
+            self.ui.video_player_main.setMedia(*args)
 
 
     # THIS WILL BE CHANGED TO ALLOW DIFFERENT PAGES AS VIDEO PLAYERS AND CREATE DIFFERENT VIDEOS
     # Video Creation
 
-    def create_video(self, subclip_duration):
+    def create_video(self, subclip_durations):
 
         MainFunctions.set_video_page(self, self.ui.load_pages.loading_video)
         MainFunctions.set_page2_page(self, self.ui.load_pages.main_page_2)
                 
         # Create a thread to run video processing in the background
-        self.video_processing_thread = StoryVideo(self.video_path, self.gameplay_path, subclip_duration, self.audio_transcript, self.percentage_logger)
+        self.video_processing_thread = StoryVideo(self.video_path, self.gameplay_path, subclip_durations, self.audio_transcript, self.percentage_logger)
         self.video_processing_thread.creating_video.connect(self.update_text_loading)
+        self.video_processing_thread.finished_subclip.connect(self.video_player_screen)
         self.video_processing_thread.start()
 
         self.video_path = None
@@ -283,17 +286,14 @@ class MainWindow(QMainWindow):
 
     # Sets the actual value for the loading bar
     def update_loading_bar(self, value):
-        SetupMainWindow.set_progressbar_value(self, value)
-        if float(value) >= 100:
-            self.video_player_screen()
-            SetupMainWindow.resize_main_widget(self)
+        self.circular_progress_1.set_value(value)
         
     # Sets a text below the value to show what it is creating
     def update_text_loading(self, text):
         if text == "Subclips Completed":
             MainFunctions.set_video_page(self, self.ui.load_pages.upload_page)
         else:
-            SetupMainWindow.set_progressbar_text(self, text)
+            self.circular_progress_1.set_text(text)
 
     def update_transcript_widget(self, transcript_location):
         self.ui.transcript_widget.load_srt_file(transcript_location)
@@ -302,20 +302,10 @@ class MainWindow(QMainWindow):
         self.ui.video_player_main.mediaPlayer.stop()
         MainFunctions.set_video_page(self, self.ui.load_pages.loading_video)
         text_data = self.ui.video_player_main.extract_text_data()
-        self.export_video.create_video(text_data, self.video_processing_thread.get_output_files())
-        #self.video_processing_thread.start()
-    
-
- 
-    
-
-
-
-    
-
-    
-
+        self.export_video = ExportVideo(text_data, self.video_filename, self.percentage_logger)
+        self.export_video.start()
         
+    
 
 # SETTINGS WHEN TO START
 # Set the initial class and also additional parameters of the "QApplication" class

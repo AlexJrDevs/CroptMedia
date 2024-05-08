@@ -284,19 +284,6 @@ class SetupMainWindow:
             self.ui.load_pages.video_label.setMaximumSize(new_width + self.ui.load_pages.text_settings_label.width(), new_height)
         else:
             self.ui.load_pages.video_label.setMaximumSize(new_width, new_height)
-        
-        
-        
-
-
-
-    
-
-    def set_progressbar_value(self, value):
-        self.circular_progress_1.set_value(value)
-    
-    def set_progressbar_text(self, text):
-        self.circular_progress_1.set_text(text)
     
 
     

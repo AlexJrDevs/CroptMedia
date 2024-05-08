@@ -1,24 +1,19 @@
 import os
 import random
 
-import datetime
-
-import subprocess
-
+import datetime, subprocess, cv2
+ 
 from ...reusable_scripts import *
 
 from qt_core import *
-
-# LOAD UI MAIN
-# ///////////////////////////////////////////////////////////////
-from gui.uis.windows.main_window.functions_main_window import *
 
 
 class StoryVideo(QThread):
 
     creating_video = Signal(str)
+    finished_subclip = Signal(str)
 
-    def __init__(self, video_path, gameplay_path, subclip_duration, audio_transcribe, logger,):
+    def __init__(self, video_path, gameplay_path, subclip_durations, audio_transcribe, logger):
         super().__init__()
 
         self.width, self.height = 1080, 1920
@@ -26,17 +21,13 @@ class StoryVideo(QThread):
         # SETTING PROPERTIES
         self.top_video_file = video_path
         self.bottom_video_file = gameplay_path
-        self.subclip_duration = subclip_duration
-        self.subclip_amount = len(subclip_duration)
+        self.subclip_duration = subclip_durations
+        self.subclip_amount = len(subclip_durations)
         self.logger = logger
 
         # NOT EDITABLE PUBLICALLY
         # //////////////////////////////////////////////////////
         self.temp_dir = os.path.abspath(r'backend\tempfile')
-        self.files_list = []
-
-
-        self.subtitle_segments = []
 
         self.audio_transcribe = audio_transcribe
 
@@ -49,8 +40,6 @@ class StoryVideo(QThread):
         transcript_location = self.audio_transcribe.start_transcribe(audio_file, 10, timestamp)
         return transcript_location
     
-        
-        
 
 
     def run(self):
@@ -69,10 +58,8 @@ class StoryVideo(QThread):
                 bottom_video_start= random.uniform(0, top_video_start - duration)
 
 
-                output_file = os.path.join(self.temp_dir, f"Video_{timestamp}.mp4")
+                self.output_file = os.path.join(self.temp_dir, f"Video_{timestamp}.mp4")
                 audio_file = os.path.join(self.temp_dir, f"Video_{timestamp}.mp3")
-
-                self.files_list.append(output_file)
                 
                 ffmpeg_audio = [
                     'ffmpeg',
@@ -104,23 +91,43 @@ class StoryVideo(QThread):
                     '-t', str(duration),
                     '-c:v', 'libx264',
                     '-y',  # Overwrite output file if exists
-                    output_file
+                    self.output_file
                 ]
 
                 process = subprocess.Popen(ffmpeg_video, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
                 self.creating_video.emit("Creating Video...")
-                self.logger.video_logger(process, duration)
+
+                top_video_frames = self.get_video_frames(start_time, end_time)
+                bottom_video_frames = self.get_video_frames(bottom_video_start, bottom_video_start + duration)
+
+                if top_video_frames > bottom_video_frames:
+                    self.logger.video_logger(process, top_video_frames)
+                else:
+                    self.logger.video_logger(process, bottom_video_frames)
+
+                process.wait()
+                sucessful = process.returncode
+
+                if sucessful == 0:
+                    self.finished_subclip.emit(self.output_file)
+                else:
+                    print("Error Story_Video: ", sucessful)
+
             
             else:
                 self.subclip_amount = 0
                 self.creating_video.emit("Subclips Completed")
         except Exception as e:
             print("Error occurred:", str(e))
-    
 
+    def get_video_frames(self, start, end):
+        cap = cv2.VideoCapture(self.top_video_file)
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        start_frame = int(start * fps)
+        end_frame = int(end * fps)
+        total_frames = end_frame - start_frame
+        return total_frames
     
-    def get_output_files(self):
-        return self.files_list[-1]
 
         
     

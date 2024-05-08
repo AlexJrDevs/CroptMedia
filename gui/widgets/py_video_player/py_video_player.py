@@ -1,7 +1,7 @@
 
 from qt_core import *
 
-import datetime, os
+import os
 
 from gui.widgets import PyIconButton, PySlider,  PyGraphicsScene, PyGraphicsView
 
@@ -184,8 +184,9 @@ class PyVideoPlayer(QWidget):
             with open(text_html_location, "w") as file:
                 file.write(text_preview.toHtml())
 
-            self.text_html.append([text_html_location, stroke_size, stroke_color, start_time, end_time])
-            print("aDDED")
+            text_pos = text_preview.mapToItem(self.video_item, text_preview.pos())
+
+            self.text_html.append([text_html_location, str(text_preview.pos().x()), str(text_preview.pos().y()), stroke_size, stroke_color, start_time, end_time])
             file.close()
         
         return self.text_html
@@ -245,9 +246,8 @@ class PyVideoPlayer(QWidget):
         for text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in self.text_data:
             if start_total_milliseconds <= position <= end_total_milliseconds and not text_preview.isVisible():
                 text_preview.show()
-                print("Start: ", start_total_milliseconds)
+
             elif text_preview.isVisible() and not start_total_milliseconds <= position <= end_total_milliseconds:
-                print("Hide")
                 text_preview.hide()
 
     def durationChanged(self, duration):

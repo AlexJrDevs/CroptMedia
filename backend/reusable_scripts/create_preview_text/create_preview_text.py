@@ -32,7 +32,6 @@ class CreatePreviewText(QObject):
                 text_edit_widget.font().setPointSize(int(90))
                 text_preview.setFont(text_edit_widget.font())
                 text_preview.setPlainText(text_edit_widget.toPlainText())
-                print("New Text: ", text_edit_widget.toPlainText())
                 
                 text_preview.setFlags(QGraphicsTextItem.ItemIsSelectable | QGraphicsTextItem.ItemIsMovable | QGraphicsTextItem.ItemIsFocusable)
 
@@ -122,7 +121,6 @@ class CreatePreviewText(QObject):
         try:
             for text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in self.text_data:
 
-                print("Deleted")
                 for item in self.graphics_scene.items():
                     if isinstance(item, QGraphicsTextItem):
                         self.graphics_scene.removeItem(item)
