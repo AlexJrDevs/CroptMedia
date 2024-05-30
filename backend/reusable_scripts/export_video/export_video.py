@@ -5,6 +5,8 @@ import subprocess, cv2, datetime, os
 
 class ExportVideo(QThread):
 
+    exporting_video = Signal(str)
+
     def __init__(self, text_and_stroke, video_location, ffmpeg_logger):
         super().__init__()
         self.text_and_stroke = text_and_stroke
@@ -33,7 +35,7 @@ class ExportVideo(QThread):
                 self.styles_attributes = ",".join(self.styles_attributes)
                 text_style = "".join(text_style)
 
-                new_dialogue = f"""Dialogue: {start},{end},Default,,{{\pos({pos_x},{pos_y})}}{text_style}"""
+                new_dialogue = f"""Dialogue: {start},{end},Default,{{\pos({pos_x},{pos_y})}}{text_style}"""
                 dialogues.append(new_dialogue)
 
 
@@ -42,14 +44,16 @@ Title: Video Subtitles
 ScriptType: v4.00+
 Collisions: Normal
 PlayDepth: 0
+PlayResX: 1080
+PlayResY: 1920
 
 [V4+ Styles]
-Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BorderStyle, Encoding
-Style: Default,{self.styles_attributes},&HFFB0B0,&HFFFF00,&H998877,0,0
-Style: Background, Segoe UI,9,&H00FFFFFF,&H000000FF,&H00000000,3,0
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BorderStyle, Encoding, Alignment
+Style: Default,{self.styles_attributes},&H00FFFFFF,&HFFFF00,&H00FFFFFF,0,0,7
+Style: Background,{self.styles_attributes},&H00FFFFFF,&H000000FF,&H00000000,3,0,7
 
 [Events]
-Format: Start, End, Style, Effect, Text
+Format: Start, End, Style, Text
 """
         timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         folder_path = "backend/tempfile/"
@@ -70,6 +74,9 @@ Format: Start, End, Style, Effect, Text
     # ///////////////////////////////////////////////////////////////
         
     def add_subtitle_to_video(self, video_file, ass_file, ffmpeg_logger, output_file):
+        
+        self.exporting_video.emit("Exporting Video...")
+
         video_text = [
             "ffmpeg",
             "-y",
@@ -95,30 +102,6 @@ Format: Start, End, Style, Effect, Text
         text_styles = []
         paragraph = soup.find_all('p')
         span_elements = soup.find_all('span')
-
-        if paragraph:
-            for paragraph_element in paragraph:
-                for index, content in enumerate(paragraph_element.contents):
-                    if isinstance(content, str):
-                        written_text = content.strip()
-                        if index == 0:
-                            first_part = written_text
-                            text_styles.append(written_text)
-                        elif index == len(paragraph_element.contents) - 1:
-                            last_part = ""
-                            last_part = written_text
-                        else:
-                            text_styles.append(written_text)
-
-
-
-    # ADDS ANY TEXT STYLE TO THE TEXT
-    # ///////////////////////////////////////////////////////////////
-
-    def text_styles(self, soup, stroke_size, stroke_color):
-        text_styles = []
-        paragraph = soup.find_all('p')
-        span_elements = soup.find_all('span')
         last_part = ""
 
         if paragraph:
@@ -127,7 +110,6 @@ Format: Start, End, Style, Effect, Text
                     if isinstance(content, str):
                         written_text = content.strip()
                         if index == 0:
-                            first_part = written_text
                             text_styles.append(written_text)
                         elif index == len(paragraph_element.contents) - 1:
                             last_part = written_text
@@ -151,7 +133,7 @@ Format: Start, End, Style, Effect, Text
                 for text in style_and_name:
                     if ':' in text:
                         style = text.split(':')[0].strip()
-                        style_name = text.split(':')[1].strip().replace("'", '')
+                        style_name = text.split(':')[1].strip()
 
                         if stroke_size > 0:
                             hex_qcolor = stroke_color.name() # Converts QColor to hex
@@ -187,15 +169,17 @@ Format: Start, End, Style, Effect, Text
 
                         elif style == 'font-size':
                             font_size = style_name.replace('pt', '')
+                            font_size = float(font_size) * (1920 / 1080)
                             font_size_str = f"\\fs{font_size}"
                         
                         elif style == 'font-family':
+                            style_name = style_name.replace("'", '')
                             font_family_str = f"\\fn{style_name}"
 
                         
                         # Combine all style modifications
-                        text_style = " {" + text_stroke + background_color_str + color_str + italic_str + underline_str + font_size_str + font_family_str + font_weight_str + "}"  
-                        text_with_styles = f"{text_style}{span.text.strip()} {{\\r}}" # \\r resets the style
+                        text_style = "{" + text_stroke + background_color_str + color_str + italic_str + underline_str + font_size_str + font_family_str + font_weight_str + "}"  
+                        text_with_styles = f"{text_style}{span.text}{{\\r}}" # \\r resets the style
             
                 # Append modified text to the list
                 text_styles.append(text_with_styles + last_part)

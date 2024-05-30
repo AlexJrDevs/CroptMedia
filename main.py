@@ -254,18 +254,17 @@ class MainWindow(QMainWindow):
     # Video Creation
 
     def create_video(self, subclip_durations):
+        self.subclip_durations = subclip_durations
 
         MainFunctions.set_video_page(self, self.ui.load_pages.loading_video)
         MainFunctions.set_page2_page(self, self.ui.load_pages.main_page_2)
                 
         # Create a thread to run video processing in the background
-        self.video_processing_thread = StoryVideo(self.video_path, self.gameplay_path, subclip_durations, self.audio_transcript, self.percentage_logger)
+        self.video_processing_thread = StoryVideo(self.video_path, self.gameplay_path, self.subclip_durations, self.audio_transcript, self.percentage_logger)
         self.video_processing_thread.creating_video.connect(self.update_text_loading)
         self.video_processing_thread.finished_subclip.connect(self.video_player_screen)
         self.video_processing_thread.start()
 
-        self.video_path = None
-        self.gameplay_path = None
 
     # creates preview text and manages the sync between the TextEdit, TextLine and GraphicsText
     def create_preview_text(self, text_data):
@@ -290,19 +289,17 @@ class MainWindow(QMainWindow):
         
     # Sets a text below the value to show what it is creating
     def update_text_loading(self, text):
-        if text == "Subclips Completed":
-            MainFunctions.set_video_page(self, self.ui.load_pages.upload_page)
-        else:
-            self.circular_progress_1.set_text(text)
+        self.circular_progress_1.set_text(text)
 
     def update_transcript_widget(self, transcript_location):
         self.ui.transcript_widget.load_srt_file(transcript_location)
 
-    def create_next_video(self):
+    def export_video_file(self):
         self.ui.video_player_main.mediaPlayer.stop()
         MainFunctions.set_video_page(self, self.ui.load_pages.loading_video)
         text_data = self.ui.video_player_main.extract_text_data()
         self.export_video = ExportVideo(text_data, self.video_filename, self.percentage_logger)
+        self.export_video.exporting_video.connect(self.update_text_loading)
         self.export_video.start()
         
     

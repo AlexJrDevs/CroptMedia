@@ -16,7 +16,6 @@ class BarLogger(QObject):
                 percentage_done = (int(current_frame) / total_frames) * 100
                 percentage_done_str = "{:.2f}".format(percentage_done)
                 self.loading_percent.emit(percentage_done_str)
-                print(f"Percentage done: {percentage_done_str}%")
 
 
 

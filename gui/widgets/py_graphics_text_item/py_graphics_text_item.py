@@ -40,7 +40,8 @@ class PyGraphicsTextItem(QGraphicsTextItem):
             self.setTextInteractionFlags(Qt.TextEditorInteraction)
  
             self.setCursor(Qt.IBeamCursor)
-            self.setFocus(Qt.MouseFocusReason)  
+            self.setFocus(Qt.MouseFocusReason)
+            print(self.pos())
 
  
         elif not state and self.textInteractionFlags() == Qt.TextEditorInteraction:

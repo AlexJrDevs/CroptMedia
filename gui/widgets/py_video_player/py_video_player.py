@@ -184,8 +184,6 @@ class PyVideoPlayer(QWidget):
             with open(text_html_location, "w") as file:
                 file.write(text_preview.toHtml())
 
-            text_pos = text_preview.mapToItem(self.video_item, text_preview.pos())
-
             self.text_html.append([text_html_location, str(text_preview.pos().x()), str(text_preview.pos().y()), stroke_size, stroke_color, start_time, end_time])
             file.close()
         

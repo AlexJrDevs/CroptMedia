@@ -1,0 +1,45 @@
+[Script Info]
+Title: Video Subtitles
+ScriptType: v4.00+
+Collisions: Normal
+PlayDepth: 0
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BorderStyle, Encoding, Alignment
+Style: Default,Segoe UI,9,&H00FFFFFF,&HFFFF00,&H00FFFFFF,0,0,7
+Style: Background,Segoe UI,9,&H00FFFFFF,&H000000FF,&H00000000,3,0,7
+
+[Events]
+Format: Start, End, Style, Text
+Dialogue: 00:00:00.00,00:00:00.78,Default,{\pos(275.25,876.0)}{\bord5\3c&H000000&\fs160.0}LISTEN IN{\r}
+Dialogue: 00:00:00.78,00:00:01.44,Default,{\pos(226.5,876.0)}{\bord5\3c&H000000&\fs160.0}THIS VIDEO{\r}
+Dialogue: 00:00:01.44,00:00:01.74,Default,{\pos(247.5,876.0)}{\bord5\3c&H000000&\fs160.0}I'M GOING{\r}
+Dialogue: 00:00:01.74,00:00:02.02,Default,{\pos(175.5,876.0)}{\bord5\3c&H000000&\fs160.0}TO BE DOING{\r}
+Dialogue: 00:00:02.02,00:00:02.82,Default,{\pos(307.5,876.0)}{\bord5\3c&H000000&\fs160.0}A STORY{\r}
+Dialogue: 00:00:02.82,00:00:04.06,Default,{\pos(197.0,876.0)}{\bord5\3c&H000000&\fs160.0}TIME ABOUT{\r}
+Dialogue: 00:00:04.06,00:00:04.82,Default,{\pos(250.5,876.0)}{\bord5\3c&H000000&\fs160.0}THE TIME I{\r}
+Dialogue: 00:00:04.82,00:00:05.03,Default,{\pos(253.5,876.0)}{\bord5\3c&H000000&\fs160.0}RISKED UP{\r}
+Dialogue: 00:00:05.03,00:00:05.44,Default,{\pos(470.5,876.0)}{\bord5\3c&H000000&\fs160.0}AT{\r}
+Dialogue: 00:00:05.44,00:00:05.06,Default,{\pos(431.5,876.0)}{\bord5\3c&H000000&\fs160.0}THE{\r}
+Dialogue: 00:00:05.06,00:00:06.06,Default,{\pos(242.0,876.0)}{\bord5\3c&H000000&\fs160.0}SAYBOARD{\r}
+Dialogue: 00:00:06.06,00:00:06.68,Default,{\pos(415.0,876.0)}{\bord5\3c&H000000&\fs160.0}GIRL{\r}
+Dialogue: 00:00:06.68,00:00:07.14,Default,{\pos(204.0,876.0)}{\bord5\3c&H000000&\fs160.0}SO I WAS AT{\r}
+Dialogue: 00:00:07.14,00:00:07.58,Default,{\pos(275.5,876.0)}{\bord5\3c&H000000&\fs160.0}THE CLUB{\r}
+Dialogue: 00:00:07.58,00:00:08.00,Default,{\pos(215.0,876.0)}{\bord5\3c&H000000&\fs160.0}WITH THEM{\r}
+Dialogue: 00:00:08.00,00:00:09.12,Default,{\pos(310.0,876.0)}{\bord5\3c&H000000&\fs160.0}AND I'M{\r}
+Dialogue: 00:00:09.12,00:00:09.22,Default,{\pos(273.0,876.0)}{\bord5\3c&H000000&\fs160.0}WEARING{\r}
+Dialogue: 00:00:09.22,00:00:09.56,Default,{\pos(379.5,876.0)}{\bord5\3c&H000000&\fs160.0}THEIR{\r}
+Dialogue: 00:00:09.56,00:00:10.02,Default,{\pos(273.5,876.0)}{\bord5\3c&H000000&\fs160.0}SCOUT IN{\r}
+Dialogue: 00:00:10.02,00:00:10.58,Default,{\pos(247.5,876.0)}{\bord5\3c&H000000&\fs160.0}FOR SOME{\r}
+Dialogue: 00:00:10.58,00:00:11.54,Default,{\pos(335.0,876.0)}{\bord5\3c&H000000&\fs160.0}TALENT{\r}
+Dialogue: 00:00:11.54,00:00:11.86,Default,{\pos(326.0,876.0)}{\bord5\3c&H000000&\fs160.0}BUT WE{\r}
+Dialogue: 00:00:11.86,00:00:11.98,Default,{\pos(391.0,876.0)}{\bord5\3c&H000000&\fs160.0}AIN'T{\r}
+Dialogue: 00:00:11.98,00:00:12.04,Default,{\pos(244.5,876.0)}{\bord5\3c&H000000&\fs160.0}TRYING TO{\r}
+Dialogue: 00:00:12.04,00:00:12.74,Default,{\pos(351.0,876.0)}{\bord5\3c&H000000&\fs160.0}SCOUT{\r}
+Dialogue: 00:00:12.74,00:00:13.14,Default,{\pos(333.5,876.0)}{\bord5\3c&H000000&\fs160.0}YOUNG{\r}
+Dialogue: 00:00:13.14,00:00:14.03,Default,{\pos(226.5,876.0)}{\bord5\3c&H000000&\fs160.0}PROSPECTS{\r}
+Dialogue: 00:00:14.03,00:00:14.07,Default,{\pos(241.5,876.0)}{\bord5\3c&H000000&\fs160.0}WE WON'T{\r}
+Dialogue: 00:00:14.07,00:00:14.98,Default,{\pos(263.0,876.0)}{\bord5\3c&H000000&\fs160.0}PLAY AS A{\r}
+Dialogue: 00:00:14.98,00:00:15.48,Default,{\pos(381.5,876.0)}{\bord5\3c&H000000&\fs160.0}TEAM{\r}
