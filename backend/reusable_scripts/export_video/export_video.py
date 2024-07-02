@@ -6,6 +6,7 @@ import subprocess, cv2, datetime, os
 class ExportVideo(QThread):
 
     exporting_video = Signal(str)
+    video_completed = Signal()
 
     def __init__(self, text_and_stroke, video_location, ffmpeg_logger):
         super().__init__()
@@ -92,6 +93,15 @@ Format: Start, End, Style, Text
         video.release()
 
         ffmpeg_logger.video_logger(process, total_frames)
+
+        process.wait()
+
+        if process.returncode == 0:
+            self.video_completed.emit()
+            print("Successfully Exported Video")
+        else:
+            print("Error Exporting Video, File: Export_video")
+
 
 
 

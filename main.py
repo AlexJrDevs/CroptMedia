@@ -202,7 +202,7 @@ class MainWindow(QMainWindow):
     # ///////////////////////////////////////////////////////////////
 
     
-    # PAGE 1
+    # PAGE 1 - Login / Signup Page
     # ///////////////////////////////////////////////////////////////
     
     def logindata(self):
@@ -211,7 +211,7 @@ class MainWindow(QMainWindow):
 
 
     
-    # PAGE 2
+    # PAGE 2 - Video Creation
     # ///////////////////////////////////////////////////////////////
 
 
@@ -225,6 +225,11 @@ class MainWindow(QMainWindow):
         if gameplay:
             print("Gameplay Uploaded")
             self.gameplay_path = gameplay
+
+
+    def save_subclips(self, subclip_durations):
+        self.subclip_durations = subclip_durations
+        self.create_video()
     
     # Creates Thread To Capture Images From Video
     def create_video_thumbnails(self):
@@ -250,17 +255,16 @@ class MainWindow(QMainWindow):
             self.ui.video_player_main.setMedia(*args)
 
 
+
     # THIS WILL BE CHANGED TO ALLOW DIFFERENT PAGES AS VIDEO PLAYERS AND CREATE DIFFERENT VIDEOS
     # Video Creation
-
-    def create_video(self, subclip_durations):
-        self.subclip_durations = subclip_durations
+    def create_video(self):
 
         MainFunctions.set_video_page(self, self.ui.load_pages.loading_video)
         MainFunctions.set_page2_page(self, self.ui.load_pages.main_page_2)
                 
         # Create a thread to run video processing in the background
-        self.video_processing_thread = StoryVideo(self.video_path, self.gameplay_path, self.subclip_durations, self.audio_transcript, self.percentage_logger)
+        self.video_processing_thread = StoryVideo(self.video_path, self.gameplay_path, self.subclip_durations[0], self.audio_transcript, self.percentage_logger)
         self.video_processing_thread.creating_video.connect(self.update_text_loading)
         self.video_processing_thread.finished_subclip.connect(self.video_player_screen)
         self.video_processing_thread.start()
@@ -286,6 +290,7 @@ class MainWindow(QMainWindow):
     # Sets the actual value for the loading bar
     def update_loading_bar(self, value):
         self.circular_progress_1.set_value(value)
+
         
     # Sets a text below the value to show what it is creating
     def update_text_loading(self, text):
@@ -296,11 +301,26 @@ class MainWindow(QMainWindow):
 
     def export_video_file(self):
         self.ui.video_player_main.mediaPlayer.stop()
+        self.subclip_durations.pop(0)
         MainFunctions.set_video_page(self, self.ui.load_pages.loading_video)
         text_data = self.ui.video_player_main.extract_text_data()
         self.export_video = ExportVideo(text_data, self.video_filename, self.percentage_logger)
         self.export_video.exporting_video.connect(self.update_text_loading)
+        self.export_video.video_completed.connect(self.video_exported)
         self.export_video.start()
+
+
+    def video_exported(self):
+        if len(self.subclip_durations) > 0:
+            print("Create Another Clip")
+            self.create_video()
+        else:
+            print("No more clips to create insert new video")
+            self.video_path = ""
+            self.gameplay_path = ""
+            MainFunctions.set_video_page(self, self.ui.load_pages.upload_page)
+
+
         
     
 

@@ -17,34 +17,29 @@ class StoryVideo(QThread):
         super().__init__()
 
         self.width, self.height = 1080, 1920
+        self.text_char_amount = 10
+        self.temp_dir = os.path.abspath(r'backend\tempfile')
 
         # SETTING PROPERTIES
         self.top_video_file = video_path
         self.bottom_video_file = gameplay_path
         self.subclip_duration = subclip_durations
-        self.subclip_amount = len(subclip_durations)
+        self.audio_transcribe = audio_transcribe
         self.logger = logger
 
-        # NOT EDITABLE PUBLICALLY
-        # //////////////////////////////////////////////////////
-        self.temp_dir = os.path.abspath(r'backend\tempfile')
-
-        self.audio_transcribe = audio_transcribe
-
-        self.subclip_index = 0
 
 
 
 
     def create_transcribe(self, audio_file, timestamp):
-        transcript_location = self.audio_transcribe.start_transcribe(audio_file, 10, timestamp)
+        transcript_location = self.audio_transcribe.start_transcribe(audio_file, self.text_char_amount, timestamp)
         return transcript_location
     
 
 
     def run(self):
         try:
-            start_time, end_time = (sum(int(x) * 60 ** i for i, x in enumerate(reversed(subclip_time.split(':')))) for subclip_time in self.subclip_duration[self.subclip_index])
+            start_time, end_time = (sum(int(x) * 60 ** i for i, x in enumerate(reversed(subclip_time.split(':')))) for subclip_time in self.subclip_duration)
             duration = end_time - start_time
                 
             timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')

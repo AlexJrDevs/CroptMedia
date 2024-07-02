@@ -125,10 +125,19 @@ class PyTranscriptWidget(QWidget):
 
         try:
             self.transcript_line_edit.hide()
+
+            # Clear existing widgets from text_and_duration and the scroll_layout
+            if hasattr(self, 'text_and_duration') and self.text_and_duration:
+                for duration_line, text_edit, start_ms, end_ms in self.text_and_duration:
+                    self.scroll_layout.removeWidget(duration_line)
+                    self.scroll_layout.removeWidget(text_edit)
+                    duration_line.deleteLater()
+                    text_edit.deleteLater()
+            
+            self.text_and_duration.clear()
+
             with open(file_path, 'r') as file:
                 srt_lines = file.readlines()
-
-                self.text_and_duration.clear()
 
                 for line in srt_lines:
                     if '-->' in line:

@@ -13,6 +13,7 @@ class AudioTranscribe(QObject):
         super(AudioTranscribe, self).__init__()
         self.segmentLength = None
         self.output = []
+        self.video_dir = os.path.abspath(r'backend\tempfile')
 
     def transcribe(self, audioPath: str):
         model = whisper.load_model('base')
@@ -23,7 +24,7 @@ class AudioTranscribe(QObject):
     def writeSubtitlesIntoFile(self, inputResult: list[dict], outputPath: str, preferredSegmentLength: int):
 
 
-
+        self.output.clear()
         self.segmentLength = len(inputResult)
 
         for i in range(self.segmentLength):
@@ -85,13 +86,12 @@ class AudioTranscribe(QObject):
     def start_transcribe(self, path, characters, timestamp):
         # Locations to save
         self.transcript_started.emit("Creating Transcript...")
-        video_dir = os.path.abspath(r'backend\tempfile') # If it doesn't have the "r" it won't find location
-        transcript_location = os.path.join(video_dir, f"transcript_{timestamp}.srt")
+        transcript_location = os.path.join(self.video_dir, f"transcript_{timestamp}.srt")
 
         
         # Creates the subs in srt file
-        #self.writeSubtitlesIntoFile(self.transcribe(path)["segments"], transcript_location, characters)
-        self.transcript_location.emit(r"example.srt") # Change this back to transcrip_location and un comment above
+        self.writeSubtitlesIntoFile(self.transcribe(path)["segments"], transcript_location, characters)
+        self.transcript_location.emit(transcript_location)
         return
 
         

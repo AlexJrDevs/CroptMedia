@@ -19,6 +19,7 @@ class PyThumbnailCapture(QThread):
     def __init__(self, file_location):
         super().__init__()
         self.file_location = file_location
+        print("File location: ", file_location)
 
     def run(self):
 
@@ -75,7 +76,6 @@ class PySubclipPlayer(QWidget):
 
         ###########################################################################################################
         
-        self.subclip_amount = 0
         self.thumbnail_label = []
 
         self.thumbnail_widget = QWidget()
@@ -199,16 +199,17 @@ class PySubclipPlayer(QWidget):
 
         
         # Create a stacked layout to overlap thumbnail_layout widget with position slider
-        self.stack_layout = QStackedLayout()
-        self.stack_layout.addWidget(self.thumbnail_widget)
-        self.stack_layout.addWidget(self.sliders_widget)
-        self.stack_layout.setStackingMode(QStackedLayout.StackAll)
-        self.stack_layout.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        stack_layout = QStackedLayout()
+        stack_layout.addWidget(self.thumbnail_widget)
+        stack_layout.addWidget(self.sliders_widget)
+        stack_layout.setStackingMode(QStackedLayout.StackAll)
+        stack_layout.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        stack_layout.setStackingMode(QStackedLayout.StackAll)
 
         layout = QVBoxLayout()
         layout.setSpacing(5)
         layout.addWidget(self.graphics_view, stretch=1)
-        layout.addLayout(self.stack_layout)
+        layout.addLayout(stack_layout)
         layout.addLayout(control_layout)
 
 
@@ -227,8 +228,11 @@ class PySubclipPlayer(QWidget):
         self.remove_button.clicked.connect(self.remove_segg)
         self.done_button.clicked.connect(self.create_video)
 
+        self.mediaPlayer.mediaStatusChanged.connect(self.media_status_changed)
+
         self.thumbnail_widget.resizeEvent = lambda event: self.show_hide_thumbnail()
 
+        self.graphic_scene.sceneRectChanged.connect(self.itemsPos)
     
     def add_segg(self):
         self.range_slider.add_handles()
@@ -240,18 +244,23 @@ class PySubclipPlayer(QWidget):
         self.mediaPlayer.stop()
         if self.range_slider.isVisible():
             subclip_durations = self.range_slider.grab_handles_values()
-            self.parent.create_video(subclip_durations)
+            self.parent.save_subclips(subclip_durations)
 
 
 
     def setMedia(self, fileName, images = None):
         self.add_thumbnails(images)
-        self.stack_layout.setStackingMode(QStackedLayout.StackAll) # Allows for overlapping widgets
-
+    
+        print("Media Location: ", fileName)
         self.mediaPlayer.setSource(QUrl.fromLocalFile(fileName))
         self.mediaPlayer.setAudioOutput(self.audioOutput)
         self.play_button.setEnabled(True)
         self.play()
+        print("Video Size: ", self.mediaPlayer.videoSink().videoSize())
+        self.video_item.setSize(self.mediaPlayer.videoSink().videoSize())
+
+    def media_status_changed(self):
+        print("Media Status Chnaged: ",self.mediaPlayer.videoSink().videoSize())
         self.video_item.setSize(self.mediaPlayer.videoSink().videoSize())
     
 
@@ -326,6 +335,12 @@ class PySubclipPlayer(QWidget):
     def handleError(self):
         self.play_button.setEnabled(False)
         print("Error: " + self.mediaPlayer.errorString())
+
+    def itemsPos(self, sceneRect):
+            print("ItemPos")
+            if sceneRect != self.graphics_view.rect():
+                print("Change ItemPos Size")
+                self.graphic_scene.setSceneRect(self.video_item.boundingRect())
 
     def resize_graphic_scene(self):
         self.graphics_view.fitInView(self.graphic_scene.sceneRect(), Qt.KeepAspectRatio)
