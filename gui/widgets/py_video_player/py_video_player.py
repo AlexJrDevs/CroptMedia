@@ -38,6 +38,7 @@ class PyVideoPlayer(QWidget):
         self.graphics_view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.video_item = QGraphicsVideoItem()
+        self.video_item.setAspectRatioMode(Qt.KeepAspectRatioByExpanding)
 
         self.graphic_scene.addItem(self.video_item)
 
@@ -162,12 +163,10 @@ class PyVideoPlayer(QWidget):
         self.mediaPlayer.positionChanged.connect(self.positionChanged)
         self.mediaPlayer.durationChanged.connect(self.durationChanged)
         self.mediaPlayer.errorOccurred.connect(self.handleError)
+        self.mediaPlayer.videoOutputChanged.connect(self.resize_graphic_scene)
 
 
         self.position_slider.sliderMoved.connect(self.setPosition)
-
-
-        self.graphic_scene.sceneRectChanged.connect(self.itemsPos)
 
     def extract_text_data(self):
         for index, (text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds) in enumerate(self.text_data):
@@ -201,7 +200,8 @@ class PyVideoPlayer(QWidget):
         self.mediaPlayer.setAudioOutput(self.audioOutput)
         self.play_button.setEnabled(True)
         self.mediaPlayer.play()
-        self.video_item.setSize(self.mediaPlayer.videoSink().videoSize())
+
+        self.resize_graphic_scene()
 
         for text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in self.text_data:
             text_preview.setPos(self.graphic_scene.sceneRect().center().x() - text_preview.boundingRect().center().x(), self.graphic_scene.sceneRect().center().y() - text_preview.boundingRect().center().y())
@@ -267,14 +267,16 @@ class PyVideoPlayer(QWidget):
         self.play_button.setEnabled(False)
         print("Error: " + self.mediaPlayer.errorString())
 
-    def itemsPos(self, sceneRect):
-            if sceneRect != self.graphics_view.rect():
-                self.graphic_scene.setSceneRect(self.video_item.boundingRect())
-
 
     def resize_graphic_scene(self):
-        self.graphics_view.fitInView(self.graphic_scene.sceneRect(), Qt.KeepAspectRatio)
-        self.graphic_scene.resizeGuides()
+        video_size = self.mediaPlayer.videoSink().videoSize()
+        if not video_size.isEmpty():
+            self.video_item.setSize(video_size)
+            self.graphic_scene.setSceneRect(self.video_item.boundingRect())
+            self.graphics_view.fitInView(self.video_item, Qt.AspectRatioMode.KeepAspectRatio)
+            self.graphic_scene.resizeGuides()
+            self.updateGeometry()
+            self.update()
 
     def showEvent(self, event):
         self.resize_graphic_scene()

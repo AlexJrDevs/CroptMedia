@@ -249,6 +249,7 @@ class MainWindow(QMainWindow):
             MainFunctions.set_page2_page(self, self.ui.load_pages.subclip_page_2)
             self.ui.upload_video.reset_folder_icon()
 
+
         else:
             self.video_filename = args[0]
             MainFunctions.set_video_page(self, self.ui.load_pages.video_page)

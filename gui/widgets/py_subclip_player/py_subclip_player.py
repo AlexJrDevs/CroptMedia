@@ -221,6 +221,7 @@ class PySubclipPlayer(QWidget):
         self.mediaPlayer.positionChanged.connect(self.positionChanged)
         self.mediaPlayer.durationChanged.connect(self.durationChanged)
         self.mediaPlayer.errorOccurred.connect(self.handleError)
+        self.mediaPlayer.videoOutputChanged.connect(self.resize_graphic_scene)
 
         self.range_slider.slider_moved.connect(self.setPosition)
 
@@ -228,11 +229,7 @@ class PySubclipPlayer(QWidget):
         self.remove_button.clicked.connect(self.remove_segg)
         self.done_button.clicked.connect(self.create_video)
 
-        self.mediaPlayer.mediaStatusChanged.connect(self.media_status_changed)
-
         self.thumbnail_widget.resizeEvent = lambda event: self.show_hide_thumbnail()
-
-        self.graphic_scene.sceneRectChanged.connect(self.itemsPos)
     
     def add_segg(self):
         self.range_slider.add_handles()
@@ -250,20 +247,12 @@ class PySubclipPlayer(QWidget):
 
     def setMedia(self, fileName, images = None):
         self.add_thumbnails(images)
-    
-        print("Media Location: ", fileName)
+
         self.mediaPlayer.setSource(QUrl.fromLocalFile(fileName))
         self.mediaPlayer.setAudioOutput(self.audioOutput)
         self.play_button.setEnabled(True)
         self.play()
-        print("Video Size: ", self.mediaPlayer.videoSink().videoSize())
-        self.video_item.setSize(self.mediaPlayer.videoSink().videoSize())
-
-    def media_status_changed(self):
-        print("Media Status Chnaged: ",self.mediaPlayer.videoSink().videoSize())
-        self.video_item.setSize(self.mediaPlayer.videoSink().videoSize())
     
-
 
     # Creates thumbnail_layout labels to display later
     def add_thumbnails(self, thumbnails):
@@ -335,16 +324,17 @@ class PySubclipPlayer(QWidget):
     def handleError(self):
         self.play_button.setEnabled(False)
         print("Error: " + self.mediaPlayer.errorString())
-
-    def itemsPos(self, sceneRect):
-            print("ItemPos")
-            if sceneRect != self.graphics_view.rect():
-                print("Change ItemPos Size")
-                self.graphic_scene.setSceneRect(self.video_item.boundingRect())
+ 
 
     def resize_graphic_scene(self):
-        self.graphics_view.fitInView(self.graphic_scene.sceneRect(), Qt.KeepAspectRatio)
-
+        video_size = self.mediaPlayer.videoSink().videoSize()
+        if not video_size.isEmpty():
+            self.video_item.setSize(video_size)
+            self.graphic_scene.setSceneRect(self.video_item.boundingRect())
+            self.graphics_view.fitInView(self.video_item, Qt.AspectRatioMode.KeepAspectRatio)
+            self.updateGeometry()
+            self.update()
+        
 
     def showEvent(self, event):
         self.resize_graphic_scene()
