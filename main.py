@@ -100,6 +100,10 @@ class MainWindow(QMainWindow):
         MainFunctions.set_video_page(self, self.ui.load_pages.upload_page)
         MainFunctions.clear_folder(self)
 
+        # Slots for all pages created to resize
+        self.ui.load_pages.video_pages.currentChanged.connect(self.resizeEvent)
+        self.ui.load_pages.page_2_layout.currentChanged.connect(self.resizeEvent)
+
         # Sets login
         # ///////////////////////////////////////////////////////////////
         self.is_logged_in = True
@@ -319,6 +323,7 @@ class MainWindow(QMainWindow):
             print("No more clips to create insert new video")
             self.video_path = ""
             self.gameplay_path = ""
+            self.ui.transcript_widget.clear_transcript()
             MainFunctions.set_video_page(self, self.ui.load_pages.upload_page)
 
 

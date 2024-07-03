@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_pagesvKwZaS.ui'
+## Form generated from reading UI file 'main_pagesAUCLNC.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -24,7 +24,7 @@ class Ui_MainPages(object):
     def setupUi(self, MainPages):
         if not MainPages.objectName():
             MainPages.setObjectName(u"MainPages")
-        MainPages.resize(1152, 885)
+        MainPages.resize(866, 819)
         font = QFont()
         font.setFamilies([u"Roboto"])
         font.setBold(True)
@@ -202,6 +202,10 @@ class Ui_MainPages(object):
 "color: white;\n"
 "}\n"
 "\n"
+"QPushButton{\n"
+"background-color:#3c4454;\n"
+"}\n"
+"\n"
 "\n"
 "#transcript_label{\n"
 "background: #1B1E23;\n"
@@ -224,7 +228,8 @@ class Ui_MainPages(object):
 "")
         self.gridLayout_3 = QGridLayout(self.page_2)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.gridLayout_3.setContentsMargins(30, 30, 30, 30)
+        self.gridLayout_3.setVerticalSpacing(0)
+        self.gridLayout_3.setContentsMargins(0, 15, 0, 15)
         self.page_2_layout = QStackedWidget(self.page_2)
         self.page_2_layout.setObjectName(u"page_2_layout")
         self.page_2_layout.setStyleSheet(u"")
@@ -234,6 +239,7 @@ class Ui_MainPages(object):
         self.horizontalLayout.setSpacing(50)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setSizeConstraint(QLayout.SetDefaultConstraint)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.transcript_field = QWidget(self.main_page_2)
         self.transcript_field.setObjectName(u"transcript_field")
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -243,18 +249,19 @@ class Ui_MainPages(object):
         self.transcript_field.setSizePolicy(sizePolicy)
         self.transcript_field.setStyleSheet(u"")
         self.gridLayout_4 = QGridLayout(self.transcript_field)
+        self.gridLayout_4.setSpacing(0)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.gridLayout_4.setSizeConstraint(QLayout.SetDefaultConstraint)
         self.gridLayout_4.setContentsMargins(0, 0, 0, 0)
         self.transcript_label = QWidget(self.transcript_field)
         self.transcript_label.setObjectName(u"transcript_label")
         self.gridLayout_8 = QGridLayout(self.transcript_label)
+        self.gridLayout_8.setSpacing(0)
         self.gridLayout_8.setObjectName(u"gridLayout_8")
-        self.gridLayout_8.setSizeConstraint(QLayout.SetMinimumSize)
         self.gridLayout_8.setContentsMargins(0, 0, 0, 0)
         self.transcript = QGridLayout()
+        self.transcript.setSpacing(0)
         self.transcript.setObjectName(u"transcript")
-        self.transcript.setContentsMargins(6, 6, 6, 6)
+        self.transcript.setContentsMargins(0, 0, 0, 0)
 
         self.gridLayout_8.addLayout(self.transcript, 0, 0, 1, 1)
 
@@ -349,25 +356,59 @@ class Ui_MainPages(object):
         self.upload_page.setStyleSheet(u"")
         self.gridLayout_14 = QGridLayout(self.upload_page)
         self.gridLayout_14.setObjectName(u"gridLayout_14")
-        self.gridLayout_14.setContentsMargins(6, 6, 6, 6)
+        self.verticalLayout = QVBoxLayout()
+        self.verticalLayout.setObjectName(u"verticalLayout")
         self.files_bg = QWidget(self.upload_page)
         self.files_bg.setObjectName(u"files_bg")
         self.gridLayout_9 = QGridLayout(self.files_bg)
         self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.gridLayout_9.setVerticalSpacing(2)
         self.gridLayout_9.setContentsMargins(0, 0, 0, 0)
         self.files_upload = QVBoxLayout()
-        self.files_upload.setSpacing(6)
+        self.files_upload.setSpacing(0)
         self.files_upload.setObjectName(u"files_upload")
 
         self.gridLayout_9.addLayout(self.files_upload, 0, 0, 1, 1)
 
 
-        self.gridLayout_14.addWidget(self.files_bg, 1, 0, 1, 1)
+        self.verticalLayout.addWidget(self.files_bg)
 
-        self.create_subclips_btn = QPushButton(self.upload_page)
+
+        self.gridLayout_14.addLayout(self.verticalLayout, 2, 0, 1, 1)
+
+        self.gridWidget = QWidget(self.upload_page)
+        self.gridWidget.setObjectName(u"gridWidget")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.gridWidget.sizePolicy().hasHeightForWidth())
+        self.gridWidget.setSizePolicy(sizePolicy3)
+        self.gridWidget.setBaseSize(QSize(0, 0))
+        self.gridLayout_17 = QGridLayout(self.gridWidget)
+        self.gridLayout_17.setSpacing(0)
+        self.gridLayout_17.setObjectName(u"gridLayout_17")
+        self.gridLayout_17.setContentsMargins(0, 0, 0, 0)
+        self.horizontalSpacer_3 = QSpacerItem(80, 0, QSizePolicy.Maximum, QSizePolicy.Minimum)
+
+        self.gridLayout_17.addItem(self.horizontalSpacer_3, 1, 2, 1, 1)
+
+        self.create_subclips_btn = QPushButton(self.gridWidget)
         self.create_subclips_btn.setObjectName(u"create_subclips_btn")
+        sizePolicy4 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+        sizePolicy4.setHorizontalStretch(0)
+        sizePolicy4.setVerticalStretch(0)
+        sizePolicy4.setHeightForWidth(self.create_subclips_btn.sizePolicy().hasHeightForWidth())
+        self.create_subclips_btn.setSizePolicy(sizePolicy4)
+        self.create_subclips_btn.setMaximumSize(QSize(16777215, 30))
 
-        self.gridLayout_14.addWidget(self.create_subclips_btn, 2, 0, 1, 1)
+        self.gridLayout_17.addWidget(self.create_subclips_btn, 1, 1, 1, 1)
+
+        self.horizontalSpacer_4 = QSpacerItem(80, 0, QSizePolicy.Maximum, QSizePolicy.Minimum)
+
+        self.gridLayout_17.addItem(self.horizontalSpacer_4, 1, 0, 1, 1)
+
+
+        self.gridLayout_14.addWidget(self.gridWidget, 3, 0, 1, 1)
 
         self.video_pages.addWidget(self.upload_page)
         self.loading_video = QWidget()
@@ -375,7 +416,6 @@ class Ui_MainPages(object):
         self.loading_video.setStyleSheet(u"")
         self.gridLayout_15 = QGridLayout(self.loading_video)
         self.gridLayout_15.setObjectName(u"gridLayout_15")
-        self.gridLayout_15.setContentsMargins(6, 6, 6, 6)
         self.load_bg = QWidget(self.loading_video)
         self.load_bg.setObjectName(u"load_bg")
         self.gridLayout_13 = QGridLayout(self.load_bg)
@@ -395,28 +435,18 @@ class Ui_MainPages(object):
         self.video_page.setObjectName(u"video_page")
         self.gridLayout_16 = QGridLayout(self.video_page)
         self.gridLayout_16.setObjectName(u"gridLayout_16")
-        self.gridLayout_16.setSizeConstraint(QLayout.SetDefaultConstraint)
         self.gridLayout_16.setHorizontalSpacing(0)
         self.gridLayout_16.setContentsMargins(0, 0, 0, 0)
         self.video_page_bg = QWidget(self.video_page)
         self.video_page_bg.setObjectName(u"video_page_bg")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Ignored)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.video_page_bg.sizePolicy().hasHeightForWidth())
-        self.video_page_bg.setSizePolicy(sizePolicy3)
+        sizePolicy5 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Ignored)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.video_page_bg.sizePolicy().hasHeightForWidth())
+        self.video_page_bg.setSizePolicy(sizePolicy5)
         self.gridLayout_11 = QGridLayout(self.video_page_bg)
         self.gridLayout_11.setObjectName(u"gridLayout_11")
-        self.gridLayout_11.setContentsMargins(14, 14, 14, 14)
-        self.create_next_button = QPushButton(self.video_page_bg)
-        self.create_next_button.setObjectName(u"create_next_button")
-        self.create_next_button.setMinimumSize(QSize(0, 23))
-        font3 = QFont()
-        font3.setBold(True)
-        self.create_next_button.setFont(font3)
-
-        self.gridLayout_11.addWidget(self.create_next_button, 1, 0, 1, 1)
-
+        self.gridLayout_11.setHorizontalSpacing(0)
         self.video_bg = QWidget(self.video_page_bg)
         self.video_bg.setObjectName(u"video_bg")
         self.video_player = QGridLayout(self.video_bg)
@@ -425,6 +455,7 @@ class Ui_MainPages(object):
         self.video_player.setSizeConstraint(QLayout.SetDefaultConstraint)
         self.video_player.setContentsMargins(0, 0, 0, 0)
         self.video_play = QGridLayout()
+        self.video_play.setSpacing(0)
         self.video_play.setObjectName(u"video_play")
 
         self.video_player.addLayout(self.video_play, 0, 0, 1, 1)
@@ -432,26 +463,53 @@ class Ui_MainPages(object):
 
         self.gridLayout_11.addWidget(self.video_bg, 0, 0, 1, 1)
 
+        self.gridWidget1 = QWidget(self.video_page_bg)
+        self.gridWidget1.setObjectName(u"gridWidget1")
+        sizePolicy3.setHeightForWidth(self.gridWidget1.sizePolicy().hasHeightForWidth())
+        self.gridWidget1.setSizePolicy(sizePolicy3)
+        self.gridLayout_18 = QGridLayout(self.gridWidget1)
+        self.gridLayout_18.setSpacing(0)
+        self.gridLayout_18.setObjectName(u"gridLayout_18")
+        self.gridLayout_18.setContentsMargins(0, 0, 0, 0)
+        self.horizontalSpacer_5 = QSpacerItem(60, 0, QSizePolicy.Maximum, QSizePolicy.Minimum)
+
+        self.gridLayout_18.addItem(self.horizontalSpacer_5, 0, 2, 1, 1)
+
+        self.create_next_button = QPushButton(self.gridWidget1)
+        self.create_next_button.setObjectName(u"create_next_button")
+        self.create_next_button.setMaximumSize(QSize(16777215, 30))
+        font3 = QFont()
+        font3.setBold(True)
+        self.create_next_button.setFont(font3)
+
+        self.gridLayout_18.addWidget(self.create_next_button, 0, 1, 1, 1)
+
+        self.horizontalSpacer_6 = QSpacerItem(60, 0, QSizePolicy.Maximum, QSizePolicy.Minimum)
+
+        self.gridLayout_18.addItem(self.horizontalSpacer_6, 0, 0, 1, 1)
+
+
+        self.gridLayout_11.addWidget(self.gridWidget1, 1, 0, 1, 1)
+
 
         self.gridLayout_16.addWidget(self.video_page_bg, 0, 1, 1, 1)
 
         self.text_settings_label = QWidget(self.video_page)
         self.text_settings_label.setObjectName(u"text_settings_label")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Ignored)
-        sizePolicy4.setHorizontalStretch(0)
-        sizePolicy4.setVerticalStretch(0)
-        sizePolicy4.setHeightForWidth(self.text_settings_label.sizePolicy().hasHeightForWidth())
-        self.text_settings_label.setSizePolicy(sizePolicy4)
+        sizePolicy6 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Ignored)
+        sizePolicy6.setHorizontalStretch(0)
+        sizePolicy6.setVerticalStretch(0)
+        sizePolicy6.setHeightForWidth(self.text_settings_label.sizePolicy().hasHeightForWidth())
+        self.text_settings_label.setSizePolicy(sizePolicy6)
         self.text_settings_label.setMinimumSize(QSize(100, 0))
         self.gridLayout_41 = QGridLayout(self.text_settings_label)
+        self.gridLayout_41.setSpacing(0)
         self.gridLayout_41.setObjectName(u"gridLayout_41")
         self.gridLayout_41.setSizeConstraint(QLayout.SetMinimumSize)
-        self.gridLayout_41.setHorizontalSpacing(9)
-        self.gridLayout_41.setVerticalSpacing(6)
-        self.gridLayout_41.setContentsMargins(9, 14, 0, 14)
         self.text_settings_bg = QWidget(self.text_settings_label)
         self.text_settings_bg.setObjectName(u"text_settings_bg")
         self.gridLayout_5 = QGridLayout(self.text_settings_bg)
+        self.gridLayout_5.setSpacing(0)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.gridLayout_5.setContentsMargins(0, 0, 0, 0)
         self.text_settings_layout = QHBoxLayout()
@@ -505,11 +563,11 @@ class Ui_MainPages(object):
         self.pages.addWidget(self.page_2)
         self.page_3 = QWidget()
         self.page_3.setObjectName(u"page_3")
-        sizePolicy5 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy5.setHorizontalStretch(9)
-        sizePolicy5.setVerticalStretch(16)
-        sizePolicy5.setHeightForWidth(self.page_3.sizePolicy().hasHeightForWidth())
-        self.page_3.setSizePolicy(sizePolicy5)
+        sizePolicy7 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy7.setHorizontalStretch(9)
+        sizePolicy7.setVerticalStretch(16)
+        sizePolicy7.setHeightForWidth(self.page_3.sizePolicy().hasHeightForWidth())
+        self.page_3.setSizePolicy(sizePolicy7)
         self.page_3.setStyleSheet(u"#page_3{\n"
 "background: #343b48;\n"
 "}\n"
@@ -532,7 +590,7 @@ class Ui_MainPages(object):
 
         self.pages.setCurrentIndex(1)
         self.page_2_layout.setCurrentIndex(0)
-        self.video_pages.setCurrentIndex(0)
+        self.video_pages.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainPages)

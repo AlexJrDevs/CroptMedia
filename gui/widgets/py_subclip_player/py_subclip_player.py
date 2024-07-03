@@ -68,6 +68,7 @@ class PySubclipPlayer(QWidget):
         self.graphics_view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.video_item = QGraphicsVideoItem()
+        self.video_item.setAspectRatioMode(Qt.KeepAspectRatioByExpanding)
 
         self.graphic_scene.addItem(self.video_item)
 
@@ -252,10 +253,19 @@ class PySubclipPlayer(QWidget):
         self.mediaPlayer.setAudioOutput(self.audioOutput)
         self.play_button.setEnabled(True)
         self.play()
+
+        self.resize_graphic_scene()
     
 
     # Creates thumbnail_layout labels to display later
     def add_thumbnails(self, thumbnails):
+        # Clear the current thumbnails from the layout
+        while self.thumbnail_layout.count() > 0:
+            item = self.thumbnail_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        self.thumbnail_label.clear()
 
         for i, thumbnail_layout in enumerate(thumbnails):
             label = QLabel()
@@ -269,6 +279,12 @@ class PySubclipPlayer(QWidget):
             label.setVisible(False)
             label.setEnabled(False)
             self.thumbnail_label.append(label)
+        
+        # Update the layout and repaint the widget
+        self.thumbnail_layout.update()
+        self.thumbnail_widget.update()
+        self.thumbnail_widget.repaint()
+        self.show_hide_thumbnail()  # Ensure the thumbnails are shown/hidden correctly
 
     
     def show_hide_thumbnail(self):
@@ -332,27 +348,15 @@ class PySubclipPlayer(QWidget):
             self.video_item.setSize(video_size)
             self.graphic_scene.setSceneRect(self.video_item.boundingRect())
             self.graphics_view.fitInView(self.video_item, Qt.AspectRatioMode.KeepAspectRatio)
+            self.graphics_view.update()
             self.updateGeometry()
             self.update()
         
 
     def showEvent(self, event):
+        super().showEvent(event)
         self.resize_graphic_scene()
 
     def resizeEvent(self, event):
+        super().resizeEvent(event)
         self.resize_graphic_scene()
-
-
-
-
-
-            
-    
-
-
-    
-    
-
-    
-
-

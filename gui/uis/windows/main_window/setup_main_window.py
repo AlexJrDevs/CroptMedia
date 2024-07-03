@@ -276,6 +276,8 @@ class SetupMainWindow:
         # Use the smaller of the two values as the maximum size
         new_width = min(max_width, size.width())
         new_height = min(max_height, size.height())
+
+        print("New Size: ", new_width, new_height)
         
         self.ui.load_pages.text_settings_label.setMinimumHeight(new_height)
         self.ui.load_pages.transcript_label.setMaximumSize(new_width, new_height)
@@ -284,7 +286,12 @@ class SetupMainWindow:
             self.ui.load_pages.video_label.setMaximumSize(new_width + self.ui.load_pages.text_settings_label.width(), new_height)
         else:
             self.ui.load_pages.video_label.setMaximumSize(new_width, new_height)
-    
+        
+        self.updateGeometry()
+        self.update()
+
+
+
 
     
 

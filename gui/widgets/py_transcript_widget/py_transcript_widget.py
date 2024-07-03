@@ -110,10 +110,6 @@ class PyTranscriptWidget(QWidget):
         # Add layouts to main layout
         layout.addWidget(scroll_container)
 
-        # Done Button ( WILL BE SWITCHED TO SAVE PRESET )
-        self.done_button = QPushButton("Done")
-        layout.addWidget(self.done_button)
-
         self.setLayout(layout)
 
 
@@ -124,17 +120,8 @@ class PyTranscriptWidget(QWidget):
     def load_srt_file(self, file_path):
 
         try:
+            self.clear_transcript()
             self.transcript_line_edit.hide()
-
-            # Clear existing widgets from text_and_duration and the scroll_layout
-            if hasattr(self, 'text_and_duration') and self.text_and_duration:
-                for duration_line, text_edit, start_ms, end_ms in self.text_and_duration:
-                    self.scroll_layout.removeWidget(duration_line)
-                    self.scroll_layout.removeWidget(text_edit)
-                    duration_line.deleteLater()
-                    text_edit.deleteLater()
-            
-            self.text_and_duration.clear()
 
             with open(file_path, 'r') as file:
                 srt_lines = file.readlines()
@@ -181,5 +168,19 @@ class PyTranscriptWidget(QWidget):
 
         except Exception as e:
             print("Error Writing Transcribe To Widget:", e)
+
+    def clear_transcript(self):
+            
+            # Clear existing widgets from text_and_duration and the scroll_layout
+            if hasattr(self, 'text_and_duration') and self.text_and_duration:
+                for duration_line, text_edit, start_ms, end_ms in self.text_and_duration:
+                    self.scroll_layout.removeWidget(duration_line)
+                    self.scroll_layout.removeWidget(text_edit)
+                    duration_line.deleteLater()
+                    text_edit.deleteLater()
+            
+            self.text_and_duration.clear()
+
+            self.transcript_line_edit.show()
 
 
