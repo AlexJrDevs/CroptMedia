@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1152</width>
-    <height>885</height>
+    <width>866</width>
+    <height>819</height>
    </rect>
   </property>
   <property name="font">
@@ -258,6 +258,10 @@ QLabel{
 color: white;
 }
 
+QPushButton{
+background-color:#3c4454;
+}
+
 
 #transcript_label{
 background: #1B1E23;
@@ -281,16 +285,19 @@ border-radius: 15px;
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
        <property name="leftMargin">
-        <number>30</number>
+        <number>0</number>
        </property>
        <property name="topMargin">
-        <number>30</number>
+        <number>15</number>
        </property>
        <property name="rightMargin">
-        <number>30</number>
+        <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>30</number>
+        <number>15</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>0</number>
        </property>
        <item row="0" column="0">
         <widget class="QStackedWidget" name="page_2_layout">
@@ -298,7 +305,7 @@ border-radius: 15px;
           <string notr="true"/>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="main_page_2">
           <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1">
@@ -307,6 +314,18 @@ border-radius: 15px;
            </property>
            <property name="sizeConstraint">
             <enum>QLayout::SetDefaultConstraint</enum>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
            </property>
            <item>
             <widget class="QWidget" name="transcript_field" native="true">
@@ -320,9 +339,6 @@ border-radius: 15px;
               <string notr="true"/>
              </property>
              <layout class="QGridLayout" name="gridLayout_4">
-              <property name="sizeConstraint">
-               <enum>QLayout::SetDefaultConstraint</enum>
-              </property>
               <property name="leftMargin">
                <number>0</number>
               </property>
@@ -335,12 +351,12 @@ border-radius: 15px;
               <property name="bottomMargin">
                <number>0</number>
               </property>
+              <property name="spacing">
+               <number>0</number>
+              </property>
               <item row="0" column="0">
                <widget class="QWidget" name="transcript_label" native="true">
                 <layout class="QGridLayout" name="gridLayout_8">
-                 <property name="sizeConstraint">
-                  <enum>QLayout::SetMinimumSize</enum>
-                 </property>
                  <property name="leftMargin">
                   <number>0</number>
                  </property>
@@ -353,19 +369,25 @@ border-radius: 15px;
                  <property name="bottomMargin">
                   <number>0</number>
                  </property>
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
                  <item row="0" column="0">
                   <layout class="QGridLayout" name="transcript">
                    <property name="leftMargin">
-                    <number>6</number>
+                    <number>0</number>
                    </property>
                    <property name="topMargin">
-                    <number>6</number>
+                    <number>0</number>
                    </property>
                    <property name="rightMargin">
-                    <number>6</number>
+                    <number>0</number>
                    </property>
                    <property name="bottomMargin">
-                    <number>6</number>
+                    <number>0</number>
+                   </property>
+                   <property name="spacing">
+                    <number>0</number>
                    </property>
                   </layout>
                  </item>
@@ -500,22 +522,54 @@ border-radius: 15px;
                     <property name="styleSheet">
                      <string notr="true"/>
                     </property>
-                    <layout class="QGridLayout" name="gridLayout_14" rowstretch="0,0,0">
-                     <property name="leftMargin">
-                      <number>6</number>
-                     </property>
-                     <property name="topMargin">
-                      <number>6</number>
-                     </property>
-                     <property name="rightMargin">
-                      <number>6</number>
-                     </property>
-                     <property name="bottomMargin">
-                      <number>6</number>
-                     </property>
-                     <item row="1" column="0">
-                      <widget class="QWidget" name="files_bg" native="true">
-                       <layout class="QGridLayout" name="gridLayout_9">
+                    <layout class="QGridLayout" name="gridLayout_14" rowstretch="0,0,0,0">
+                     <item row="2" column="0">
+                      <layout class="QVBoxLayout" name="verticalLayout">
+                       <item>
+                        <widget class="QWidget" name="files_bg" native="true">
+                         <layout class="QGridLayout" name="gridLayout_9">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="verticalSpacing">
+                           <number>2</number>
+                          </property>
+                          <item row="0" column="0">
+                           <layout class="QVBoxLayout" name="files_upload">
+                            <property name="spacing">
+                             <number>0</number>
+                            </property>
+                           </layout>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item row="3" column="0">
+                      <widget class="QWidget" name="gridWidget" native="true">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="baseSize">
+                        <size>
+                         <width>0</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <layout class="QGridLayout" name="gridLayout_17">
                         <property name="leftMargin">
                          <number>0</number>
                         </property>
@@ -528,21 +582,61 @@ border-radius: 15px;
                         <property name="bottomMargin">
                          <number>0</number>
                         </property>
-                        <item row="0" column="0">
-                         <layout class="QVBoxLayout" name="files_upload">
-                          <property name="spacing">
-                           <number>6</number>
+                        <property name="spacing">
+                         <number>0</number>
+                        </property>
+                        <item row="1" column="2">
+                         <spacer name="horizontalSpacer_3">
+                          <property name="orientation">
+                           <enum>Qt::Horizontal</enum>
                           </property>
-                         </layout>
+                          <property name="sizeType">
+                           <enum>QSizePolicy::Maximum</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>80</width>
+                            <height>0</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                        <item row="1" column="1">
+                         <widget class="QPushButton" name="create_subclips_btn">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>16777215</width>
+                            <height>30</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>Create Subclips</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="1" column="0">
+                         <spacer name="horizontalSpacer_4">
+                          <property name="orientation">
+                           <enum>Qt::Horizontal</enum>
+                          </property>
+                          <property name="sizeType">
+                           <enum>QSizePolicy::Maximum</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>80</width>
+                            <height>0</height>
+                           </size>
+                          </property>
+                         </spacer>
                         </item>
                        </layout>
-                      </widget>
-                     </item>
-                     <item row="2" column="0">
-                      <widget class="QPushButton" name="create_subclips_btn">
-                       <property name="text">
-                        <string>Create Subclips</string>
-                       </property>
                       </widget>
                      </item>
                     </layout>
@@ -552,18 +646,6 @@ border-radius: 15px;
                      <string notr="true"/>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_15">
-                     <property name="leftMargin">
-                      <number>6</number>
-                     </property>
-                     <property name="topMargin">
-                      <number>6</number>
-                     </property>
-                     <property name="rightMargin">
-                      <number>6</number>
-                     </property>
-                     <property name="bottomMargin">
-                      <number>6</number>
-                     </property>
                      <item row="0" column="0">
                       <widget class="QWidget" name="load_bg" native="true">
                        <layout class="QGridLayout" name="gridLayout_13">
@@ -592,9 +674,6 @@ border-radius: 15px;
                    </widget>
                    <widget class="QWidget" name="video_page">
                     <layout class="QGridLayout" name="gridLayout_16">
-                     <property name="sizeConstraint">
-                      <enum>QLayout::SetDefaultConstraint</enum>
-                     </property>
                      <property name="leftMargin">
                       <number>0</number>
                      </property>
@@ -619,36 +698,9 @@ border-radius: 15px;
                         </sizepolicy>
                        </property>
                        <layout class="QGridLayout" name="gridLayout_11">
-                        <property name="leftMargin">
-                         <number>14</number>
+                        <property name="horizontalSpacing">
+                         <number>0</number>
                         </property>
-                        <property name="topMargin">
-                         <number>14</number>
-                        </property>
-                        <property name="rightMargin">
-                         <number>14</number>
-                        </property>
-                        <property name="bottomMargin">
-                         <number>14</number>
-                        </property>
-                        <item row="1" column="0">
-                         <widget class="QPushButton" name="create_next_button">
-                          <property name="minimumSize">
-                           <size>
-                            <width>0</width>
-                            <height>23</height>
-                           </size>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <bold>true</bold>
-                           </font>
-                          </property>
-                          <property name="text">
-                           <string>Next</string>
-                          </property>
-                         </widget>
-                        </item>
                         <item row="0" column="0">
                          <widget class="QWidget" name="video_bg" native="true">
                           <layout class="QGridLayout" name="video_player">
@@ -671,7 +723,88 @@ border-radius: 15px;
                             <number>0</number>
                            </property>
                            <item row="0" column="0">
-                            <layout class="QGridLayout" name="video_play"/>
+                            <layout class="QGridLayout" name="video_play">
+                             <property name="spacing">
+                              <number>0</number>
+                             </property>
+                            </layout>
+                           </item>
+                          </layout>
+                         </widget>
+                        </item>
+                        <item row="1" column="0">
+                         <widget class="QWidget" name="gridWidget" native="true">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <layout class="QGridLayout" name="gridLayout_18">
+                           <property name="leftMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="spacing">
+                            <number>0</number>
+                           </property>
+                           <item row="0" column="2">
+                            <spacer name="horizontalSpacer_5">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="sizeType">
+                              <enum>QSizePolicy::Maximum</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>60</width>
+                               <height>0</height>
+                              </size>
+                             </property>
+                            </spacer>
+                           </item>
+                           <item row="0" column="1">
+                            <widget class="QPushButton" name="create_next_button">
+                             <property name="maximumSize">
+                              <size>
+                               <width>16777215</width>
+                               <height>30</height>
+                              </size>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <bold>true</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Next</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="0">
+                            <spacer name="horizontalSpacer_6">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="sizeType">
+                              <enum>QSizePolicy::Maximum</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>60</width>
+                               <height>0</height>
+                              </size>
+                             </property>
+                            </spacer>
                            </item>
                           </layout>
                          </widget>
@@ -697,23 +830,8 @@ border-radius: 15px;
                         <property name="sizeConstraint">
                          <enum>QLayout::SetMinimumSize</enum>
                         </property>
-                        <property name="leftMargin">
-                         <number>9</number>
-                        </property>
-                        <property name="topMargin">
-                         <number>14</number>
-                        </property>
-                        <property name="rightMargin">
+                        <property name="spacing">
                          <number>0</number>
-                        </property>
-                        <property name="bottomMargin">
-                         <number>14</number>
-                        </property>
-                        <property name="horizontalSpacing">
-                         <number>9</number>
-                        </property>
-                        <property name="verticalSpacing">
-                         <number>6</number>
                         </property>
                         <item row="0" column="0">
                          <widget class="QWidget" name="text_settings_bg" native="true">
@@ -728,6 +846,9 @@ border-radius: 15px;
                             <number>0</number>
                            </property>
                            <property name="bottomMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="spacing">
                             <number>0</number>
                            </property>
                            <item row="0" column="0">

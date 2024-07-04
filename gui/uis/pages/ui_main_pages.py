@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_pagesAUCLNC.ui'
+## Form generated from reading UI file 'main_pageskvQfxH.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -24,7 +24,7 @@ class Ui_MainPages(object):
     def setupUi(self, MainPages):
         if not MainPages.objectName():
             MainPages.setObjectName(u"MainPages")
-        MainPages.resize(866, 819)
+        MainPages.resize(1146, 819)
         font = QFont()
         font.setFamilies([u"Roboto"])
         font.setBold(True)
@@ -229,7 +229,7 @@ class Ui_MainPages(object):
         self.gridLayout_3 = QGridLayout(self.page_2)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.gridLayout_3.setVerticalSpacing(0)
-        self.gridLayout_3.setContentsMargins(0, 15, 0, 15)
+        self.gridLayout_3.setContentsMargins(15, 15, 15, 15)
         self.page_2_layout = QStackedWidget(self.page_2)
         self.page_2_layout.setObjectName(u"page_2_layout")
         self.page_2_layout.setStyleSheet(u"")
@@ -434,8 +434,8 @@ class Ui_MainPages(object):
         self.video_page = QWidget()
         self.video_page.setObjectName(u"video_page")
         self.gridLayout_16 = QGridLayout(self.video_page)
+        self.gridLayout_16.setSpacing(0)
         self.gridLayout_16.setObjectName(u"gridLayout_16")
-        self.gridLayout_16.setHorizontalSpacing(0)
         self.gridLayout_16.setContentsMargins(0, 0, 0, 0)
         self.video_page_bg = QWidget(self.video_page)
         self.video_page_bg.setObjectName(u"video_page_bg")

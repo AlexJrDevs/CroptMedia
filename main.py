@@ -282,10 +282,9 @@ class MainWindow(QMainWindow):
             self.preview_text.delete_text()
             self.preview_text.create_preview_text(text_data)
 
-        else:
-            self.preview_text = CreatePreviewText(self.ui.video_player_main.video_item, self.ui.video_player_main.graphic_scene)
-            self.preview_text.text_data_updated.connect(self.update_preview_text)
-            self.preview_text.create_preview_text(text_data)
+        self.preview_text = CreatePreviewText(self.ui.video_player_main.video_item, self.ui.video_player_main.graphic_scene)
+        self.preview_text.text_data_updated.connect(self.update_preview_text)
+        self.preview_text.create_preview_text(text_data)
 
     # Updates text start and end time, and gives references of GraphicsText to the text settings
     def update_preview_text(self, text_data):
@@ -324,6 +323,7 @@ class MainWindow(QMainWindow):
             self.video_path = ""
             self.gameplay_path = ""
             self.ui.transcript_widget.clear_transcript()
+            self.ui.video_player_subclip.range_slider.reset_range_widget()
             MainFunctions.set_video_page(self, self.ui.load_pages.upload_page)
 
 

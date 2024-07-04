@@ -379,7 +379,7 @@ class PyRangeSlider(QWidget):
 		return math.floor(x / canvas_width * right_value)
 
 
-    # TICKS SECTION
+    # TICKS SECTION - Currently not using
     # ///////////////////////////////////////////////////////////////
 
 	def set_ticks_count(self, count):
@@ -474,9 +474,9 @@ class PyRangeSlider(QWidget):
 			handle_values.append(["{:02d}:{:02d}".format(*divmod(int(float(start)), 60)), "{:02d}:{:02d}".format(*divmod(int(float(end)), 60))])
 		return handle_values
 	
-	# Resets everything to allow for a new range slider
+	# Resets range slider to be used on a new video
 	def reset_range_widget(self):
-		for pairs in self.handle_pairs:
+		while len(self.handle_pairs) > 1:
 			self._left_handle.pop()
 			self._right_handle.pop()
 			self.handle_pairs.pop()
@@ -487,8 +487,16 @@ class PyRangeSlider(QWidget):
 			
 			tooltip1.deleteLater()
 			tooltip2.deleteLater()
-				
-			self.update()
+		
+		handle1, tooltip1 = self.handle_tooltips[0]
+		handle2, tooltip2 = self.handle_tooltips[1]
+
+		
+		self.set_handle_value(0, handle1)
+		self.set_handle_value(15, handle2)
+
+		self.update_tooltips_positions()
+		self.update()
 	
 	
 
