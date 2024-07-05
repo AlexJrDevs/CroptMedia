@@ -345,6 +345,7 @@ class PySubclipPlayer(QWidget):
     def resize_graphic_scene(self):
         video_size = self.mediaPlayer.videoSink().videoSize()
         if not video_size.isEmpty():
+            print("Resize video")
             self.video_item.setSize(video_size)
             self.graphic_scene.setSceneRect(self.video_item.boundingRect())
             self.graphics_view.fitInView(self.video_item, Qt.AspectRatioMode.KeepAspectRatio)
@@ -354,9 +355,7 @@ class PySubclipPlayer(QWidget):
         
 
     def showEvent(self, event):
-        super().showEvent(event)
         self.resize_graphic_scene()
 
     def resizeEvent(self, event):
-        super().resizeEvent(event)
         self.resize_graphic_scene()
