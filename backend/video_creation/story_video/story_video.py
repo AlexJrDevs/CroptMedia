@@ -17,7 +17,7 @@ class StoryVideo(QThread):
         super().__init__()
 
         self.width, self.height = 1080, 1920
-        self.text_char_amount = 10
+        self.text_char_amount = 1
         self.temp_dir = os.path.abspath(r'backend\tempfile')
 
         # SETTING PROPERTIES
@@ -111,6 +111,7 @@ class StoryVideo(QThread):
     def get_video_frames(self, start, end):
         cap = cv2.VideoCapture(self.top_video_file)
         fps = cap.get(cv2.CAP_PROP_FPS)
+        cap.release()
         start_frame = int(start * fps)
         end_frame = int(end * fps)
         total_frames = end_frame - start_frame

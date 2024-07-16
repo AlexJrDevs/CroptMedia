@@ -40,29 +40,6 @@ class MainFunctions():
         self.ui.setup_ui(self)
 
 
-
-
-    # Clears all temp files that haven't been cleared
-    def clear_folder(self):
-        folder_path = os.path.abspath(r'backend\tempfile') 
-
-        try:
-            # Check if the folder exists
-            if os.path.exists(folder_path) and os.path.isdir(folder_path):
-
-                # List all files in the folder
-                files = os.listdir(folder_path)
-                
-                # Iterate through the files and delete them
-                for file in files:
-                    file_path = os.path.join(folder_path, file)
-                    if os.path.isfile(file_path):
-                        os.remove(file_path)
-                        print(f"Deleted: {file_path}")
-
-        except Exception as e:
-            print(f"Error clearing folder, {e}")
-
     # SET MAIN WINDOW PAGES
     # ///////////////////////////////////////////////////////////////
     def set_page(self, page):

@@ -3,6 +3,8 @@ from qt_core import *
 
 from functools import partial
 
+import os
+
 
 # Define the stylesheet
 stylesheet = """
@@ -126,43 +128,46 @@ class PyTranscriptWidget(QWidget):
             with open(file_path, 'r') as file:
                 srt_lines = file.readlines()
 
-                for line in srt_lines:
-                    if '-->' in line:
-                        start, end = line.strip().split(' --> ')
+            for line in srt_lines:
+                if '-->' in line:
+                    start, end = line.strip().split(' --> ')
 
-                        start_parts = start.split(':')
-                        start_hours = int(start_parts[0])
-                        start_minutes = int(start_parts[1])
-                        start_seconds, start_milliseconds = map(int, start_parts[2].split(','))
-                        start_total_milliseconds = (start_hours * 3600 + start_minutes * 60 + start_seconds) * 1000 + start_milliseconds
+                    start_parts = start.split(':')
+                    start_hours = int(start_parts[0])
+                    start_minutes = int(start_parts[1])
+                    start_seconds, start_milliseconds = map(int, start_parts[2].split(','))
+                    start_total_milliseconds = (start_hours * 3600 + start_minutes * 60 + start_seconds) * 1000 + start_milliseconds
 
-                        end_parts = end.split(':')
-                        end_hours = int(end_parts[0])
-                        end_minutes = int(end_parts[1])
-                        end_seconds, end_milliseconds = map(int, end_parts[2].split(','))
-                        end_total_milliseconds = (end_hours * 3600 + end_minutes * 60 + end_seconds) * 1000 + end_milliseconds
+                    end_parts = end.split(':')
+                    end_hours = int(end_parts[0])
+                    end_minutes = int(end_parts[1])
+                    end_seconds, end_milliseconds = map(int, end_parts[2].split(','))
+                    end_total_milliseconds = (end_hours * 3600 + end_minutes * 60 + end_seconds) * 1000 + end_milliseconds
 
-                        duration_str = f"{start} --> {end}"
-                        duration_line = QLineEdit(duration_str)
-                        duration_line.setStyleSheet("border: none;")
-                        duration_line.setReadOnly(False)
-                        duration_line.setInputMask("99:99:99,999 \-\-\> 99:99:99,999")
-                        self.scroll_layout.addWidget(duration_line)
+                    duration_str = f"{start} --> {end}"
+                    duration_line = QLineEdit(duration_str)
+                    duration_line.setStyleSheet("border: none;")
+                    duration_line.setReadOnly(False)
+                    duration_line.setInputMask("99:99:99,999 \-\-\> 99:99:99,999")
+                    self.scroll_layout.addWidget(duration_line)
 
 
-                        text_edit = QTextEdit()
-                        text_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-                        text_edit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-                        text_edit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-                        self.scroll_layout.addWidget(text_edit)
-                        
-                    else:
-                        line = line.strip()  # Remove leading and trailing spaces
-                        if line:  # Check if line is not empty after stripping
-                            text_edit.append(line)
-                            self.text_and_duration.append([duration_line, text_edit, start_total_milliseconds, end_total_milliseconds])
+                    text_edit = QTextEdit()
+                    text_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                    text_edit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+                    text_edit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+                    self.scroll_layout.addWidget(text_edit)
+                    
+                else:
+                    line = line.strip()  # Remove leading and trailing spaces
+                    if line:  # Check if line is not empty after stripping
+                        text_edit.append(line)
+                        self.text_and_duration.append([duration_line, text_edit, start_total_milliseconds, end_total_milliseconds])
 
             self.transcript_text.emit(self.text_and_duration)
+
+            file.close()
+            os.remove(file_path)
    
 
 

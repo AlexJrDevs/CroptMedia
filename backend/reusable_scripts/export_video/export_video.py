@@ -39,6 +39,10 @@ class ExportVideo(QThread):
                 new_dialogue = f"""Dialogue: {start},{end},Default,{{\pos({pos_x},{pos_y})}}{text_style}"""
                 dialogues.append(new_dialogue)
 
+            file.close()
+            os.remove(html_file_path)
+
+
 
         create_ass_file = f"""[Script Info]
 Title: Video Subtitles
@@ -88,20 +92,35 @@ Format: Start, End, Style, Text
         ]
         process = subprocess.Popen(video_text, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
 
-        video = cv2.VideoCapture(video_file)
-        total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-        video.release()
+        try:
+            video = cv2.VideoCapture(video_file)
+            total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+            video.release()
 
-        ffmpeg_logger.video_logger(process, total_frames)
+            ffmpeg_logger.video_logger(process, total_frames)
 
-        process.wait()
+            process.wait()
+            
+            # Ensure the process has completed and all handles are released
+            if process.returncode == 0:
+                print("Successfully Exported Video")
+            else:
+                print("Error Exporting Video, File: Export_video")
+            
+        finally:
+            # Attempt to delete files
+            try:
+                os.remove(ass_file)
+                os.remove(video_file)
+            except FileNotFoundError:
+                print(f"File not found: {ass_file} or {video_file}")
+            except PermissionError as e:
+                print(f"Permission error: {e}")
+            except Exception as e:
+                print(f"Error deleting file: {e}")
 
         if process.returncode == 0:
             self.video_completed.emit()
-            print("Successfully Exported Video")
-        else:
-            print("Error Exporting Video, File: Export_video")
-
 
 
 

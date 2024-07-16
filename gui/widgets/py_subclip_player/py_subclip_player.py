@@ -240,6 +240,7 @@ class PySubclipPlayer(QWidget):
     
     def create_video(self):
         self.mediaPlayer.stop()
+        self.mediaPlayer.setSource(QUrl())
         if self.range_slider.isVisible():
             subclip_durations = self.range_slider.grab_handles_values()
             self.parent.save_subclips(subclip_durations)
