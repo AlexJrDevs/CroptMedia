@@ -98,7 +98,6 @@ class MainWindow(QMainWindow):
         # ///////////////////////////////////////////////////////////////
         MainFunctions.set_page(self, self.ui.load_pages.page_1)
         MainFunctions.set_video_page(self, self.ui.load_pages.upload_page)
-        atexit.register(self.clear_folder)
 
         # Slots for all pages created to resize
         self.ui.load_pages.video_pages.currentChanged.connect(self.resizeEvent)
@@ -188,6 +187,11 @@ class MainWindow(QMainWindow):
     def showEvent(self, event):
         SetupMainWindow.resize_grips(self)
         SetupMainWindow.resize_main_widget(self)
+        self.clear_temp_folder()
+
+    def closeEvent(self, event):
+        self.clear_temp_folder()
+        event.accept()
  
 
 
@@ -297,7 +301,7 @@ class MainWindow(QMainWindow):
 
         
     # Sets a text below the value to show what it is creating
-    def update_text_loading(self, text):
+    def update_text_loading(self, text): 
         self.circular_progress_1.set_text(text)
 
     def update_transcript_widget(self, transcript_location):
@@ -327,11 +331,9 @@ class MainWindow(QMainWindow):
             self.ui.video_player_subclip.range_slider.reset_range_widget()
             MainFunctions.set_video_page(self, self.ui.load_pages.upload_page)
 
-
-
-
     # Clears all temp files that haven't been cleared
-    def clear_folder(self):
+    def clear_temp_folder(self):
+        self.ui.video_player_main.mediaPlayer.stop()
         self.ui.video_player_main.mediaPlayer.setSource(QUrl())
         folder_path = os.path.abspath(r'backend\tempfile') 
 
@@ -345,6 +347,7 @@ class MainWindow(QMainWindow):
                 # Iterate through the files and delete them
                 for file in files:
                     file_path = os.path.join(folder_path, file)
+                    print("Deleting files")
                     if os.path.isfile(file_path):
                         os.remove(file_path)
                         print(f"Deleted: {file_path}")

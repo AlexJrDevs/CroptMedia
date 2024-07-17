@@ -145,6 +145,7 @@ class PySubclipPlayer(QWidget):
         segments_button_layout.setContentsMargins(0, 0, 0, 0)
   
         self.segments_button_widget.setLayout(segments_button_layout)
+        self.segments_button_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.segments_button_widget.setStyleSheet(dark_style)
 
         self.add_button = PyIconButton(icon_path= r"gui\images\svg_icons\icon_add.svg", 
@@ -192,7 +193,7 @@ class PySubclipPlayer(QWidget):
 
         control_layout.addWidget(bg_btn_widget)
         control_layout.addStretch(1)
-        control_layout.addWidget(self.segments_button_widget, stretch=4)
+        control_layout.addWidget(self.segments_button_widget, stretch=2)
         control_layout.addStretch(2)
         control_layout.setSpacing(0)
         control_layout.setContentsMargins(0, 0, 0, 0)
@@ -344,15 +345,18 @@ class PySubclipPlayer(QWidget):
  
 
     def resize_graphic_scene(self):
-        video_size = self.mediaPlayer.videoSink().videoSize()
-        if not video_size.isEmpty():
-            print("Resize video")
-            self.video_item.setSize(video_size)
-            self.graphic_scene.setSceneRect(self.video_item.boundingRect())
-            self.graphics_view.fitInView(self.video_item, Qt.AspectRatioMode.KeepAspectRatio)
-            self.graphics_view.update()
-            self.updateGeometry()
-            self.update()
+        try:
+            video_size = self.mediaPlayer.videoSink().videoSize()
+            if not video_size.isEmpty():
+                print("Resize video")
+                self.video_item.setSize(video_size)
+                self.graphic_scene.setSceneRect(self.video_item.boundingRect())
+                self.graphics_view.fitInView(self.video_item, Qt.AspectRatioMode.KeepAspectRatio)
+                self.graphics_view.update()
+                self.updateGeometry()
+                self.update()
+        except Exception as e:
+            print("Video Unavailable: ",e)
         
 
     def showEvent(self, event):

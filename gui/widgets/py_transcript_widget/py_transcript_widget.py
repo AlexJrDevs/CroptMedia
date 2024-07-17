@@ -65,6 +65,7 @@ QPushButton {{
 
 class PyTranscriptWidget(QWidget):
     transcript_text = Signal(tuple)
+    transcript_text_update = Signal(tuple)
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -120,7 +121,6 @@ class PyTranscriptWidget(QWidget):
 
 
     def load_srt_file(self, file_path):
-
         try:
             self.clear_transcript()
             self.transcript_line_edit.hide()
@@ -145,19 +145,8 @@ class PyTranscriptWidget(QWidget):
                     end_total_milliseconds = (end_hours * 3600 + end_minutes * 60 + end_seconds) * 1000 + end_milliseconds
 
                     duration_str = f"{start} --> {end}"
-                    duration_line = QLineEdit(duration_str)
-                    duration_line.setStyleSheet("border: none;")
-                    duration_line.setReadOnly(False)
-                    duration_line.setInputMask("99:99:99,999 \-\-\> 99:99:99,999")
-                    self.scroll_layout.addWidget(duration_line)
+                    duration_line, text_edit = self.create_transcript_widgets(None, duration_str)
 
-
-                    text_edit = QTextEdit()
-                    text_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-                    text_edit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-                    text_edit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-                    self.scroll_layout.addWidget(text_edit)
-                    
                 else:
                     line = line.strip()  # Remove leading and trailing spaces
                     if line:  # Check if line is not empty after stripping
@@ -165,15 +154,91 @@ class PyTranscriptWidget(QWidget):
                         self.text_and_duration.append([duration_line, text_edit, start_total_milliseconds, end_total_milliseconds])
 
             self.transcript_text.emit(self.text_and_duration)
-
             file.close()
             os.remove(file_path)
-   
-
 
         except Exception as e:
             print("Error Writing Transcribe To Widget:", e)
 
+    def create_transcript_widgets(self, button_layout, duration_str=None):
+
+        add_button = QPushButton("Add")
+        remove_button = QPushButton("Remove")
+
+        remove_button.setStyleSheet(style_template.format("#F44336"))  # Red
+
+        new_button_layout = QHBoxLayout()
+        new_button_layout.addWidget(add_button)
+        new_button_layout.addWidget(remove_button)
+
+        # Duration / Transcript Text
+        new_duration_line = QLineEdit(duration_str)
+        new_duration_line.setStyleSheet("border: none;")
+        new_duration_line.setReadOnly(False)
+        new_duration_line.setInputMask("99:99:99,999 \-\-\> 99:99:99,999")
+
+        if duration_str is not None:
+            new_duration_line.setText(duration_str)
+        else:
+            # Get the duration text from the widget below the clicked button
+            index = self.scroll_layout.indexOf(button_layout)
+            if index != -1 and index + 1 < self.scroll_layout.count():
+                widget_below = self.scroll_layout.itemAt(index + 1).widget()
+                if isinstance(widget_below, QLineEdit):
+                    new_duration_line.setText(widget_below.text())
+
+        new_text_edit = QTextEdit()
+        new_text_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        new_text_edit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        new_text_edit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        if button_layout:
+            # Find the index of the clicked button's layout
+            index = self.scroll_layout.indexOf(button_layout)
+            if index != -1:
+                # Insert new widgets above the clicked button
+                self.scroll_layout.insertLayout(index, new_button_layout)
+                self.scroll_layout.insertWidget(index + 1, new_duration_line)
+                self.scroll_layout.insertWidget(index + 2, new_text_edit)
+        else:
+            # No button_layout, so just add the new widgets to the end
+            self.scroll_layout.addLayout(new_button_layout)
+            self.scroll_layout.addWidget(new_duration_line)
+            self.scroll_layout.addWidget(new_text_edit)
+
+        add_button.clicked.connect(partial(self.create_transcript_widgets, new_button_layout))
+        remove_button.clicked.connect(partial(self.remove_transcript_widgets, new_button_layout, new_duration_line, new_text_edit))
+
+        return new_duration_line, new_text_edit
+
+
+
+    def remove_transcript_widgets(self, button_layout, duration_line, text_edit):
+        # Remove from layout
+        self.scroll_layout.removeWidget(duration_line)
+        self.scroll_layout.removeWidget(text_edit)
+        self.scroll_layout.removeItem(button_layout)
+
+        # Delete the widgets
+        duration_line.deleteLater()
+        text_edit.deleteLater()
+
+        # Remove button layout
+        for i in reversed(range(button_layout.count())):
+            widget = button_layout.itemAt(i).widget()
+            if widget is not None:
+                widget.setParent(None)
+                widget.deleteLater()
+
+        button_layout.deleteLater()
+
+        # Remove entry from internal lists
+        self.text_and_duration = [entry for entry in self.text_and_duration if entry[0] != duration_line and entry[1] != text_edit]
+
+        self.scroll_layout.update()
+
+        
+            
     def clear_transcript(self):
             
             # Clear existing widgets from text_and_duration and the scroll_layout

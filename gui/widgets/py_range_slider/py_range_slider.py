@@ -282,11 +282,6 @@ class PyRangeSlider(QWidget):
 		handle.value = value
 		self.repaint()
 
-		# Updates tooltip text and position
-		for handles, tooltip in self.handle_tooltips:
-				if handles == handle:
-					self.move_tooltip(handle, tooltip)
-					tooltip.update_text(handle.value)
 					
 	
 	def find_other_handle(self, handle):
@@ -331,8 +326,8 @@ class PyRangeSlider(QWidget):
 					
 
 					if new_val is not None and new_val != handle.value:
-						
 						self.set_handle_value(new_val, handle)
+						print(f"Left/Right handle value: {handle.value}")
 
 
 		if self._main_handle.pressed:
@@ -359,7 +354,6 @@ class PyRangeSlider(QWidget):
 			for handle in handle_list:
 				if handle.rect.contains(event.x(), event.y()):
 					handle.pressed = True
-
 
 
         # Check if the main handle is clicked to deselect any other selected
@@ -507,7 +501,7 @@ class PyRangeSlider(QWidget):
 		handle_pos = handle_rect.topLeft()
 
 		if handle in self._left_handle:
-			offsetx = 15
+			offsetx = -20
 			offsety = 15
 		else:
 			offsetx = -15
@@ -533,55 +527,46 @@ class PyRangeSlider(QWidget):
 		for handle, tooltip in self.handle_tooltips:
 			if handle.rect:
 				self.move_tooltip(handle, tooltip)
+				tooltip.update_text(handle.value)
 		
 	
 # TOOLTIP
 # ///////////////////////////////////////////////////////////////
-class _ToolTip(QLabel):
-    # TOOLTIP / LABEL StyleSheet
+class _ToolTip(QLineEdit):
+    # TOOLTIP / LINEEDIT StyleSheet
     style_tooltip = """ 
-    QLabel {{		
-        background-color: transparent;	
+    QLineEdit {{
+        background: transparent;
         color: {_text_foreground};
-        padding-left: 2px;
-        padding-right: 2px;
-        border-radius: 2px;
-        border: 0px solid transparent;
+        border: none;
         font: 800 7pt "Segoe UI";
+		padding: 0;
     }}
     """
-    def __init__(
-        self,
-        parent, 
-        text,
-        text_foreground
-    ):
+
+    def __init__(self, parent, text, text_foreground):
         super().__init__(parent)
-		# LABEL SETUP
-        style = self.style_tooltip.format(
-            _text_foreground = text_foreground
-        )
-        self.setObjectName(u"label_tooltip")
+        # LINEEDIT SETUP
+        style = self.style_tooltip.format(_text_foreground=text_foreground)
+        self.setObjectName(u"lineedit_tooltip")
         self.setStyleSheet(style)
         self.setMinimumHeight(34)
         self.setParent(parent)
         self.setText("{:02d}:{:02d}".format(*divmod(int(float(text)), 60)))
-        self.adjustSize()
-        self.setWordWrap(True)
+        self.setReadOnly(False)  # Set initially to read-only
+        self.setAlignment(Qt.AlignCenter)
 
-        # SET DROP SHADOW
-        self.shadow = QGraphicsDropShadowEffect(self)
-        self.shadow.setBlurRadius(30)
-        self.shadow.setXOffset(0)
-        self.shadow.setYOffset(0)
-        self.shadow.setColor(QColor(0, 0, 0, 80))
-        self.setGraphicsEffect(self.shadow)
-	
+
+
+
     def update_text(self, text):
-        self.setText("{:02d}:{:02d}".format(*divmod(int(float(text)), 60)))
-        self.adjustSize()
-        self.setWordWrap(True)
-	
+        try:
+            minutes_total = int(text)
+            hours, minutes = divmod(minutes_total, 60)
+            self.setText("{:02d}:{:02d}".format(hours, minutes))
+        except ValueError:
+            # If input is invalid, revert to the previous value or handle accordingly
+            pass
 	
 
 

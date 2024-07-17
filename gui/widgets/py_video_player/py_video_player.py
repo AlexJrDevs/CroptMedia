@@ -65,10 +65,10 @@ class PyVideoPlayer(QWidget):
         
         video_button_widget = QWidget()
         video_button_layout = QHBoxLayout()
-        video_button_widget.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
+        video_button_widget.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 
         bg_btn_widget = QWidget()
-        bg_btn_widget.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
+        bg_btn_widget.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         bg_btn_widget.setStyleSheet(dark_style)
         bg_btn_layout = QHBoxLayout()
         bg_btn_widget.setLayout(bg_btn_layout)
@@ -227,17 +227,17 @@ class PyVideoPlayer(QWidget):
         duration_ms = self.mediaPlayer.duration()
         if duration_ms >= 3600000:  # If duration is 1 hour or more
             self.time_label.setText(
-                f"{position // 3600000:02}:{(position // 60000) % 60:02}:{(position // 1000) % 60:02},{position % 1000:03} / "
+                f"{position // 3600000:02}:{(position // 60000) % 60:02}:{(position // 1000) % 60:02},{position % 1000:03} /\n "
                 f"{duration_ms // 3600000:02}:{(duration_ms // 60000) % 60:02}:{(duration_ms // 1000) % 60:02},{duration_ms % 1000:03}"
             )
         elif duration_ms >= 60000:  # If duration is 1 minute or more
             self.time_label.setText(
-                f"{position // 60000:02}:{(position // 1000) % 60:02},{position % 1000:03} / "
+                f"{position // 60000:02}:{(position // 1000) % 60:02},{position % 1000:03} /\n "
                 f"{duration_ms // 60000:02}:{(duration_ms // 1000) % 60:02},{duration_ms % 1000:03}"
             )
         else:  # If duration is less than 1 minute
             self.time_label.setText(
-                f"{(position // 1000):02},{position % 1000:03} / {(duration_ms // 1000):02},{duration_ms % 1000:03}"
+                f"{(position // 1000):02},{position % 1000:03} /\n {(duration_ms // 1000):02},{duration_ms % 1000:03}"
             )
 
         # Update visibility of text previews based on position
@@ -269,14 +269,17 @@ class PyVideoPlayer(QWidget):
 
 
     def resize_graphic_scene(self):
-        video_size = self.mediaPlayer.videoSink().videoSize()
-        if not video_size.isEmpty():
-            self.video_item.setSize(video_size)
-            self.graphic_scene.setSceneRect(self.video_item.boundingRect())
-            self.graphics_view.fitInView(self.video_item, Qt.AspectRatioMode.KeepAspectRatio)
-            self.graphic_scene.resizeGuides()
-            self.updateGeometry()
-            self.update()
+        try:
+            video_size = self.mediaPlayer.videoSink().videoSize()
+            if not video_size.isEmpty():
+                self.video_item.setSize(video_size)
+                self.graphic_scene.setSceneRect(self.video_item.boundingRect())
+                self.graphics_view.fitInView(self.video_item, Qt.AspectRatioMode.KeepAspectRatio)
+                self.graphic_scene.resizeGuides()
+                self.updateGeometry()
+                self.update()
+        except Exception as e:
+            print("Video Unavailable: ", e)
 
     def showEvent(self, event):
         self.resize_graphic_scene()
