@@ -13,11 +13,11 @@ class StoryVideo(QThread):
     creating_video = Signal(str)
     finished_subclip = Signal(str)
 
-    def __init__(self, video_path, gameplay_path, subclip_durations, audio_transcribe, logger):
+    def __init__(self, word_amount, video_path, gameplay_path, subclip_durations, audio_transcribe, logger):
         super().__init__()
 
         self.width, self.height = 1080, 1920
-        self.text_char_amount = 1
+        self.text_word_amount = int(word_amount)
         self.temp_dir = os.path.abspath(r'backend\tempfile')
 
         # SETTING PROPERTIES
@@ -32,7 +32,7 @@ class StoryVideo(QThread):
 
 
     def create_transcribe(self, audio_file, timestamp):
-        transcript_location = self.audio_transcribe.start_transcribe(audio_file, self.text_char_amount, timestamp)
+        transcript_location = self.audio_transcribe.start_transcribe(audio_file, self.text_word_amount, timestamp)
         return transcript_location
     
 

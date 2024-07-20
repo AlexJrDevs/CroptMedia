@@ -86,6 +86,14 @@ class SetupMainWindow:
             "btn_tooltip" : "Create Clips",
             "show_top" : True,
             "is_active" : False
+        },
+        {
+            "btn_icon" : "icon_settings.svg",
+            "btn_id" : "btn_settings",
+            "btn_text" : "Settings",
+            "btn_tooltip" : "Open settings",
+            "show_top" : False,
+            "is_active" : False
         }
 
     ]

@@ -8,12 +8,12 @@ class ExportVideo(QThread):
     exporting_video = Signal(str)
     video_completed = Signal()
 
-    def __init__(self, text_and_stroke, video_location, ffmpeg_logger):
+    def __init__(self, save_location, text_and_stroke, video_location, ffmpeg_logger):
         super().__init__()
         self.text_and_stroke = text_and_stroke
         self.video_location = video_location
         self.ffmpeg_logger = ffmpeg_logger
-        self.save_dir = os.path.abspath(r'completed_videos')
+        self.save_dir = save_location
     
     # CREATES THE VIDEO TEXT AND ADDS IT TO THE VIDEO
     # ///////////////////////////////////////////////////////////////

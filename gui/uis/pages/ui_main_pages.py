@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_pageskvQfxH.ui'
+## Form generated from reading UI file 'main_pagesrOXGHf.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -24,7 +24,7 @@ class Ui_MainPages(object):
     def setupUi(self, MainPages):
         if not MainPages.objectName():
             MainPages.setObjectName(u"MainPages")
-        MainPages.resize(1146, 819)
+        MainPages.resize(912, 674)
         font = QFont()
         font.setFamilies([u"Roboto"])
         font.setBold(True)
@@ -356,25 +356,10 @@ class Ui_MainPages(object):
         self.upload_page.setStyleSheet(u"")
         self.gridLayout_14 = QGridLayout(self.upload_page)
         self.gridLayout_14.setObjectName(u"gridLayout_14")
-        self.verticalLayout = QVBoxLayout()
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.files_bg = QWidget(self.upload_page)
-        self.files_bg.setObjectName(u"files_bg")
-        self.gridLayout_9 = QGridLayout(self.files_bg)
-        self.gridLayout_9.setObjectName(u"gridLayout_9")
-        self.gridLayout_9.setVerticalSpacing(2)
-        self.gridLayout_9.setContentsMargins(0, 0, 0, 0)
-        self.files_upload = QVBoxLayout()
-        self.files_upload.setSpacing(0)
-        self.files_upload.setObjectName(u"files_upload")
+        self.upload_layout = QVBoxLayout()
+        self.upload_layout.setObjectName(u"upload_layout")
 
-        self.gridLayout_9.addLayout(self.files_upload, 0, 0, 1, 1)
-
-
-        self.verticalLayout.addWidget(self.files_bg)
-
-
-        self.gridLayout_14.addLayout(self.verticalLayout, 2, 0, 1, 1)
+        self.gridLayout_14.addLayout(self.upload_layout, 2, 0, 1, 1)
 
         self.gridWidget = QWidget(self.upload_page)
         self.gridWidget.setObjectName(u"gridWidget")
@@ -590,7 +575,7 @@ class Ui_MainPages(object):
 
         self.pages.setCurrentIndex(1)
         self.page_2_layout.setCurrentIndex(0)
-        self.video_pages.setCurrentIndex(2)
+        self.video_pages.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainPages)

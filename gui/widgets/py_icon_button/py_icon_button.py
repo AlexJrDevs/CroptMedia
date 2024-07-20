@@ -45,7 +45,6 @@ class PyIconButton(QPushButton):
         text_foreground = "#8a95aa",
         context_color = "#568af2",
         top_margin = 40,
-        hover_effect = False,
         is_active = False
     ):
         super().__init__()
@@ -66,7 +65,6 @@ class PyIconButton(QPushButton):
         self._context_color = context_color
         self._top_margin = top_margin
         self._icon_margin = icon_margin # Creates a margin from button edge
-        self._hover_effect = hover_effect
         self._is_active = is_active
         
         # Set Parameters

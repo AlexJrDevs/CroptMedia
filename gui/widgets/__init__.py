@@ -108,3 +108,8 @@ from . py_transcript_widget import PyTranscriptWidget
 # ///////////////////////////////////////////////////////////////
 from . py_video_upload import PyVideoUpload
 
+
+# PY FOLDER PICKER
+# ///////////////////////////////////////////////////////////////
+from . py_folder_picker import PyFolderPicker
+

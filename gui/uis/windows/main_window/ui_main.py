@@ -279,10 +279,13 @@ class UI_MainWindow(object):
 
         # ADD VIDEO UPLOAD TO LAYOUT
         self.upload_video = PyVideoUpload(parent)
-        self.load_pages.files_upload.addWidget(self.upload_video)
+        self.load_pages.upload_layout.addWidget(self.upload_video)
 
         self.text_settings = PyTextSettings(self.video_player_main)
         self.load_pages.text_settings_layout.addWidget(self.text_settings)
+
+        self.folder_picker = PyFolderPicker()
+        self.left_column.menus.save_location_layout.addWidget(self.folder_picker)
 
 
 

@@ -20,7 +20,6 @@ class PyVideoPlayer(QWidget):
         super(PyVideoPlayer, self).__init__(parent)
         self.parent = parent
 
-        self.text_html= []
         self.text_data=[]
 
         self.mediaPlayer = QMediaPlayer()
@@ -169,6 +168,7 @@ class PyVideoPlayer(QWidget):
         self.position_slider.sliderMoved.connect(self.setPosition)
 
     def extract_text_data(self):
+        text_html = []
         for index, (text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds, btn_layout) in enumerate(self.text_data):
 
             text_preview.toHtml()
@@ -183,10 +183,10 @@ class PyVideoPlayer(QWidget):
             with open(text_html_location, "w") as file:
                 file.write(text_preview.toHtml())
 
-            self.text_html.append([text_html_location, str(text_preview.pos().x()), str(text_preview.pos().y()), stroke_size, stroke_color, start_time, end_time])
+            text_html.append([text_html_location, str(text_preview.pos().x()), str(text_preview.pos().y()), stroke_size, stroke_color, start_time, end_time])
             file.close()
         
-        return self.text_html
+        return text_html
     
     def milliseconds_to_time(self, milliseconds):
         seconds = milliseconds // 1000

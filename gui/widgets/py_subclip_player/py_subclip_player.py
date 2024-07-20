@@ -165,8 +165,8 @@ class PySubclipPlayer(QWidget):
                                     )
         
         self.done_button = PyIconButton(icon_path= r"gui\images\svg_icons\icon_check.svg", 
-                                   width=40, 
-                                   height=40,
+                                   width=45, 
+                                   height=45,
                                    icon_margin=15,
                                    bg_color_hover = "#343B48",
                                    bg_color="#343B48"

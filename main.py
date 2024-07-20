@@ -16,12 +16,10 @@
 
 # IMPORT PACKAGES AND MODULES
 # ///////////////////////////////////////////////////////////////
-from PySide6.QtGui import QShowEvent
 from gui.uis.windows.main_window.functions_main_window import *
 
 import sys
 import os
-import atexit
 
 
 
@@ -156,6 +154,37 @@ class MainWindow(QMainWindow):
                 msg.exec()
                 print("Displayed")
                 print("Login to start")
+
+        # Remove Selection If Clicked By "btn_close_left_column"
+        if btn.objectName() != "btn_settings":
+            self.ui.left_menu.deselect_all_tab()
+
+        # SETTINGS LEFT
+        if btn.objectName() == "btn_settings" or btn.objectName() == "btn_close_left_column":
+            # CHECK IF LEFT COLUMN IS VISIBLE
+            if not MainFunctions.left_column_is_visible(self):
+                # Show / Hide
+                print("Show / Hide")
+                MainFunctions.toggle_left_column(self)
+
+            else:
+                MainFunctions.toggle_left_column(self)
+
+
+            # Change Left Column Menu
+            if btn.objectName() != "btn_close_left_column":
+                self.ui.left_menu.deselect_all_tab()
+                MainFunctions.toggle_left_column(self)
+
+                MainFunctions.set_left_column_menu(
+                    self, 
+                    menu = self.ui.left_column.menus.menu_1,
+                    title = "Settings",
+                    icon_path = Functions.set_svg_icon("icon_settings.svg")
+                )
+
+
+            
         
         
 
@@ -185,23 +214,22 @@ class MainWindow(QMainWindow):
     # RESIZE EVENT
     # ///////////////////////////////////////////////////////////////
     def resizeEvent(self, event):
-        SetupMainWindow.resize_grips(self)
-        SetupMainWindow.resize_main_widget(self)
+        self.resize_widget()
+        print(self.size().width(), self.size().height())
 
     def showEvent(self, event):
-        SetupMainWindow.resize_grips(self)
-        SetupMainWindow.resize_main_widget(self)
+        self.resize_widget()
         self.clear_temp_folder()
 
     def closeEvent(self, event):
         self.clear_temp_folder()
         event.accept()
+
+    def resize_widget(self):
+        SetupMainWindow.resize_main_widget(self)
+        SetupMainWindow.resize_grips(self)
+        print("Resize")
  
-
-
-        
-
-     
 
 
     # MOUSE CLICK EVENTS
@@ -278,7 +306,7 @@ class MainWindow(QMainWindow):
         MainFunctions.set_page2_page(self, self.ui.load_pages.main_page_2)
                 
         # Create a thread to run video processing in the background
-        self.video_processing_thread = StoryVideo(self.video_path, self.gameplay_path, self.subclip_durations[0], self.audio_transcript, self.percentage_logger)
+        self.video_processing_thread = StoryVideo(self.ui.upload_video.word_limit_input.text(), self.video_path, self.gameplay_path, self.subclip_durations[0], self.audio_transcript, self.percentage_logger)
         self.video_processing_thread.creating_video.connect(self.update_text_loading)
         self.video_processing_thread.finished_subclip.connect(self.video_player_screen)
         self.video_processing_thread.start()
@@ -312,7 +340,7 @@ class MainWindow(QMainWindow):
         self.preview_text.remove_transcript_widgets()
 
         MainFunctions.set_video_page(self, self.ui.load_pages.loading_video)
-        self.export_video = ExportVideo(text_data, self.video_filename, self.percentage_logger)
+        self.export_video = ExportVideo(self.ui.folder_picker.save_location, text_data, self.video_filename, self.percentage_logger)
         self.export_video.exporting_video.connect(self.update_text_loading)
         self.export_video.video_completed.connect(self.video_exported)
         self.export_video.start()

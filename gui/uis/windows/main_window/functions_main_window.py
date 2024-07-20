@@ -153,6 +153,7 @@ class MainFunctions():
         self.group.stop()
         self.group.addAnimation(self.left_box)
         self.group.addAnimation(self.right_box)
+        self.group.finished.connect(self.resize_widget)
         self.group.start()
     
     # Login System

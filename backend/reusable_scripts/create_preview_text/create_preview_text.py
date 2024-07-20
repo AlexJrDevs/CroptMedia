@@ -57,7 +57,6 @@ class CreatePreviewText(QObject):
         text_and_duration = []
 
         for transcript in transcripts:
-            print("Creating trans")
             if button_layout is None:
                 start = transcript['start']
                 end = transcript['end']
@@ -75,8 +74,7 @@ class CreatePreviewText(QObject):
                                             tooltip_text=None,
                                             icon_margin=10,
                                             bg_color_hover = "#3c4454",
-                                            bg_color="#3c4454",
-                                            hover_effect=True
+                                            bg_color="#3c4454"
                                         )
             add_button.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 
@@ -88,8 +86,7 @@ class CreatePreviewText(QObject):
                                             tooltip_text=None,
                                             icon_margin=10,
                                             bg_color_hover = "#3c4454",
-                                            bg_color="#3c4454",
-                                            hover_effect=True
+                                            bg_color="#3c4454"
                                         )
             remove_button.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 
