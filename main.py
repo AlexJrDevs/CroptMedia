@@ -27,6 +27,7 @@ import atexit
 
 
 
+
 # IMPORT QT CORE
 # ///////////////////////////////////////////////////////////////
 from qt_core import *
@@ -87,10 +88,10 @@ class MainWindow(QMainWindow):
         # ///////////////////////////////////////////////////////////////
         self.percentage_logger = BarLogger()
         self.audio_transcript = AudioTranscribe()
-        self.preview_text = CreatePreviewText(self.ui.video_player_main.video_item, self.ui.video_player_main.graphic_scene)
+        self.preview_text = CreatePreviewText(self.ui.video_player_main.video_item, self.ui.video_player_main.graphic_scene, self.ui.transcript_widget.scroll_layout)
         
         self.preview_text.text_data_updated.connect(self.update_preview_text)
-
+    
         self.percentage_logger.loading_percent.connect(self.update_loading_bar)
 
         self.audio_transcript.transcript_started.connect(self.update_text_loading)
@@ -241,6 +242,7 @@ class MainWindow(QMainWindow):
     def save_subclips(self, subclip_durations):
         self.subclip_durations = subclip_durations
         self.create_video()
+
     
     # Creates Thread To Capture Images From Video
     def create_video_thumbnails(self):
@@ -282,12 +284,6 @@ class MainWindow(QMainWindow):
         self.video_processing_thread.start()
 
 
-    # creates preview text and manages the sync between the TextEdit, TextLine and GraphicsText
-    def create_preview_text(self, text_data):
-        self.preview_text.create_preview_text(text_data)
-
-    def remove_preview_text(self, duration_line, text_edit):
-        self.preview_text.delete_text(duration_line, text_edit)
 
 
     # Updates text start and end time, and gives references of GraphicsText to the text settings
@@ -305,18 +301,17 @@ class MainWindow(QMainWindow):
         self.circular_progress_1.set_text(text)
 
     def update_transcript_widget(self, transcript_location):
-        self.ui.transcript_widget.load_srt_file(transcript_location)
+        self.preview_text.load_srt_file(transcript_location)
 
     def export_video_file(self):
         self.ui.video_player_main.mediaPlayer.stop()
         self.ui.video_player_main.mediaPlayer.setSource(QUrl())
         self.subclip_durations.pop(0)
-        self.ui.transcript_widget.clear_transcript()
-
-        MainFunctions.set_video_page(self, self.ui.load_pages.loading_video)
-
 
         text_data = self.ui.video_player_main.extract_text_data() 
+        self.preview_text.remove_transcript_widgets()
+
+        MainFunctions.set_video_page(self, self.ui.load_pages.loading_video)
         self.export_video = ExportVideo(text_data, self.video_filename, self.percentage_logger)
         self.export_video.exporting_video.connect(self.update_text_loading)
         self.export_video.video_completed.connect(self.video_exported)
@@ -332,7 +327,6 @@ class MainWindow(QMainWindow):
             self.video_path = ""
             self.gameplay_path = ""
      
-            self.preview_text.delete_text()
             self.ui.video_player_subclip.range_slider.reset_range_widget()
             MainFunctions.set_video_page(self, self.ui.load_pages.upload_page)
 
@@ -352,10 +346,8 @@ class MainWindow(QMainWindow):
                 # Iterate through the files and delete them
                 for file in files:
                     file_path = os.path.join(folder_path, file)
-                    print("Deleting files")
                     if os.path.isfile(file_path):
                         os.remove(file_path)
-                        print(f"Deleted: {file_path}")
 
         except Exception as e:
             print(f"Error clearing folder, {e}")

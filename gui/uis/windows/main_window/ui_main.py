@@ -276,8 +276,6 @@ class UI_MainWindow(object):
         # ADD TRANSCRIPT TO LAYOUT
         self.transcript_widget = PyTranscriptWidget(parent)
         self.load_pages.transcript.addWidget(self.transcript_widget)
-        self.transcript_widget.transcript_text.connect(parent.create_preview_text)
-        self.transcript_widget.transcript_text_remove.connect(parent.remove_preview_text)
 
         # ADD VIDEO UPLOAD TO LAYOUT
         self.upload_video = PyVideoUpload(parent)
