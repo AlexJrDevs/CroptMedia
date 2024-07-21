@@ -161,7 +161,6 @@ class PyRangeSlider(QWidget):
 		for left_handle, right_handle in self.handle_pairs:
 			self.draw_handle(left_handle, self._canvas_width, self._canvas_height, painter, self._left_handle_color)
 			self.draw_handle(right_handle, self._canvas_width, self._canvas_height, painter, self._right_handle_color)
-			self.update_tooltips_positions()
 		
 		
 		self.draw_handle(self._main_handle, self._canvas_width, self._canvas_height, painter, self._main_handle_color)
@@ -230,6 +229,7 @@ class PyRangeSlider(QWidget):
 		y = self.__get_track_y_position()
 		handle.rect = self.__draw_handle(x, y, painter, color)
 
+
     # Works with Handles postion
     # ///////////////////////////////////////////////////////////////
 
@@ -260,6 +260,7 @@ class PyRangeSlider(QWidget):
 						handle.value = max_left_handle_position
 						self.repaint()
 						return
+					
 
 			elif handle in self._right_handle:
 				if value < right_handle_stop_position + self._min_track_range or value > self._right_value:
@@ -270,9 +271,6 @@ class PyRangeSlider(QWidget):
 						handle.value = max_right_handle_position
 						self.repaint()
 						return
-			
-			
-
 
 		else:
 			if value < 0 or value > self._right_value:
@@ -281,6 +279,7 @@ class PyRangeSlider(QWidget):
 
 		handle.value = value
 		self.repaint()
+		self.update()
 
 					
 	
@@ -327,7 +326,7 @@ class PyRangeSlider(QWidget):
 
 					if new_val is not None and new_val != handle.value:
 						self.set_handle_value(new_val, handle)
-						print(f"Left/Right handle value: {handle.value}")
+						self.update_tooltips_positions()
 
 
 		if self._main_handle.pressed:
@@ -400,10 +399,10 @@ class PyRangeSlider(QWidget):
 		self._canvas_width = self.width()
 		self._canvas_height = self.height()
 		self.update_tooltips_positions()
-
-		
-
-
+	
+	def showEvent(self, event):
+		print("SHOWN")
+		self.update_tooltips_positions()
 
 
 
@@ -423,6 +422,7 @@ class PyRangeSlider(QWidget):
 
 			self.handle_pairs.append([left_handle, right_handle])
 			self.add_new_tooltips((left_handle, right_handle))
+			
 
 			self.update()
 		else:
@@ -521,6 +521,7 @@ class PyRangeSlider(QWidget):
 			handle_tooltip = _ToolTip(self._parent, str(handle.value), self._text_foreground)
 			self.handle_tooltips.append([handle, handle_tooltip])
 			handle_tooltip.show()
+
 	
 	# updates all the tooltips positions
 	def update_tooltips_positions(self):
@@ -557,9 +558,8 @@ class _ToolTip(QLineEdit):
         self.setAlignment(Qt.AlignCenter)
 
 
-
-
     def update_text(self, text):
+        print("Updating Text")
         try:
             minutes_total = int(text)
             hours, minutes = divmod(minutes_total, 60)

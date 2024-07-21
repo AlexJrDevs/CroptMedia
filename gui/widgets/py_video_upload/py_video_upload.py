@@ -4,9 +4,11 @@ import os.path
 
 class PyVideoUpload(QWidget):
 
-    def __init__(self, parent=None):
-        super(PyVideoUpload, self).__init__(parent)
-        self.parent = parent
+    def __init__(self, parent):
+        super().__init__()
+        self._parent = parent
+        self.video_path = None
+        self.gameplay_path = None
 
         # Create the background widget for upload
         upload_bg_widget = QWidget()
@@ -19,8 +21,8 @@ class PyVideoUpload(QWidget):
         # Create the first icon button
         self.video_upload_button = PyIconButton(
             icon_path=r"gui\images\svg_icons\icon_folder_upload.svg",
-            width=180,
-            height=180,
+            width=120,
+            height=120,
             parent=self,
             app_parent=self,
             tooltip_text="Top Video",
@@ -30,17 +32,17 @@ class PyVideoUpload(QWidget):
         upload_layout.addWidget(self.video_upload_button, alignment=Qt.AlignCenter)
 
         # Add a horizontal line
-        line = QFrame()
-        line.setFrameShape(QFrame.HLine)
-        line.setFrameShadow(QFrame.Sunken)
-        line.setStyleSheet("border: 2px solid #1B1E23;")  # Line color
-        upload_layout.addWidget(line)
+        self.line = QFrame()
+        self.line.setFrameShape(QFrame.HLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+        self.line.setStyleSheet("border: 2px solid #1B1E23;")  # Line color
+        upload_layout.addWidget(self.line)
 
         # Create the second icon button
         self.gameplay_upload_button = PyIconButton(
             icon_path=r"gui\images\svg_icons\icon_folder_upload.svg",
-            width=180,
-            height=180,
+            width=120,
+            height=120,
             parent=self,
             app_parent=self,
             tooltip_text="Bottom Video",
@@ -62,7 +64,7 @@ class PyVideoUpload(QWidget):
         
         # Layouts
         settings_layout = QHBoxLayout() 
-        settings_layout.setContentsMargins(0, 8, 0, 8)
+        settings_layout.setContentsMargins(8, 8, 8, 8)
         settings_bg_widget.setLayout(settings_layout)
 
         # Create the Word Limit section
@@ -79,8 +81,8 @@ class PyVideoUpload(QWidget):
         self.word_limit_input.setText('5')
         self.word_limit_input.setAlignment(Qt.AlignCenter)
         self.word_limit_input.setStyleSheet("border: 2px solid #1B1E23; border-radius: 12px; background-color: #1B1E23;")
-        self.word_limit_input.setFixedWidth(150)
-        self.word_limit_input.setFixedHeight(27)
+        self.word_limit_input.setMaximumWidth(150)
+        self.word_limit_input.setMinimumHeight(28)
 
         # Set the input validator to accept only positive integers
         regex = QRegularExpression(r"^[1-9][0-9]*$")
@@ -100,9 +102,10 @@ class PyVideoUpload(QWidget):
         gameplay_label = QLabel("Gameplay")
         gameplay_label.setAlignment(Qt.AlignCenter)
         gameplay_label.setStyleSheet("font-family: 'Roboto', sans-serif; font-weight: bold; font-size: 12px;")
-        gameplay_toggle = PyToggle(width=150, bg_color='#1B1E23', active_color='#3f6fd1')
+        self.gameplay_toggle = PyToggle(width=150, bg_color='#1B1E23', active_color='#3f6fd1')
+        self.gameplay_toggle.setCheckState(Qt.Checked)
         gameplay_layout.addWidget(gameplay_label)
-        gameplay_layout.addWidget(gameplay_toggle)
+        gameplay_layout.addWidget(self.gameplay_toggle)
         
         settings_layout.addLayout(gameplay_layout)
 
@@ -113,6 +116,8 @@ class PyVideoUpload(QWidget):
         main_layout.addWidget(settings_bg_widget)
         self.setLayout(main_layout)
 
+        self.gameplay_toggle.stateChanged.connect(self.toggle_folder_active)
+
     # Open File System
     def open_file(self):
         button = self.sender()  # Get the sender (the button that was clicked)
@@ -121,7 +126,7 @@ class PyVideoUpload(QWidget):
         if button == self.video_upload_button:
             file_name, _ = QFileDialog.getOpenFileName(self, "Open Video File", "", "Video Files (*.mp4 *.avi);;All Files (*)")
             if os.path.exists(file_name):
-                self.parent.save_file_paths(video=file_name)  # Store the video file location
+                self.video_path = file_name  # Store the video file location
 
                 # Sets new icon / text
                 self.video_upload_button.set_icon(r"gui\images\svg_icons\icon_folder_uploaded.svg")
@@ -131,10 +136,36 @@ class PyVideoUpload(QWidget):
         elif button == self.gameplay_upload_button:
             file_name, _ = QFileDialog.getOpenFileName(self, "Open Gameplay File", "", "Video Files (*.mp4 *.avi);;All Files (*)")
             if os.path.exists(file_name):
-                self.parent.save_file_paths(gameplay=file_name)
+                self.gameplay_path = file_name
   
                 # Sets new icon / text
                 self.gameplay_upload_button.set_icon(r"gui\images\svg_icons\icon_folder_uploaded.svg")
+
+
+    def toggle_folder_active(self, state):
+        print("Clicked", state)
+        if state == 2:
+            print("Checked")
+            self.line.setVisible(True)
+            self.line.setEnabled(True)
+
+            self.gameplay_upload_button.setVisible(True)
+            self.gameplay_upload_button.setEnabled(True)
+
+        elif state == 0:
+            print("Un checked")
+            self.gameplay_path = None
+
+            self.line.setVisible(False)
+            self.line.setEnabled(False)
+
+            self.gameplay_upload_button.setVisible(False)
+            self.gameplay_upload_button.setEnabled(False)
+
+            self.gameplay_upload_button.set_icon(r"gui\images\svg_icons\icon_folder_upload.svg")
+
+
+
 
     def reset_folder_icon(self):
         self.video_upload_button.set_icon(r"gui\images\svg_icons\icon_folder_upload.svg")

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>912</width>
-    <height>674</height>
+    <width>936</width>
+    <height>718</height>
    </rect>
   </property>
   <property name="font">
@@ -460,11 +460,6 @@ background: #343B48;
 border-radius: 15px;
 }
 
-#files_bg{
-border-radius: 15px;
-background: #343B48;
-border-radius: 15px;
-}
 
 
 #video_bg{

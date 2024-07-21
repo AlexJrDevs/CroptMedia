@@ -278,6 +278,7 @@ class PyVideoPlayer(QWidget):
                 self.graphic_scene.resizeGuides()
                 self.updateGeometry()
                 self.update()
+            
         except Exception as e:
             print("Video Unavailable: ", e)
 

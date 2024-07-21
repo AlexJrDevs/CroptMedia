@@ -215,7 +215,6 @@ class MainWindow(QMainWindow):
     # ///////////////////////////////////////////////////////////////
     def resizeEvent(self, event):
         self.resize_widget()
-        print(self.size().width(), self.size().height())
 
     def showEvent(self, event):
         self.resize_widget()
@@ -228,7 +227,6 @@ class MainWindow(QMainWindow):
     def resize_widget(self):
         SetupMainWindow.resize_main_widget(self)
         SetupMainWindow.resize_grips(self)
-        print("Resize")
  
 
 
@@ -255,29 +253,36 @@ class MainWindow(QMainWindow):
     # ///////////////////////////////////////////////////////////////
 
 
-
-    # Save Files Locations
-    def save_file_paths(self, video=None, gameplay=None):
-        if video:
-            print("Video Uploaded")
-            self.video_path = video
-
-        if gameplay:
-            print("Gameplay Uploaded")
-            self.gameplay_path = gameplay
-
-
     def save_subclips(self, subclip_durations):
         self.subclip_durations = subclip_durations
         self.create_video()
 
     
+    def check_file_paths(self):
+        self.video_path = self.ui.upload_video.video_path
+        self.gameplay_path = self.ui.upload_video.gameplay_path
+
+        if self.video_path != None:
+            if self.ui.upload_video.gameplay_toggle.isChecked() and self.gameplay_path:
+                self.create_video_thumbnails()
+
+            elif not self.ui.upload_video.gameplay_toggle.isChecked():
+                self.create_video_thumbnails()
+                
+            else:
+                print("Gameplay Path Not Valid")
+
+        else:
+            print("Main Video Not Valid")
+
+
     # Creates Thread To Capture Images From Video
     def create_video_thumbnails(self):
-        if self.video_path and self.gameplay_path:
-            self.thumbnail_thread  = PyThumbnailCapture(self.video_path)
-            self.thumbnail_thread.thumbnail_completed.connect(self.video_player_screen)
-            self.thumbnail_thread.start()
+
+        self.thumbnail_thread  = PyThumbnailCapture(self.video_path)
+        self.thumbnail_thread.thumbnail_completed.connect(self.video_player_screen)
+        self.thumbnail_thread.start()
+
 
 
     # Updates Video Player & Resets Loading Bar | *args are the thumbnails or video path
@@ -306,7 +311,7 @@ class MainWindow(QMainWindow):
         MainFunctions.set_page2_page(self, self.ui.load_pages.main_page_2)
                 
         # Create a thread to run video processing in the background
-        self.video_processing_thread = StoryVideo(self.ui.upload_video.word_limit_input.text(), self.video_path, self.gameplay_path, self.subclip_durations[0], self.audio_transcript, self.percentage_logger)
+        self.video_processing_thread = StoryVideo(self.ui.upload_video.word_limit_input.text(), self.subclip_durations[0], self.audio_transcript, self.percentage_logger, self.video_path, self.gameplay_path)
         self.video_processing_thread.creating_video.connect(self.update_text_loading)
         self.video_processing_thread.finished_subclip.connect(self.video_player_screen)
         self.video_processing_thread.start()
@@ -352,8 +357,8 @@ class MainWindow(QMainWindow):
             self.create_video()
         else:
             print("No more clips to create insert new video")
-            self.video_path = ""
-            self.gameplay_path = ""
+            self.video_path = None
+            self.gameplay_path = None
      
             self.ui.video_player_subclip.range_slider.reset_range_widget()
             MainFunctions.set_video_page(self, self.ui.load_pages.upload_page)

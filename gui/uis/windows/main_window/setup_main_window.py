@@ -214,7 +214,7 @@ class SetupMainWindow:
         # Page 1
 
         self.ui.load_pages.login_btn.clicked.connect(self.logindata)
-        self.ui.load_pages.create_subclips_btn.clicked.connect(self.create_video_thumbnails)
+        self.ui.load_pages.create_subclips_btn.clicked.connect(self.check_file_paths)
         self.ui.load_pages.create_next_button.clicked.connect(self.export_video_file)
 
         
@@ -279,22 +279,35 @@ class SetupMainWindow:
         max_width = size.height() * 9 / 16
         max_height = size.width() * 16 / 9
 
-
-
         # Use the smaller of the two values as the maximum size
         new_width = min(max_width, size.width())
         new_height = min(max_height, size.height())
-        
-        self.ui.load_pages.text_settings_label.setMinimumHeight(new_height)
-        self.ui.load_pages.transcript_label.setMaximumSize(new_width, new_height)
 
-        if self.ui.load_pages.video_pages.currentWidget() == self.ui.load_pages.video_page:
-            self.ui.load_pages.video_label.setMaximumSize(new_width + self.ui.load_pages.text_settings_label.width(), new_height)
-        else:
-            self.ui.load_pages.video_label.setMaximumSize(new_width, new_height)
-        
-        self.updateGeometry()
-        self.update()
+        # Check current sizes
+        current_text_settings_height = self.ui.load_pages.text_settings_label.minimumHeight()
+        current_transcript_max_size = self.ui.load_pages.transcript_label.maximumSize()
+        current_video_label_max_size = self.ui.load_pages.video_label.maximumSize()
+
+        # Determine if resizing is needed
+        resize_needed = (new_height != current_text_settings_height or
+                        new_width != current_transcript_max_size.width() or
+                        new_width + self.ui.load_pages.text_settings_label.width() != current_video_label_max_size.width() or
+                        new_height != current_video_label_max_size.height())
+
+        if resize_needed:
+            # Apply the new sizes
+            self.ui.load_pages.text_settings_label.setMinimumHeight(new_height)
+            self.ui.load_pages.transcript_label.setMaximumSize(new_width, new_height)
+
+            if self.ui.load_pages.video_pages.currentWidget() == self.ui.load_pages.video_page:
+                self.ui.load_pages.video_label.setMaximumSize(new_width + self.ui.load_pages.text_settings_label.width(), new_height)
+            else:
+                self.ui.load_pages.video_label.setMaximumSize(new_width, new_height)
+
+            # Update the geometry of the widget
+            self.updateGeometry()
+            self.update()
+
 
 
 
