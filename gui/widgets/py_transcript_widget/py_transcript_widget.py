@@ -1,15 +1,38 @@
 
 from qt_core import *
 
-from gui.widgets import PyIconButton
+from gui.widgets import PyTranscriptModel
 
 from functools import partial
 
 import os
 
 
-# Define the stylesheet
 stylesheet = """
+    /* QTableView */
+    QTableView {
+        gridline-color: #343B48;
+        background-color: #343B48;
+        color: #F0F0F0;
+        selection-background-color: #343B48;
+        selection-color: #F0F0F0;
+        border: 2px solid #343B48; /* Border color and width */
+        border-radius: 15px; /* Rounded corners */
+        padding: 10px;
+    }
+
+    /* QHeaderView::section */
+    QHeaderView::section {
+        background-color: #343B48;
+        color: #F0F0F0;
+        padding: 4px;
+        border: 0px;
+    }
+
+    QTableCornerButton::section {
+    background-color: #343B48;
+    }
+
     /* QScrollBar */
     QScrollBar:vertical {
         background-color: transparent;
@@ -51,18 +74,6 @@ stylesheet = """
     {
         background: none;
     }
-    /* Add more QScrollBar styles as needed */
-"""
-
-# Define a style template for buttons
-style_template = """ 
-QPushButton::menu-indicator {{ 
-    width:0px;
-}}
-
-QPushButton {{
-    background-color: {};
-}}
 """
 
 class PyTranscriptWidget(QWidget):
@@ -71,48 +82,29 @@ class PyTranscriptWidget(QWidget):
         super().__init__(parent)
         self.parent = parent
         
-        self._button_color = QColor("#343B48")
 
-        layout = QVBoxLayout()
+        main_layout = QVBoxLayout()
 
-        # MAIN TRANSCRIPT
-        # ///////////////////////////////////////////////////////////////
+        
+        # Transcript Table
+        self.model = PyTranscriptModel()
+        self.view = QTableView()
+        self.view.setModel(self.model)
+        self.view.setStyleSheet(stylesheet)
+        self.view.setEditTriggers(QTableView.AllEditTriggers)
+        self.view.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)  # Disable resizing
 
-        # Transcript Line Edit
-        self.transcript_line_edit = QLineEdit("Transcript will appear here...")
-        self.transcript_line_edit.setReadOnly(True)
-        self.transcript_line_edit.setStyleSheet("border: none;")
-
-        # Scroll Container
-        scroll_container = QWidget()
-        scroll_container.setStyleSheet(
-            "background-color: #343B48; border-radius: 15px;"
-        )
-        scroll_container_layout = QVBoxLayout(scroll_container)
-
-        # Scroll Area
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setFrameStyle(QFrame.NoFrame)
-        scroll_area.setStyleSheet(stylesheet)
-        scroll_container_layout.addWidget(self.transcript_line_edit)
-        scroll_container_layout.addWidget(scroll_area)
-
-        # Scroll Content Widget
-        scroll_content = QWidget(scroll_area)
-        scroll_content.setStyleSheet("background-color: #343B48;")
-        scroll_area.setWidget(scroll_content)
-
-        self.scroll_layout = QVBoxLayout(scroll_content)
+        # Resize columns to fit the width of the table
+        self.view.horizontalHeader().setStretchLastSection(True)
+        self.view.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
+        self.view.horizontalHeader().setSectionsClickable(False)
+        self.view.horizontalHeader().setHighlightSections(False)
 
 
-        # SETTING UP MAIN LAYOUT
-        # ///////////////////////////////////////////////////////////////
+        # Add the background widget to the main layout
+        main_layout.addWidget(self.view)
 
-        # Add layouts to main layout
-        layout.addWidget(scroll_container)
-
-        self.setLayout(layout)
+        self.setLayout(main_layout)
 
         
 

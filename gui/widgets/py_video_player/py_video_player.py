@@ -169,7 +169,7 @@ class PyVideoPlayer(QWidget):
 
     def extract_text_data(self):
         text_html = []
-        for index, (text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds, btn_layout) in enumerate(self.text_data):
+        for index, (text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds) in enumerate(self.text_data):
 
             text_preview.toHtml()
             stroke_size, stroke_color = text_preview.grab_stroke_data()
@@ -203,7 +203,7 @@ class PyVideoPlayer(QWidget):
 
         self.resize_graphic_scene()
 
-        for text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds, btn_layout in self.text_data:
+        for text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in self.text_data:
             text_preview.setPos(self.graphic_scene.sceneRect().center().x() - text_preview.boundingRect().center().x(), self.graphic_scene.sceneRect().center().y() - text_preview.boundingRect().center().y())
 
 
@@ -241,7 +241,7 @@ class PyVideoPlayer(QWidget):
             )
 
         # Update visibility of text previews based on position
-        for text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds, btn_layout in self.text_data:
+        for text_preview, duration_line_edit, text_edit_widget, start_total_milliseconds, end_total_milliseconds in self.text_data:
             if start_total_milliseconds <= position <= end_total_milliseconds and not text_preview.isVisible():
                 text_preview.show()
 

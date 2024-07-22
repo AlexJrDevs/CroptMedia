@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
         # ///////////////////////////////////////////////////////////////
         self.percentage_logger = BarLogger()
         self.audio_transcript = AudioTranscribe()
-        self.preview_text = CreatePreviewText(self.ui.video_player_main.video_item, self.ui.video_player_main.graphic_scene, self.ui.transcript_widget.scroll_layout)
+        self.preview_text = CreatePreviewText(self.ui.video_player_main.video_item, self.ui.video_player_main.graphic_scene, self.ui.transcript_widget.model)
         
         self.preview_text.text_data_updated.connect(self.update_preview_text)
     

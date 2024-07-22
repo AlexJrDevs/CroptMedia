@@ -101,6 +101,10 @@ from . py_subclip_player import PySubclipPlayer, PyThumbnailCapture
 
 # TRANCRIPT FIELD
 # ///////////////////////////////////////////////////////////////
+from . py_transcript_model import PyTranscriptModel
+
+# TRANCRIPT PAGE
+# ///////////////////////////////////////////////////////////////
 from . py_transcript_widget import PyTranscriptWidget
 
 

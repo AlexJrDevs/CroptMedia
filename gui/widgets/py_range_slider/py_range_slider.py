@@ -11,6 +11,9 @@ from qt_core import *
 import math
 
 
+from functools import partial
+
+
 # HANDLE CLASS
 # ///////////////////////////////////////////////////////////////
 @dataclass
@@ -504,7 +507,7 @@ class PyRangeSlider(QWidget):
 			offsetx = -20
 			offsety = 15
 		else:
-			offsetx = -15
+			offsetx = -tooltip.width() / 2
 			offsety = -70
 
 		pos_x = handle_pos.x() + offsetx
@@ -513,18 +516,33 @@ class PyRangeSlider(QWidget):
         # SET POSITION TO WIDGET
         # Move tooltip position
 		tooltip.move(pos_x, pos_y)
-		return
 
 	# adds a new tooltip
 	def add_new_tooltips(self, handles):
 		for handle in handles:
-			handle_tooltip = _ToolTip(self._parent, str(handle.value), self._text_foreground)
+			handle_tooltip = _ToolTip(self, self._parent, handle, self._text_foreground)
+			handle_tooltip.setInputMask("99:99")
+			handle_tooltip.textChanged.connect(partial(self.on_text_changed, handle, handle_tooltip))
 			self.handle_tooltips.append([handle, handle_tooltip])
 			handle_tooltip.show()
 
+
+	# Lets Users Choose The Handle Position By Typing
+	def on_text_changed(self, handle, handle_tooltip, text):
+
+		try:
+			minutes, seconds = map(int, text.split(':'))
+			total_seconds = minutes * 60 + seconds
+			self.set_handle_value(total_seconds, handle)
+			self.move_tooltip(handle, handle_tooltip)
+		except Exception as e:
+			print("Error In Setting Handle Value: ", e)
+
+
+
 	
 	# updates all the tooltips positions
-	def update_tooltips_positions(self):
+	def update_tooltips_positions(self, event=None):
 		for handle, tooltip in self.handle_tooltips:
 			if handle.rect:
 				self.move_tooltip(handle, tooltip)
@@ -539,27 +557,32 @@ class _ToolTip(QLineEdit):
     QLineEdit {{
         background: transparent;
         color: {_text_foreground};
-        border: none;
+        border: None;
         font: 800 7pt "Segoe UI";
 		padding: 0;
     }}
     """
 
-    def __init__(self, parent, text, text_foreground):
-        super().__init__(parent)
+    def __init__(self, parent,app_parent, handle, text_foreground):
+        super().__init__(app_parent)
         # LINEEDIT SETUP
+        self._handle = handle
+        self._parent = parent
+
         style = self.style_tooltip.format(_text_foreground=text_foreground)
         self.setObjectName(u"lineedit_tooltip")
         self.setStyleSheet(style)
         self.setMinimumHeight(34)
-        self.setParent(parent)
-        self.setText("{:02d}:{:02d}".format(*divmod(int(float(text)), 60)))
+        self.setParent(app_parent)
+        self.setText("{:02d}:{:02d}".format(*divmod(int(float(self._handle.value)), 60)))
         self.setReadOnly(False)  # Set initially to read-only
         self.setAlignment(Qt.AlignCenter)
 
+    def focusOutEvent(self, event):
+        super().focusOutEvent(event)
+        self._parent.update_tooltips_positions()
 
     def update_text(self, text):
-        print("Updating Text")
         try:
             minutes_total = int(text)
             hours, minutes = divmod(minutes_total, 60)
@@ -567,10 +590,3 @@ class _ToolTip(QLineEdit):
         except ValueError:
             # If input is invalid, revert to the previous value or handle accordingly
             pass
-	
-
-
-
-
-
-

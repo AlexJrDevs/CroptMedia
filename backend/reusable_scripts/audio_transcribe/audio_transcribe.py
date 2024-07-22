@@ -107,6 +107,7 @@ class AudioTranscribe(QObject):
         
         # Creates the subs in srt file
         self.writeSubtitlesIntoFile(self.transcribe(path)["segments"], transcript_location, words_per_line)
+        print(transcript_location)
         self.transcript_location.emit(transcript_location)
 
         
