@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
         # ///////////////////////////////////////////////////////////////
         self.percentage_logger = BarLogger()
         self.audio_transcript = AudioTranscribe()
-        self.preview_text = CreatePreviewText(self.ui.video_player_main.video_item, self.ui.video_player_main.graphic_scene, self.ui.transcript_widget.model)
+        self.preview_text = CreatePreviewText(self.ui.video_player_main.video_item, self.ui.video_player_main.graphic_scene, self.ui.transcript_widget.model, self.ui.transcript_widget.delegate)
         
         self.preview_text.text_data_updated.connect(self.update_preview_text)
     
@@ -144,7 +144,6 @@ class MainWindow(QMainWindow):
                 # Loads Page
                 MainFunctions.set_page(self, self.ui.load_pages.page_2)
                 SetupMainWindow.resize_main_widget(self)
-                #MainFunctions.set_video_page(self, self.ui.load_pages.video_page)
     
             else:
                 msg = QMessageBox()

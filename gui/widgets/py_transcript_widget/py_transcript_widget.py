@@ -1,7 +1,7 @@
 
 from qt_core import *
 
-from gui.widgets import PyTranscriptModel
+from gui.widgets import PyTranscriptModel, PyTranscriptDelegate
 
 from functools import partial
 
@@ -88,8 +88,12 @@ class PyTranscriptWidget(QWidget):
         
         # Transcript Table
         self.model = PyTranscriptModel()
+        self.delegate = PyTranscriptDelegate()
+
         self.view = QTableView()
         self.view.setModel(self.model)
+        self.view.setItemDelegateForColumn(0, self.delegate)
+
         self.view.setStyleSheet(stylesheet)
         self.view.setEditTriggers(QTableView.AllEditTriggers)
         self.view.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)  # Disable resizing
