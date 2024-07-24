@@ -270,6 +270,7 @@ class UI_MainWindow(object):
         # ADD VIDEO PLAYER TO LAYOUT
         self.video_player_subclip = PySubclipPlayer(parent=parent)
         self.video_player_main = PyVideoPlayer(parent=parent)
+        self.video_player_main.text_being_shown.connect(parent.transcript_select_text)
         self.load_pages.video_play.addWidget(self.video_player_main)
         self.load_pages.subclip_layout.addWidget(self.video_player_subclip)
 

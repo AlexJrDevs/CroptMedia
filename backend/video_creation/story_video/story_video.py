@@ -17,6 +17,8 @@ class StoryVideo(QThread):
         super().__init__()
 
         self.width, self.height = 1080, 1920
+        if word_amount == "0" or word_amount == "":
+            word_amount = "1"
         self.text_word_amount = int(word_amount)
         self.temp_dir = os.path.abspath(r'backend\tempfile')
 

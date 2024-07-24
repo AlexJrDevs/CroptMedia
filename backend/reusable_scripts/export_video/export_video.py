@@ -36,7 +36,19 @@ class ExportVideo(QThread):
                 self.styles_attributes = ",".join(self.styles_attributes)
                 text_style = "".join(text_style)
 
-                new_dialogue = f"""Dialogue: {start},{end},Default,{{\pos({pos_x},{pos_y})}}{text_style}"""
+                text_stroke = ""
+
+                # Handle strokes
+                if stroke_size > 0:
+                    hex_qcolor = stroke_color.name()  # Converts QColor to hex
+                    hex_color = hex_qcolor.replace('#', '')
+                    red = int(hex_color[0:2], 16)
+                    green = int(hex_color[2:4], 16)
+                    blue = int(hex_color[4:6], 16)
+                    text_stroke = f"\\bord{stroke_size}\\3c&H{blue:02X}{green:02X}{red:02X}&"
+
+
+                new_dialogue = f"""Dialogue: {start},{end},Default,{{\q0\pos({pos_x},{pos_y}){text_stroke}}}{text_style}"""
                 dialogues.append(new_dialogue)
 
             file.close()
@@ -54,8 +66,8 @@ PlayResY: 1920
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BorderStyle, Encoding, Alignment
-Style: Default,{self.styles_attributes},&H00FFFFFF,&HFFFF00,&H00FFFFFF,0,0,7
-Style: Background,{self.styles_attributes},&H00FFFFFF,&H000000FF,&H00000000,3,0,7
+Style: Default,{self.styles_attributes},&H00FFFFFF,&HFFFF00,&H00FFFFFF,0,0,2
+Style: Background,{self.styles_attributes},&H00FFFFFF,&H000000FF,&H00000000,3,0,2
 
 [Events]
 Format: Start, End, Style, Text
@@ -110,7 +122,7 @@ Format: Start, End, Style, Text
         finally:
             # Attempt to delete files
             try:
-                os.remove(ass_file)
+
                 os.remove(video_file)
             except FileNotFoundError:
                 print(f"File not found: {ass_file} or {video_file}")
@@ -145,6 +157,8 @@ Format: Start, End, Style, Text
                         else:
                             text_styles.append(written_text)
 
+        
+
 
         if span_elements:
 
@@ -155,7 +169,7 @@ Format: Start, End, Style, Text
 
                 # Initialize variables to hold style modifications
                 italic_str = underline_str = ""
-                color_str = background_color_str = text_stroke = ""
+                color_str = background_color_str = ""
                 font_weight_str = font_size_str = ""
                 font_family_str = ""
 
@@ -163,14 +177,6 @@ Format: Start, End, Style, Text
                     if ':' in text:
                         style = text.split(':')[0].strip()
                         style_name = text.split(':')[1].strip()
-
-                        if stroke_size > 0:
-                            hex_qcolor = stroke_color.name() # Converts QColor to hex
-                            hex_color = hex_qcolor.replace('#', '')
-                            red = int(hex_color[0:2], 16)
-                            green = int(hex_color[2:4], 16)
-                            blue = int(hex_color[4:6], 16)
-                            text_stroke = f"\\bord{stroke_size}\\3c&H{blue:02X}{green:02X}{red:02X}&"
 
                         # Modify text based on style
                         if style_name == 'italic':
@@ -207,11 +213,13 @@ Format: Start, End, Style, Text
 
                         
                         # Combine all style modifications
-                        text_style = "{" + text_stroke + background_color_str + color_str + italic_str + underline_str + font_size_str + font_family_str + font_weight_str + "}"  
-                        text_with_styles = f"{text_style}{span.text}{{\\r}}" # \\r resets the style
+                        text_style = "{" + background_color_str + color_str + italic_str + underline_str + font_size_str + font_family_str + font_weight_str + "}"  
+                        text_with_styles = f"{{\\q2}}{text_style}{span.text}{{\\r}}" # \\r resets the style
             
                 # Append modified text to the list
                 text_styles.append(text_with_styles + last_part)
+        else:
+            text_styles.append(f"{last_part}" )
 
         return text_styles
     
@@ -229,7 +237,8 @@ Format: Start, End, Style, Text
                 style_name = text.split(':')[1].strip().replace("'", '')
                 if 'pt' in style_name:
                     style_name = style_name.replace('pt', '')
-                    style_attributes.append(style_name)
+                    style_name = float(style_name) * 1.333
+                    style_attributes.append(str(style_name))
                     break
                 
                 style_attributes.append(style_name)

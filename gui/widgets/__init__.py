@@ -99,6 +99,7 @@ from . py_video_player import PyVideoPlayer
 # ///////////////////////////////////////////////////////////////
 from . py_subclip_player import PySubclipPlayer, PyThumbnailCapture
 
+
 # PY TRANCRIPT MODEL
 # ///////////////////////////////////////////////////////////////
 from . py_transcript_model import PyTranscriptModel

@@ -2,12 +2,26 @@ from qt_core import *
 
 from gui.widgets import PyIconButton
 
+import json
+
+# IMPORT SETTINGS
+# ///////////////////////////////////////////////////////////////
+from gui.core.json_settings import Settings
+
 class PyFolderPicker(QWidget):
+
 
     def __init__(self):
         super().__init__()
 
-        self.save_location = QStandardPaths.writableLocation(QStandardPaths.MoviesLocation)
+        self.settings = Settings()
+        self.settings_dict = self.settings.items
+
+        if self.settings_dict["export_location"]["folder"] == "":
+            self.save_location = QStandardPaths.writableLocation(QStandardPaths.MoviesLocation)
+            self.save_export_location()
+        else:
+            self.save_location = self.settings_dict["export_location"]["folder"]
 
         # Create widgets
         save_text = QLabel("Save Location")
@@ -82,3 +96,11 @@ class PyFolderPicker(QWidget):
             # Update text browser with selected folder path
             self.text_browser.setText(folder)
             self.save_location = folder
+            self.save_export_location()
+
+    def save_export_location(self):
+        self.settings_dict["export_location"]["folder"] = self.save_location
+        with open(self.settings.settings_path, 'w') as f:
+            json.dump(self.settings_dict, f, indent=4)
+
+

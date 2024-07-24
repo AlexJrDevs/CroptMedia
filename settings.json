@@ -1,9 +1,9 @@
 {
     "app_name": "PyOneDark - Modern GUI",
-    "version" : "v1.0.0",
-    "copyright" : "By: CroptMedia",
-    "year" : 2023,
-    "theme_name" : "default",
+    "version": "v1.0.0",
+    "copyright": "By: CroptMedia",
+    "year": 2023,
+    "theme_name": "default",
     "custom_title_bar": true,
     "startup_size": [
         960,
@@ -13,23 +13,26 @@
         960,
         539
     ],
-    "lef_menu_size" : {
-        "minimum" : 50,
-        "maximum" : 240
+    "lef_menu_size": {
+        "minimum": 50,
+        "maximum": 240
     },
-    "left_menu_content_margins" : 3,
-    "left_column_size" : {
-        "minimum" : 0,
-        "maximum" : 240
+    "left_menu_content_margins": 3,
+    "left_column_size": {
+        "minimum": 0,
+        "maximum": 240
     },
-    "right_column_size" : {
-        "minimum" : 0,
-        "maximum" : 240
+    "right_column_size": {
+        "minimum": 0,
+        "maximum": 240
     },
-    "time_animation" : 500,
-    "font" : {
-        "family" : "Roboto",
-        "title_size" : 10,
-        "text_size" : 9
+    "time_animation": 500,
+    "font": {
+        "family": "Roboto",
+        "title_size": 10,
+        "text_size": 9
+    },
+    "export_location": {
+        "folder": "C:/Users/Alexa/Documents/TikTok Automation/AutoMedia Project/CroptMedia/completed_videos"
     }
 }

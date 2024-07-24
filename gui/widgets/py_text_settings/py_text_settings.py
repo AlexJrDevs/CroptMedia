@@ -338,6 +338,12 @@ class PyTextSettings(QWidget):
                     cursor.clearSelection()
 
                 widget.setTextCursor(cursor)
+    
+
+    def reset_text_settings(self):
+        self.text_size.setText("90")
+        self.stroke_edit.setText("5")
+        self.text_font.setCurrentFont("Roboto")
 
 
 

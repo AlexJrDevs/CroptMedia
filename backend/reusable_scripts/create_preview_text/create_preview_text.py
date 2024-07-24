@@ -5,9 +5,9 @@ import re, os
 import uuid
 
 class CreatePreviewText(QObject):
-    text_data_updated = Signal(tuple)
+    text_data_updated = Signal(dict)
 
-    def __init__(self, video_item, graphics_scene, transcript_model, transcript_delegate):
+    def __init__(self, video_item, graphics_scene, transcript_view, transcript_model, transcript_delegate):
         super().__init__()
 
         self.text_data_dict = {}  # Use a dictionary to map unique IDs to text data
@@ -15,6 +15,8 @@ class CreatePreviewText(QObject):
 
         self.video_item = video_item
         self.graphics_scene = graphics_scene
+
+        self.transcript_view = transcript_view
         self.transcript_model = transcript_model
         self.transcript_delegate = transcript_delegate
 
@@ -40,6 +42,7 @@ class CreatePreviewText(QObject):
                 
         self.transcript_model.subtitles = transcript
         self.transcript_model.layoutChanged.emit()
+        os.remove(file_path)
         self.create_preview_text(for_all=True)
 
     # CREATES THE QGRAPHICSTEXTITEM TEXT PREVIEW
@@ -53,7 +56,7 @@ class CreatePreviewText(QObject):
             else:
                 self._create_single_preview(subtitle_id)
 
-            self.text_data_updated.emit(list(self.text_data_dict.values()))
+            self.text_data_updated.emit(self.text_data_dict)
 
         except Exception as e:
             print("Error creating: ", e)
@@ -68,13 +71,18 @@ class CreatePreviewText(QObject):
 
         text_preview = PyGraphicsTextItem()
         text_preview.setDefaultTextColor(QColor("White"))
-        text_preview.setPlainText(subtitle_text)
+        text_preview.setHtml(f'<div style="text-align: center;">{subtitle_text}</div>')
+        text_preview.setFont(QFont("Roboto", 90))
+
+        text_preview.adjustSize()
+ 
+
+        text_preview.setPos(self.graphics_scene.sceneRect().center().x() - text_preview.boundingRect().center().x(), self.graphics_scene.sceneRect().center().y() - text_preview.boundingRect().center().y())
         
         text_preview.setFlags(QGraphicsTextItem.ItemIsSelectable | QGraphicsTextItem.ItemIsMovable | QGraphicsTextItem.ItemIsFocusable)
 
         # Connect contentsChange signal and store the connection object
-        text_preview.document().contentsChange.connect(partial(self.handle_text_preview_change, subtitle_id=subtitle_id, text_item=text_preview))
-        print(subtitle_id, subtitle_duration, subtitle_text)
+        text_preview.document().contentsChange.connect(partial(self.handle_text_preview_change, subtitle_id=subtitle_id, text_preview=text_preview))
 
         self.text_data_dict[subtitle_id] = (text_preview, subtitle_duration, subtitle_text, start_total_milliseconds, end_total_milliseconds)
 
@@ -84,8 +92,11 @@ class CreatePreviewText(QObject):
     # HANDLES THE SYNC BETWEEN THE TEXT PREVIEW CHANGES TO THE SUBTITLES
     # ///////////////////////////////////////////////////////////////
 
-    def handle_text_preview_change(self, position, chars_removed, chars_added, subtitle_id, text_item):
-        new_text = text_item.toPlainText()
+    def handle_text_preview_change(self, position, chars_removed, chars_added, subtitle_id, text_preview):
+        
+        text_preview.adjustSize()
+        
+        new_text = text_preview.toPlainText()
         self.update_subtitle_text(subtitle_id, new_text)
 
     def update_subtitle_text(self, subtitle_id, new_text):
@@ -94,15 +105,13 @@ class CreatePreviewText(QObject):
                 if subtitle['text'] != new_text:
                     subtitle['text'] = new_text
                     self.transcript_model.layoutChanged.emit()
-                    print("Update Subtitles: ", subtitle_id, subtitle['text'])
                 break
 
     # HANDLES THE SYNC BETWEEN THE SUBTITLES CHANGES TO THE TEXT PREVIEW
     # ///////////////////////////////////////////////////////////////
 
     def handle_model_data_changed(self, topLeft, bottomRight, roles):
-        print("Data being changed")
-        duration_subtitles = {}
+
         if Qt.DisplayRole in roles or Qt.EditRole in roles:
             for row in range(topLeft.row(), bottomRight.row() + 1):
                 subtitle_index = row // 4
@@ -123,9 +132,29 @@ class CreatePreviewText(QObject):
             text_preview, subtitle_duration, subtitle_text, start_total_milliseconds_prev, end_total_milliseconds_prev = text_data_entry
             text_preview.setPlainText(text)
             self.text_data_dict[subtitle_id] = (text_preview, subtitle_duration, subtitle_text, start_total_milliseconds, end_total_milliseconds)
-            self.text_data_updated.emit(list(self.text_data_dict.values()))
+            self.text_data_updated.emit(self.text_data_dict)
         else:
             print(f"Subtitle with ID {subtitle_id} not found.")
+
+    # SELECTS THE TRANSCRIPT TEXT TO SHOW USERS WHAT IS CURRENTLY SHOWING
+    # ///////////////////////////////////////////////////////////////
+
+    def transcript_select_text(self, subtitle_id):
+        # Get the text for the given subtitle_id
+        subtitle_entry = self.text_data_dict.get(subtitle_id)
+        if subtitle_entry:
+            text = subtitle_entry[2]  # text is the third item in the tuple
+
+            # Find the row in the model that has this text
+            for row in range(self.transcript_model.rowCount()):
+                index = self.transcript_model.index(row, 0)  # Assuming text is in column 1
+                if self.transcript_model.data(index, Qt.DisplayRole) == text:
+                    self.transcript_view.scrollTo(index)
+                    return
+        else:
+            print(f"Subtitle ID '{subtitle_id}' not found in text data dictionary.")
+
+
 
     # MANAGEMENT
     # ///////////////////////////////////////////////////////////////
@@ -179,7 +208,7 @@ class CreatePreviewText(QObject):
 
                 self.transcript_model.removeRow(subtitle_id)
 
-            self.text_data_updated.emit(list(self.text_data_dict.values()))
+            self.text_data_updated.emit(self.text_data_dict)
 
         except Exception as e:
             print(f"Error in delete_text: {e}")

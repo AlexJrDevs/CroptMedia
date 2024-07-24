@@ -142,10 +142,9 @@ class PyVideoUpload(QWidget):
                 self.gameplay_upload_button.set_icon(r"gui\images\svg_icons\icon_folder_uploaded.svg")
 
 
+    # Hides gameplay folder when button clicked
     def toggle_folder_active(self, state):
-        print("Clicked", state)
         if state == 2:
-            print("Checked")
             self.line.setVisible(True)
             self.line.setEnabled(True)
 
@@ -153,7 +152,6 @@ class PyVideoUpload(QWidget):
             self.gameplay_upload_button.setEnabled(True)
 
         elif state == 0:
-            print("Un checked")
             self.gameplay_path = None
 
             self.line.setVisible(False)
