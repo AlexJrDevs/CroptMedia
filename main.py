@@ -99,10 +99,13 @@ class MainWindow(QMainWindow):
         # ///////////////////////////////////////////////////////////////
         self.is_logged_in = True
 
+<<<<<<< HEAD
         temp_dir = os.path.abspath(r'backend/tempfile')
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
 
+=======
+>>>>>>> 460e0939cd3518b877d31973b6dcdad22e99dbf6
         # SHOW MAIN WINDOW
         # ///////////////////////////////////////////////////////////////
         self.show()
