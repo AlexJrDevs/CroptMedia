@@ -68,9 +68,11 @@ class PySubclipPlayer(QWidget):
         self.graphics_view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.video_item = QGraphicsVideoItem()
-        self.video_item.setAspectRatioMode(Qt.KeepAspectRatioByExpanding)
+        self.video_item.setAspectRatioMode(Qt.KeepAspectRatio)
+ 
 
         self.graphic_scene.addItem(self.video_item)
+        self.graphics_view.setSceneRect(self.video_item.boundingRect())
 
         self.graphics_view.setStyleSheet("background-color: transparent; border: 0px solid transparent;")
         
@@ -257,6 +259,7 @@ class PySubclipPlayer(QWidget):
         self.play()
 
         self.resize_graphic_scene()
+
     
 
     # Creates thumbnail_layout labels to display later
@@ -283,9 +286,6 @@ class PySubclipPlayer(QWidget):
             self.thumbnail_label.append(label)
         
         # Update the layout and repaint the widget
-        self.thumbnail_layout.update()
-        self.thumbnail_widget.update()
-        self.thumbnail_widget.repaint()
         self.show_hide_thumbnail()  # Ensure the thumbnails are shown/hidden correctly
 
     
@@ -313,6 +313,7 @@ class PySubclipPlayer(QWidget):
 
     def mediaStateChanged(self, state):
 
+
         if state == QMediaPlayer.PlaybackState.PlayingState:
             self.play_button.set_icon("gui/images/svg_icons/icon_pause.svg")
         else:
@@ -325,7 +326,8 @@ class PySubclipPlayer(QWidget):
         )
 
     def durationChanged(self, duration):
-        self.range_slider.set_range(duration)
+        if duration > 0:
+            self.range_slider.set_range(duration)
 
     def setPosition(self, position):
         self.mediaPlayer.setPosition(position)
@@ -346,14 +348,11 @@ class PySubclipPlayer(QWidget):
 
     def resize_graphic_scene(self):
         try:
-            video_size = self.mediaPlayer.videoSink().videoSize()
-            if not video_size.isEmpty():
-                self.video_item.setSize(video_size)
-                self.graphic_scene.setSceneRect(self.video_item.boundingRect())
-                self.graphics_view.fitInView(self.video_item, Qt.AspectRatioMode.KeepAspectRatio)
-                self.graphics_view.update()
-                self.updateGeometry()
-                self.update()
+            print("Update Video size")
+
+            self.graphics_view.setSceneRect(self.video_item.boundingRect())
+            self.video_item.setSize(self.graphics_view.size())
+ 
         except Exception as e:
             print("Video Unavailable: ",e)
         

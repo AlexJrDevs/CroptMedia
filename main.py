@@ -199,6 +199,7 @@ class MainWindow(QMainWindow):
         event.accept()
 
     def resize_widget(self):
+        print("Resize")
         SetupMainWindow.resize_main_widget(self)
         SetupMainWindow.resize_grips(self)
 
@@ -248,8 +249,8 @@ class MainWindow(QMainWindow):
         sender = self.sender()
 
         if sender == self.thumbnail_thread:  # Checks whether it's a Subclip or Normal video
-            self.ui.video_player_subclip.setMedia(self.video_path, *args)
             MainFunctions.set_page2_page(self, self.ui.load_pages.subclip_page_2)
+            self.ui.video_player_subclip.setMedia(self.video_path, *args)
             self.ui.upload_video.reset_folder_icon()
         else:
             self.video_filename = args[0]
@@ -316,6 +317,7 @@ class MainWindow(QMainWindow):
 
     def video_exported(self):
         self.ui.text_settings.reset_text_settings()
+        self.ui.video_player_subclip.range_slider.reset_range_widget()
         
         if len(self.subclip_durations) > 0:
             print("Create Another Clip")
@@ -325,7 +327,6 @@ class MainWindow(QMainWindow):
             self.video_path = None
             self.gameplay_path = None
 
-            self.ui.video_player_subclip.range_slider.reset_range_widget()
             MainFunctions.set_video_page(self, self.ui.load_pages.upload_page)
 
     # Clears all temp files that haven't been cleared

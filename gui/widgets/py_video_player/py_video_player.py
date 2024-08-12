@@ -39,7 +39,7 @@ class PyVideoPlayer(QWidget):
         self.graphics_view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.video_item = QGraphicsVideoItem()
-        self.video_item.setAspectRatioMode(Qt.KeepAspectRatioByExpanding)
+        self.video_item.setAspectRatioMode(Qt.KeepAspectRatio)
 
         self.graphic_scene.addItem(self.video_item)
 
@@ -274,14 +274,10 @@ class PyVideoPlayer(QWidget):
 
     def resize_graphic_scene(self):
         try:
-            video_size = self.mediaPlayer.videoSink().videoSize()
-            if not video_size.isEmpty():
-                self.video_item.setSize(video_size)
-                self.graphic_scene.setSceneRect(self.video_item.boundingRect())
-                self.graphics_view.fitInView(self.video_item, Qt.AspectRatioMode.KeepAspectRatio)
-                self.graphic_scene.resizeGuides()
-                self.updateGeometry()
-                self.update()
+            self.video_item.setSize(self.graphics_view.size())
+            self.graphic_scene.setSceneRect(self.video_item.boundingRect())
+            self.graphics_view.fitInView(self.video_item, Qt.AspectRatioMode.KeepAspectRatio)
+
             
         except Exception as e:
             print("Video Unavailable: ", e)

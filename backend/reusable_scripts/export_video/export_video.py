@@ -12,6 +12,7 @@ class ExportVideo(QThread):
         super().__init__()
         self.text_and_stroke = text_and_stroke
         self.video_location = video_location
+        print("Video Name: ", self.video_location)
         self.ffmpeg_logger = ffmpeg_logger
         self.save_dir = save_location
     
@@ -75,6 +76,8 @@ Format: Start, End, Style, Text
         timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         folder_path = "backend/tempfile/"
         ass_file_location = f"{folder_path}Subtitle_{timestamp}.ass"
+        if not os.path.exists(self.save_dir):
+            self.save_dir = QStandardPaths.writableLocation(QStandardPaths.MoviesLocation)
         output_file = os.path.join(self.save_dir, f"Video_{timestamp}.mp4")
 
         for dialogue in dialogues:
@@ -94,6 +97,7 @@ Format: Start, End, Style, Text
         
         self.exporting_video.emit("Exporting Video...")
 
+
         video_text = [
             "ffmpeg",
             "-y",
@@ -104,32 +108,22 @@ Format: Start, End, Style, Text
         ]
         process = subprocess.Popen(video_text, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
 
-        try:
-            video = cv2.VideoCapture(video_file)
-            total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-            video.release()
 
-            ffmpeg_logger.video_logger(process, total_frames)
 
-            process.wait()
+        video = cv2.VideoCapture(video_file)
+        total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+        video.release()
+
+        ffmpeg_logger.video_logger(process, total_frames)
+
+        process.wait()
+        
+        # Ensure the process has completed and all handles are released
+        if process.returncode == 0:
+            print("Successfully Exported Video")
+        else:
+            print("Error Exporting Video, File: Export_video")
             
-            # Ensure the process has completed and all handles are released
-            if process.returncode == 0:
-                print("Successfully Exported Video")
-            else:
-                print("Error Exporting Video, File: Export_video")
-            
-        finally:
-            # Attempt to delete files
-            try:
-
-                os.remove(video_file)
-            except FileNotFoundError:
-                print(f"File not found: {ass_file} or {video_file}")
-            except PermissionError as e:
-                print(f"Permission error: {e}")
-            except Exception as e:
-                print(f"Error deleting file: {e}")
 
         if process.returncode == 0:
             self.video_completed.emit()
@@ -237,7 +231,7 @@ Format: Start, End, Style, Text
                 style_name = text.split(':')[1].strip().replace("'", '')
                 if 'pt' in style_name:
                     style_name = style_name.replace('pt', '')
-                    style_name = float(style_name) * 1.333
+                    style_name = float(style_name) * 1.33
                     style_attributes.append(str(style_name))
                     break
                 

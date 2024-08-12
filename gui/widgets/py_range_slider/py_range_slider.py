@@ -52,14 +52,14 @@ class PyRangeSlider(QWidget):
 		parent =None,
 		height = 100,
 		width = 100,
-		left_value=0, 
-		right_value=60,
+		left_value=0, # Starting Left Handle Value
+		right_value=60, # Starting Right Hanlde Value
 		move_every = 1000, # How much you want the handles to move by on, QT Video player 1000 == 1 Second
 
 		# ALL MAIN HANDLE SECTION
 		main_handle_height = 70,
 		main_handle_width = 5,
-		set_value = 0,
+		set_value = 0, # Starting Main Hanlde Value
 		main_handle_color = QColor("#D9D9D9"),
 
 		# ALL HANDLE SECTION
@@ -72,7 +72,7 @@ class PyRangeSlider(QWidget):
 		handle_border_color=QColor("#D9D9D9"),
 
 		# TRACK SECTION
-		min_track_range = 10, # Track between left and right handles
+		min_track_range = 10, # Space between left and right handles
 	    track_height = 53,
 	    track_color = QColor("#4D96E0"),
 		track_opacity = 0,
@@ -193,7 +193,7 @@ class PyRangeSlider(QWidget):
 		available_width = canvas_width - 2 * self.track_padding
 
 		for left_handle, right_handle in  self.handle_pairs:
-			
+
 			x1 = left_handle.value / self._right_value * available_width + self.track_padding
 			x2 = right_handle.value / self._right_value * available_width + self.track_padding
 			rect = QRect(round(x1), self.__get_track_y_position(), \
@@ -425,6 +425,7 @@ class PyRangeSlider(QWidget):
 
 			self.handle_pairs.append([left_handle, right_handle])
 			self.add_new_tooltips((left_handle, right_handle))
+			self.update_tooltips_positions()
 			
 
 			self.update()
@@ -461,6 +462,7 @@ class PyRangeSlider(QWidget):
 	def set_range(self, duration):
 		duration /= self._move_every
 		self._right_value = duration
+		self.update_tooltips_positions()
 		self.update()
 	
 	# grabs all handle start and end times
@@ -525,6 +527,7 @@ class PyRangeSlider(QWidget):
 			handle_tooltip.textChanged.connect(partial(self.on_text_changed, handle, handle_tooltip))
 			self.handle_tooltips.append([handle, handle_tooltip])
 			handle_tooltip.show()
+			self.update_tooltips_positions()
 
 
 	# Lets Users Choose The Handle Position By Typing

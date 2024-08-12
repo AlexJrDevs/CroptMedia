@@ -69,19 +69,22 @@ class CreatePreviewText(QObject):
         start_time, end_time = subtitle_duration.split(' --> ')
         start_total_milliseconds, end_total_milliseconds = self.convert_to_ms(start_time, end_time)
 
+        text_option = QTextOption()
+        text_option.setWrapMode(QTextOption.NoWrap)
+        text_option.setAlignment(Qt.AlignCenter)
+
         text_preview = PyGraphicsTextItem()
         text_preview.setDefaultTextColor(QColor("White"))
-        text_preview.setHtml(f'<div style="text-align: center;">{subtitle_text}</div>')
+        text_preview.setPlainText(subtitle_text)
         text_preview.setFont(QFont("Roboto", 90))
-
         text_preview.adjustSize()
- 
 
         text_preview.setPos(self.graphics_scene.sceneRect().center().x() - text_preview.boundingRect().center().x(), self.graphics_scene.sceneRect().center().y() - text_preview.boundingRect().center().y())
         
         text_preview.setFlags(QGraphicsTextItem.ItemIsSelectable | QGraphicsTextItem.ItemIsMovable | QGraphicsTextItem.ItemIsFocusable)
 
         # Connect contentsChange signal and store the connection object
+        text_preview.document().setDefaultTextOption(text_option)
         text_preview.document().contentsChange.connect(partial(self.handle_text_preview_change, subtitle_id=subtitle_id, text_preview=text_preview))
 
         self.text_data_dict[subtitle_id] = (text_preview, subtitle_duration, subtitle_text, start_total_milliseconds, end_total_milliseconds)
@@ -93,9 +96,7 @@ class CreatePreviewText(QObject):
     # ///////////////////////////////////////////////////////////////
 
     def handle_text_preview_change(self, position, chars_removed, chars_added, subtitle_id, text_preview):
-        
         text_preview.adjustSize()
-        
         new_text = text_preview.toPlainText()
         self.update_subtitle_text(subtitle_id, new_text)
 
