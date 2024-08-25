@@ -31,7 +31,6 @@ class AudioTranscribe(QObject):
         model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=self.device)
         result = whisperx.align(result["segments"], model_a, metadata, audio, self.device, return_char_alignments=False)
 
-        os.remove(audio_path)
         return result
 
 

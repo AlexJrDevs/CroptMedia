@@ -31,7 +31,7 @@ class PyVideoPlayer(QWidget):
     
 
         self.graphics_view = PyGraphicsView()
-        self.graphic_scene = PyGraphicsScene()
+        self.graphic_scene = QGraphicsScene()
 
         self.graphics_view.setScene(self.graphic_scene)
         self.graphic_scene.setBackgroundBrush(Qt.black)
@@ -164,7 +164,10 @@ class PyVideoPlayer(QWidget):
         self.mediaPlayer.positionChanged.connect(self.positionChanged)
         self.mediaPlayer.durationChanged.connect(self.durationChanged)
         self.mediaPlayer.errorOccurred.connect(self.handleError)
+
+        # Resizes the video
         self.mediaPlayer.videoOutputChanged.connect(self.resize_graphic_scene)
+        self.mediaPlayer.mediaStatusChanged.connect(self.media_status_changed)
 
 
         self.position_slider.sliderMoved.connect(self.setPosition)
@@ -204,10 +207,6 @@ class PyVideoPlayer(QWidget):
         self.play_button.setEnabled(True)
         self.mediaPlayer.play()
 
-        self.resize_graphic_scene()
-
-        for subtitle_index, (text_preview, subtitle_duration, subtitle_text, start_total_milliseconds, end_total_milliseconds) in self.text_data.items():
-            text_preview.setPos(self.graphic_scene.sceneRect().center().x() - text_preview.boundingRect().center().x(), self.graphic_scene.sceneRect().center().y() - text_preview.boundingRect().center().y())
 
 
     def play(self):
@@ -215,6 +214,23 @@ class PyVideoPlayer(QWidget):
             self.mediaPlayer.pause()
         else:
             self.mediaPlayer.play()
+
+    # This checks when media is loaded
+    def media_status_changed(self, state):
+
+        view_rect = self.graphics_view.viewport().rect()
+        scene_rect = self.graphics_view.mapToScene(view_rect).boundingRect()
+
+        for subtitle_index, (text_preview, subtitle_duration, subtitle_text, start_total_milliseconds, end_total_milliseconds) in self.text_data.items():
+            text_rect = text_preview.boundingRect()
+            
+            x = scene_rect.center().x() - text_rect.width() / 2
+            y = scene_rect.center().y() - text_rect.height() / 2
+            
+            text_preview.setPos(x, y)
+
+        self.resize_graphic_scene()
+
 
     def mediaStateChanged(self, state):
 
@@ -274,16 +290,13 @@ class PyVideoPlayer(QWidget):
 
     def resize_graphic_scene(self):
         try:
-            self.video_item.setSize(self.graphics_view.size())
-            self.graphic_scene.setSceneRect(self.video_item.boundingRect())
-            self.graphics_view.fitInView(self.video_item, Qt.AspectRatioMode.KeepAspectRatio)
-
-            
+            if self.video_item.boundingRect().isValid() and not self.video_item.boundingRect().isEmpty():
+                self.graphic_scene.setSceneRect(self.video_item.boundingRect())
+                self.graphics_view.fitInView(self.graphic_scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
+            else:
+                print("Video item bounding rect is not valid or empty")
         except Exception as e:
             print("Video Unavailable: ", e)
-
-    def showEvent(self, event):
-        self.resize_graphic_scene()
 
     def resizeEvent(self, event):
         self.resize_graphic_scene()

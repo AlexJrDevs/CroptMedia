@@ -239,7 +239,7 @@ class PyTextSettings(QWidget):
                 format = cursor.charFormat()
 
                 scene_rect = self.video_player.graphic_scene.sceneRect()
-                text_rect = widget.boundingRect()
+                text_rect = widget.document().size()
 
                 if not cursor.hasSelection():
                     cursor.select(QTextCursor.Document)
@@ -282,6 +282,7 @@ class PyTextSettings(QWidget):
                     x = (scene_rect.width() - text_rect.width()) / 2
                     y = (scene_rect.height() - text_rect.height()) / 2
                     widget.setPos(x, y)
+                    print("Scene: ", scene_rect.width(), scene_rect.height(), "Text: ",text_rect.width(), text_rect.height())
 
 
                 elif sender == self.bottom_text_align:

@@ -72,7 +72,6 @@ class PySubclipPlayer(QWidget):
  
 
         self.graphic_scene.addItem(self.video_item)
-        self.graphics_view.setSceneRect(self.video_item.boundingRect())
 
         self.graphics_view.setStyleSheet("background-color: transparent; border: 0px solid transparent;")
         
@@ -225,7 +224,11 @@ class PySubclipPlayer(QWidget):
         self.mediaPlayer.positionChanged.connect(self.positionChanged)
         self.mediaPlayer.durationChanged.connect(self.durationChanged)
         self.mediaPlayer.errorOccurred.connect(self.handleError)
+
+        # Resizes the video
         self.mediaPlayer.videoOutputChanged.connect(self.resize_graphic_scene)
+        self.mediaPlayer.mediaStatusChanged.connect(self.resize_graphic_scene)
+
 
         self.range_slider.slider_moved.connect(self.setPosition)
 
@@ -257,8 +260,6 @@ class PySubclipPlayer(QWidget):
         self.mediaPlayer.setAudioOutput(self.audioOutput)
         self.play_button.setEnabled(True)
         self.play()
-
-        self.resize_graphic_scene()
 
     
 
@@ -348,17 +349,15 @@ class PySubclipPlayer(QWidget):
 
     def resize_graphic_scene(self):
         try:
-            print("Update Video size")
-
-            self.graphics_view.setSceneRect(self.video_item.boundingRect())
-            self.video_item.setSize(self.graphics_view.size())
- 
+            if self.video_item.boundingRect().isValid() and not self.video_item.boundingRect().isEmpty():
+                print("Update Video size")
+                self.graphic_scene.setSceneRect(self.video_item.boundingRect())
+                self.graphics_view.fitInView(self.graphic_scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
+            else:
+                print("Video item bounding rect is not valid or empty")
         except Exception as e:
-            print("Video Unavailable: ",e)
+            print("Video Unavailable: ", e)
         
-
-    def showEvent(self, event):
-        self.resize_graphic_scene()
 
 
     def resizeEvent(self, event):

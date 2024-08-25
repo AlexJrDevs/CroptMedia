@@ -1,143 +1,198 @@
 import os
 import random
-
-import datetime, subprocess, cv2
- 
-from ...reusable_scripts import *
-
+import datetime
+import subprocess
+import cv2
 from qt_core import *
-
+from VideoTalkingTracker import VideoTalkingTracker
 
 class StoryVideo(QThread):
-
     creating_video = Signal(str)
     finished_subclip = Signal(str)
 
-    def __init__(self, word_amount, subclip_durations, audio_transcribe, logger, video_path, gameplay_path=None,):
+    def __init__(self, word_amount, subclip_durations, audio_transcribe, logger, video_path, gameplay_path=None):
         super().__init__()
 
-        self.width, self.height = 1080, 1920
+        self.crop_ratio = 0.9  # Adjust the ratio to control how much of the face is visible in the cropped video
+        self.vertical_ratio = 9 / 16  # Aspect ratio for the vertical video
+        self.movement_threshold = 28  # Threshold for face movement to stabilize cropping
+
         if word_amount == "0" or word_amount == "":
             word_amount = "1"
+
         self.text_word_amount = int(word_amount)
         self.temp_dir = os.path.abspath(r'backend\tempfile')
 
-        # SETTING PROPERTIES
+        # Ensure the temporary directory exists
+        os.makedirs(self.temp_dir, exist_ok=True)
+
+        # Setting properties
         self.top_video_file = video_path
         self.bottom_video_file = gameplay_path
         self.subclip_duration = subclip_durations
         self.audio_transcribe = audio_transcribe
         self.logger = logger
 
-
-
-
-
     def create_transcribe(self, audio_file, timestamp):
         transcript_location = self.audio_transcribe.start_transcribe(audio_file, self.text_word_amount, timestamp)
         return transcript_location
-    
 
+    def trim_video(self, input_file, start_time, end_time, output_file):
+        duration = end_time - start_time
+        ffmpeg_trim_command = [
+            'ffmpeg',
+            '-ss', str(start_time),
+            '-i', input_file,
+            '-t', str(duration),
+            '-c:v', 'copy',
+            '-c:a', 'copy',
+            '-y',
+            output_file
+        ]
+        subprocess.run(ffmpeg_trim_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
 
     def run(self):
         try:
+            # Parse the subclip duration to get start and end times
             start_time, end_time = (sum(int(x) * 60 ** i for i, x in enumerate(reversed(subclip_time.split(':')))) for subclip_time in self.subclip_duration)
             duration = end_time - start_time
-                
             timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
-
+            # Set up file paths for temporary output files
+            trimmed_video_file = os.path.join(self.temp_dir, f"Trimmed_Video_{timestamp}.mp4")
             self.output_file = os.path.join(self.temp_dir, f"Video_{timestamp}.mp4")
             audio_file = os.path.join(self.temp_dir, f"Video_{timestamp}.mp3")
-            
-            # EXTRACTING THE AUDIO AND CONVERTING IT TO SRT
-            # ///////////////////////////////////////////////////////////////
+
+            # Trim the video first
+            self.trim_video(self.top_video_file, start_time, end_time, trimmed_video_file)
+
+            # Extract audio from the trimmed video
             ffmpeg_audio = [
                 'ffmpeg',
-                '-ss', str(start_time),
-                '-i', self.top_video_file,
-                '-t', str(duration),
-                '-c:v', 'libmp3lame',
-                '-y',  # Overwrite output file if exists
+                '-i', trimmed_video_file,
+                '-q:a', '0',
+                '-map', 'a',
+                '-y',
                 audio_file
             ]
+            subprocess.run(ffmpeg_audio, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
 
-            subprocess.run(ffmpeg_audio, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
-
+            # Transcribe the extracted audio
             while True:
                 if audio_file:
                     transcript_location = self.create_transcribe(audio_file, timestamp)
                     break
-            
-            # CREATING THE VIDEO
-            # ///////////////////////////////////////////////////////////////
 
-            # Use ffmpeg to get the duration of the top and bottom videos
-            top_video_start = float(subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', self.top_video_file]).strip())
-            top_video_frames = self.get_video_frames(self.top_video_file, start_time, end_time)
-            bottom_video_frames= 0
+            # Load the trimmed video for face tracking and cropping
+            cap = cv2.VideoCapture(trimmed_video_file)
 
+            # Get the frame dimensions
+            frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-            # Using ffmpeg to concatenate videos
-            if self.bottom_video_file != None:
-                print("Bottom vid not none")
-                bottom_video_start= random.uniform(0, top_video_start - duration)
-                bottom_video_frames = self.get_video_frames(self.bottom_video_file, bottom_video_start, bottom_video_start + duration)
+            # TO DO: FIX THE RATIO TO BE 1080X1920, AND ADD OPTION FOR GAMEPLAY
+            target_height = frame_height
+            target_width = int(target_height * self.vertical_ratio)
 
-                ffmpeg_video = [
-                    'ffmpeg',
-                    '-ss', str(start_time),
-                    '-i', self.top_video_file,
-                    '-ss', str(bottom_video_start),
-                    '-i', self.bottom_video_file,
-                    '-filter_complex', '[0:v]scale=-1:960[v0];[1:v]scale=-1:960[v1];[v0][v1]vstack, crop=w=1080:x=(iw-1080)/2',
-                    '-t', str(duration),
-                    '-c:v', 'libx264',
-                    '-y',  # Overwrite output file if exists
-                    self.output_file
-                ]
-            else:
-                print("Using single video")
-                ffmpeg_video = [
-                    'ffmpeg',
-                    '-ss', str(start_time),
-                    '-i', self.top_video_file,
-                    '-filter_complex', '[0:v]crop=w=ih*9/16:h=ih,scale=1080:1920,setsar=1',
-                    '-t', str(duration),
-                    '-c:v', 'libx264',
-                    '-y',  # Overwrite output file if exists
-                    self.output_file
-                ]
+            # Create a temporary file for the video without audio
+            temp_output_file = os.path.join(self.temp_dir, f'temp_Video_{timestamp}.mp4')
 
-            process = subprocess.Popen(ffmpeg_video, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
+            # Create a VideoWriter object to save the output video
+            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            output_video = cv2.VideoWriter(temp_output_file, fourcc, fps, (target_width, target_height))
 
+            frame_number = 0
+            last_crop_x, last_crop_y = 0, 0  # Initialize last cropping coordinates
+
+            # Process the trimmed video using VideoTalkingTracker
+            talking_tracker = VideoTalkingTracker()
+            data = talking_tracker.process(trimmed_video_file)
+
+            face_data = {frame_data.get("frame_number"): frame_data.get("faces", []) for frame_data in data}
+
+            # Loop through each frame of the trimmed video
+            while True:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+
+                # Initialize crop coordinates
+                crop_x, crop_y = 0, 0
+                crop_x2, crop_y2 = target_width, target_height
+
+                # Check if there are faces in the current frame
+                frame_has_face = face_data.get(frame_number, [])
+
+                if frame_has_face:
+                    best_face = max(frame_has_face, key=lambda face: face['speaking_score'])
+
+                    if best_face['speaking_score'] >= 0:
+                        x1, y1, x2, y2 = best_face['x1'], best_face['y1'], best_face['x2'], best_face['y2']
+
+                        # Calculate the crop coordinates
+                        face_width = x2 - x1
+                        face_height = y2 - y1
+                        crop_x = max(0, x1 + (face_width - target_width) // 2)
+                        crop_y = max(0, y1 + (face_height - target_height) // 2)
+                        crop_x2 = min(crop_x + target_width, frame_width)
+                        crop_y2 = min(crop_y + target_height, frame_height)
+
+                        if abs(crop_x - last_crop_x) < self.movement_threshold and abs(crop_y - last_crop_y) < self.movement_threshold:
+                            crop_x, crop_y = last_crop_x, last_crop_y
+                            crop_x2 = min(crop_x + target_width, frame_width)
+                            crop_y2 = min(crop_y + target_height, frame_height)
+
+                        last_crop_x, last_crop_y = crop_x, crop_y
+                    else:
+                        # Center the crop if no face detected for too long
+                        crop_x = max(0, (frame_width - target_width) // 2)
+                        crop_y = max(0, (frame_height - target_height) // 2)
+                        last_crop_x, last_crop_y = crop_x, crop_y
+                else:
+                    # Center the crop if no face detected for too long
+                    crop_x = max(0, (frame_width - target_width) // 2)
+                    crop_y = max(0, (frame_height - target_height) // 2)
+                    last_crop_x, last_crop_y = crop_x, crop_y
+
+                crop_x2 = min(crop_x + target_width, frame_width)
+                crop_y2 = min(crop_y + target_height, frame_height)
+
+                cropped_frame = frame[crop_y:crop_y2, crop_x:crop_x2]
+                resized_frame = cv2.resize(cropped_frame, (target_width, target_height))
+                output_video.write(resized_frame)
+
+                frame_number += 1
+
+            # Release the input and output video objects
+            cap.release()
+            output_video.release()
+
+            # Use FFmpeg to add audio back to the cropped video
+            ffmpeg_command = [
+                'ffmpeg',
+                '-i', temp_output_file,
+                '-i', audio_file,
+                '-c:v', 'copy',
+                '-c:a', 'aac',
+                '-map', '0:v:0',
+                '-map', '1:a:0',
+                '-shortest',
+                '-y',
+                self.output_file
+            ]
+
+            process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            stdout, stderr = process.communicate()
             self.creating_video.emit("Creating Video...")
-
-            if top_video_frames > bottom_video_frames:
-                print("Top Greater")
-                self.logger.video_logger(process, top_video_frames)
-            else:
-                print("Bottom Greater")
-                self.logger.video_logger(process, bottom_video_frames)
-
-
             process.wait()
-            sucessful = process.returncode
+            successful = process.returncode
 
-            if sucessful == 0:
+            if successful == 0:
                 self.finished_subclip.emit(self.output_file)
             else:
-                print("Error Story_Video: ", sucessful)
-
+                print("Error Story_Video: ", process.returncode)
+                print("FFmpeg error output:", stderr)
 
         except Exception as e:
             print("Error occurred:", str(e))
-
-    def get_video_frames(self, video_path, start, end):
-        cap = cv2.VideoCapture(video_path)
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        cap.release()
-        start_frame = int(start * fps)
-        end_frame = int(end * fps)
-        total_frames = end_frame - start_frame
-        return total_frames
