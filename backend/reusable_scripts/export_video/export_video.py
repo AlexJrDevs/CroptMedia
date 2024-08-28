@@ -67,8 +67,8 @@ PlayResY: 1920
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BorderStyle, Encoding, Alignment
-Style: Default,{self.styles_attributes},&H00FFFFFF,&HFFFF00,&H00FFFFFF,0,0,2
-Style: Background,{self.styles_attributes},&H00FFFFFF,&H000000FF,&H00000000,3,0,2
+Style: Default,{self.styles_attributes},&H00FFFFFF,&HFFFF00,&H00FFFFFF,0,0,7
+Style: Background,{self.styles_attributes},&H00FFFFFF,&H000000FF,&H00000000,3,0,7
 
 [Events]
 Format: Start, End, Style, Text
