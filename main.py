@@ -19,6 +19,8 @@
 import sys
 import os
 
+from VideoTalkingTracker import VideoTalkingTracker
+
 from gui.uis.windows.main_window.functions_main_window import *
 
 # IMPORT QT CORE
@@ -73,6 +75,7 @@ class MainWindow(QMainWindow):
         # ///////////////////////////////////////////////////////////////
         self.percentage_logger = BarLogger()
         self.audio_transcript = AudioTranscribe()
+        self.talking_tracker = VideoTalkingTracker()
         self.preview_text = CreatePreviewText(
             self.ui.video_player_main.video_item, 
             self.ui.video_player_main.graphic_scene, 
@@ -80,6 +83,7 @@ class MainWindow(QMainWindow):
             self.ui.transcript_widget.model, 
             self.ui.transcript_widget.delegate
         )
+
 
         self.preview_text.text_data_updated.connect(self.update_preview_text)
         self.percentage_logger.loading_percent.connect(self.update_loading_bar)
@@ -266,12 +270,15 @@ class MainWindow(QMainWindow):
         # Create a thread to run video processing in the background
         self.video_processing_thread = StoryVideo(
             self.ui.upload_video.word_limit_input.text(), 
+            self.ui.upload_video.talking_tracker_option,
             self.subclip_durations[0], 
             self.audio_transcript, 
-            self.percentage_logger, 
+            self.percentage_logger,
+            self.talking_tracker, 
             self.video_path, 
             self.gameplay_path
         )
+        self.video_processing_thread.update_loading.connect(self.update_loading_bar)
         self.video_processing_thread.creating_video.connect(self.update_text_loading)
         self.video_processing_thread.finished_subclip.connect(self.video_player_screen)
         self.video_processing_thread.start()
@@ -292,6 +299,7 @@ class MainWindow(QMainWindow):
     # Sets a text below the value to show what it is creating
     def update_text_loading(self, text):
         self.circular_progress_1.set_text(text)
+        self.update_loading_bar("0")
 
     def update_transcript_widget(self, transcript_location):
         self.preview_text.load_srt_file(transcript_location)

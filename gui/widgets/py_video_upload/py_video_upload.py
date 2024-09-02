@@ -81,7 +81,7 @@ class PyVideoUpload(QWidget):
         self.word_limit_input.setText('5')
         self.word_limit_input.setAlignment(Qt.AlignCenter)
         self.word_limit_input.setStyleSheet("border: 2px solid #1B1E23; border-radius: 12px; background-color: #1B1E23;")
-        self.word_limit_input.setMaximumWidth(150)
+        self.word_limit_input.setMaximumWidth(100)
         self.word_limit_input.setMinimumHeight(28)
 
         # Set the input validator to accept only positive integers
@@ -99,7 +99,7 @@ class PyVideoUpload(QWidget):
         gameplay_layout.setSpacing(5)
         gameplay_layout.setContentsMargins(0, 0, 0, 0)
 
-        gameplay_label = QLabel("Gameplay")
+        gameplay_label = QLabel("Gameplay Button")
         gameplay_label.setAlignment(Qt.AlignCenter)
         gameplay_label.setStyleSheet("font-family: 'Roboto', sans-serif; font-weight: bold; font-size: 12px;")
         self.gameplay_toggle = PyToggle(width=150, bg_color='#1B1E23', active_color='#3f6fd1')
@@ -108,6 +108,21 @@ class PyVideoUpload(QWidget):
         gameplay_layout.addWidget(self.gameplay_toggle)
         
         settings_layout.addLayout(gameplay_layout)
+
+        # Talking Tracker Toggle Section
+        talking_layout = QVBoxLayout()
+        talking_layout.setSpacing(5)
+        talking_layout.setContentsMargins(0, 0, 0, 0)
+
+        talking_label = QLabel("Speaker Tracker")
+        talking_label.setAlignment(Qt.AlignCenter)
+        talking_label.setStyleSheet("font-family: 'Roboto', sans-serif; font-weight: bold; font-size: 12px;")
+        self.talking_tracker_option = PyToggle(width=150, bg_color='#1B1E23', active_color='#3f6fd1')
+        self.talking_tracker_option.setCheckState(Qt.Checked)
+        talking_layout.addWidget(talking_label)
+        talking_layout.addWidget(self.talking_tracker_option)  
+
+        settings_layout.addLayout(talking_layout)
 
         # Set the main layout of the widget to be the bg_widget layout
         main_layout = QVBoxLayout(self)

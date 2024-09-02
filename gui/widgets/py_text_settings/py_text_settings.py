@@ -279,8 +279,10 @@ class PyTextSettings(QWidget):
 
                 
                 elif sender == self.centre_text_align:
-                    x = (scene_rect.width() - text_rect.width()) / 2
-                    y = (scene_rect.height() - text_rect.height()) / 2
+
+
+                    x = scene_rect.center().x() - widget.boundingRect().center().x()
+                    y = scene_rect.center().y() - widget.boundingRect().center().y()
                     widget.setPos(x, y)
                     print("Scene: ", scene_rect.width(), scene_rect.height(), "Text: ",text_rect.width(), text_rect.height())
 

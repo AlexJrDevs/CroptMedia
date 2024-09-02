@@ -60,7 +60,7 @@ class PySubclipPlayer(QWidget):
     
 
         self.graphics_view = PyGraphicsView()
-        self.graphic_scene = PyGraphicsScene()
+        self.graphic_scene = QGraphicsScene()
 
         self.graphics_view.setScene(self.graphic_scene)
         self.graphic_scene.setBackgroundBrush(Qt.black)
@@ -69,8 +69,8 @@ class PySubclipPlayer(QWidget):
 
         self.video_item = QGraphicsVideoItem()
         self.video_item.setAspectRatioMode(Qt.KeepAspectRatio)
- 
 
+ 
         self.graphic_scene.addItem(self.video_item)
 
         self.graphics_view.setStyleSheet("background-color: transparent; border: 0px solid transparent;")

@@ -31,7 +31,7 @@ class PyVideoPlayer(QWidget):
     
 
         self.graphics_view = PyGraphicsView()
-        self.graphic_scene = QGraphicsScene()
+        self.graphic_scene = PyGraphicsScene()
 
         self.graphics_view.setScene(self.graphic_scene)
         self.graphic_scene.setBackgroundBrush(Qt.black)
@@ -40,6 +40,7 @@ class PyVideoPlayer(QWidget):
 
         self.video_item = QGraphicsVideoItem()
         self.video_item.setAspectRatioMode(Qt.KeepAspectRatio)
+
 
         self.graphic_scene.addItem(self.video_item)
 
@@ -217,17 +218,20 @@ class PyVideoPlayer(QWidget):
 
     # This checks when media is loaded
     def media_status_changed(self, state):
+        print("Video Player: Video has changed")
 
-        view_rect = self.graphics_view.viewport().rect()
-        scene_rect = self.graphics_view.mapToScene(view_rect).boundingRect()
+        scene_rect_center = self.graphic_scene.sceneRect().center()
 
-        for subtitle_index, (text_preview, subtitle_duration, subtitle_text, start_total_milliseconds, end_total_milliseconds) in self.text_data.items():
-            text_rect = text_preview.boundingRect()
-            
-            x = scene_rect.center().x() - text_rect.width() / 2
-            y = scene_rect.center().y() - text_rect.height() / 2
-            
-            text_preview.setPos(x, y)
+        if self.text_data.items():
+            print("Centering all the text")
+            for subtitle_index, (text_preview, subtitle_duration, subtitle_text, start_total_milliseconds, end_total_milliseconds) in self.text_data.items():
+                
+                x = scene_rect_center.x() - text_preview.boundingRect().center().x()
+                y = scene_rect_center.y() - text_preview.boundingRect().center().y()
+                
+                text_preview.setPos(x, y)
+        else:
+            print("No Text To center")
 
         self.resize_graphic_scene()
 
@@ -263,6 +267,7 @@ class PyVideoPlayer(QWidget):
         for subtitle_id, (text_preview, subtitle_duration, subtitle_text, start_total_milliseconds, end_total_milliseconds) in self.text_data.items():
             if start_total_milliseconds <= position <= end_total_milliseconds and not text_preview.isVisible():
                 text_preview.show()
+                print("Font: ", text_preview.font())
                 self.text_being_shown.emit(subtitle_id)
 
             elif text_preview.isVisible() and not start_total_milliseconds <= position <= end_total_milliseconds:
@@ -293,6 +298,7 @@ class PyVideoPlayer(QWidget):
             if self.video_item.boundingRect().isValid() and not self.video_item.boundingRect().isEmpty():
                 self.graphic_scene.setSceneRect(self.video_item.boundingRect())
                 self.graphics_view.fitInView(self.graphic_scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
+                self.graphic_scene.resizeGuides()
             else:
                 print("Video item bounding rect is not valid or empty")
         except Exception as e:
