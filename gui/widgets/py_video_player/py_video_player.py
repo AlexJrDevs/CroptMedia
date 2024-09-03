@@ -23,6 +23,7 @@ class PyVideoPlayer(QWidget):
         self.parent = parent
 
         self.text_data={}
+        self.first_play = True
 
         self.mediaPlayer = QMediaPlayer()
         self.audioOutput = QAudioOutput()
@@ -168,7 +169,7 @@ class PyVideoPlayer(QWidget):
 
         # Resizes the video
         self.mediaPlayer.videoOutputChanged.connect(self.resize_graphic_scene)
-        self.mediaPlayer.mediaStatusChanged.connect(self.media_status_changed)
+        self.mediaPlayer.mediaStatusChanged.connect(self.check_and_position_text_preview) # This slot actually resizes the scene
 
 
         self.position_slider.sliderMoved.connect(self.setPosition)
@@ -179,7 +180,6 @@ class PyVideoPlayer(QWidget):
 
             text_preview.toHtml()
             stroke_size, stroke_color = text_preview.grab_stroke_data()
-            print(stroke_size)
             
             start_time = self.milliseconds_to_time(start_total_milliseconds)
             end_time = self.milliseconds_to_time(end_total_milliseconds)
@@ -187,10 +187,18 @@ class PyVideoPlayer(QWidget):
             temp_location = os.path.abspath(r'backend\tempfile')
             text_html_location = os.path.join(temp_location, f"Subtitle_{subtitle_index}.html")
 
+
+            # ACTUAL TEXT POSITION
+            # /////////////////////
+            x = (self.video_item.nativeSize().width() / self.graphic_scene.width()) * text_preview.pos().x()
+            y = (self.video_item.nativeSize().height() / self.graphic_scene.height()) * text_preview.pos().y()
+            # /////////////////////
+
             with open(text_html_location, "w") as file:
                 file.write(text_preview.toHtml())
 
             text_html.append([text_html_location, str(text_preview.pos().x()), str(text_preview.pos().y()), stroke_size, stroke_color, start_time, end_time])
+            print(str(text_preview.pos().x()), str(text_preview.pos().y()), stroke_size, stroke_color, start_time, end_time)
             file.close()
         
         return text_html
@@ -200,9 +208,10 @@ class PyVideoPlayer(QWidget):
         minutes, seconds = divmod(seconds, 60)
         hours, minutes = divmod(minutes, 60)
         return "{:02d}:{:02d}:{:02d}.{:02d}".format(hours, minutes, seconds, milliseconds % 1000 // 10)
-
+    
 
     def setMedia(self, fileName):
+        self.first_play= True
         self.mediaPlayer.setSource(QUrl.fromLocalFile(fileName))
         self.mediaPlayer.setAudioOutput(self.audioOutput)
         self.play_button.setEnabled(True)
@@ -216,24 +225,39 @@ class PyVideoPlayer(QWidget):
         else:
             self.mediaPlayer.play()
 
-    # This checks when media is loaded
-    def media_status_changed(self, state):
-        print("Video Player: Video has changed")
-
-        scene_rect_center = self.graphic_scene.sceneRect().center()
-
-        if self.text_data.items():
-            print("Centering all the text")
-            for subtitle_index, (text_preview, subtitle_duration, subtitle_text, start_total_milliseconds, end_total_milliseconds) in self.text_data.items():
-                
-                x = scene_rect_center.x() - text_preview.boundingRect().center().x()
-                y = scene_rect_center.y() - text_preview.boundingRect().center().y()
-                
-                text_preview.setPos(x, y)
-        else:
-            print("No Text To center")
-
+    def check_and_position_text_preview(self):
         self.resize_graphic_scene()
+        if self.first_play:
+            print("Self.first_play is true")
+            self.position_text_preview()
+        
+        
+
+    def position_text_preview(self):
+
+        # Get the scene rect and calculate its center 
+        scene_rect = self.graphic_scene.sceneRect()
+        scene_center = scene_rect.center()
+
+        for subtitle_index, (text_preview, subtitle_duration, subtitle_text, start_total_milliseconds, end_total_milliseconds) in self.text_data.items():
+            # Ensure the text preview's bounding rect is up-to-date
+            text_rect = text_preview.boundingRect()
+
+            # Debug information
+            print(f"Scene Center: {scene_center}")
+            print(f"Text Bounding Rect: {text_rect}")
+            print(f"Text Width: {text_rect.width()}, Text Height: {text_rect.height()}")
+
+            # Calculate the center position for the text
+            x = scene_center.x() - (text_rect.width() / 2)
+            y = scene_center.y() - (text_rect.height() / 2)
+
+            # Debug information
+            print(f"Calculated Position: x={x}, y={y}")
+
+            # Set the position of the text preview
+            text_preview.setPos(x, y)
+            print(f"Text Preview Position: {text_preview.pos()}")
 
 
     def mediaStateChanged(self, state):
@@ -246,6 +270,8 @@ class PyVideoPlayer(QWidget):
     def positionChanged(self, position):
         # Update position slider
         self.position_slider.setValue(position)
+        if self.first_play:
+            self.first_play = False
 
         duration_ms = self.mediaPlayer.duration()
         if duration_ms >= 3600000:  # If duration is 1 hour or more
@@ -267,7 +293,6 @@ class PyVideoPlayer(QWidget):
         for subtitle_id, (text_preview, subtitle_duration, subtitle_text, start_total_milliseconds, end_total_milliseconds) in self.text_data.items():
             if start_total_milliseconds <= position <= end_total_milliseconds and not text_preview.isVisible():
                 text_preview.show()
-                print("Font: ", text_preview.font())
                 self.text_being_shown.emit(subtitle_id)
 
             elif text_preview.isVisible() and not start_total_milliseconds <= position <= end_total_milliseconds:
@@ -299,6 +324,7 @@ class PyVideoPlayer(QWidget):
                 self.graphic_scene.setSceneRect(self.video_item.boundingRect())
                 self.graphics_view.fitInView(self.graphic_scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
                 self.graphic_scene.resizeGuides()
+                print("Video Size: ", self.video_item.nativeSize(), self.video_item.boundingRect().size())
             else:
                 print("Video item bounding rect is not valid or empty")
         except Exception as e:

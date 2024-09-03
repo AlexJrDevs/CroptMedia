@@ -14,7 +14,7 @@ class PyGraphicsTextItem(QGraphicsTextItem):
 
         self.outline_format = QTextCharFormat()
         self.outline_format.setTextOutline(QPen(
-            Qt.GlobalColor.black, 5, 
+            Qt.GlobalColor.black, 0, 
             Qt.PenStyle.SolidLine, 
             Qt.PenCapStyle.RoundCap, 
             Qt.PenJoinStyle.RoundJoin
@@ -73,14 +73,7 @@ class PyGraphicsTextItem(QGraphicsTextItem):
  
         return super().itemChange(change, value)
 
-    def setPlainText(self, text):
-        super().setPlainText(text)
-        if text:
-            format = QTextCharFormat()
-            format.setFontPointSize(90)
-            cursor = QTextCursor(self.document())
-            cursor.select(QTextCursor.SelectionType.Document)
-            cursor.mergeCharFormat(format)
+
 
 
     def paint(self, painter, option, widget):

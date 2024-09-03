@@ -25,19 +25,25 @@ class Settings(object):
     # APP PATH
     # ///////////////////////////////////////////////////////////////
     json_file = "settings.json"
+    text_json_file = "text_settings.json"
     app_path = os.path.abspath(os.getcwd())
+
     settings_path = os.path.normpath(os.path.join(app_path, json_file))
+    text_settings_path = os.path.normpath(os.path.join(app_path, text_json_file))
+
     if not os.path.isfile(settings_path):
-        print(f"WARNING: \"settings.json\" not found! check in the folder {settings_path}")
+        print(f"WARNING: \"{json_file}\" not found! Check in the folder {settings_path}")
+    if not os.path.isfile(text_settings_path):
+        print(f"WARNING: \"{text_json_file}\" not found! Check in the folder {text_settings_path}")
     
     # INIT SETTINGS
     # ///////////////////////////////////////////////////////////////
     def __init__(self):
         super(Settings, self).__init__()
 
-        # DICTIONARY WITH SETTINGS
-        # Just to have objects references
-        self.items = {}
+        # DICTIONARIES WITH SETTINGS
+        self.items = {}        # For settings.json
+        self.text_items = {}   # For text_settings.json
 
         # DESERIALIZE
         self.deserialize()
@@ -45,14 +51,24 @@ class Settings(object):
     # SERIALIZE JSON
     # ///////////////////////////////////////////////////////////////
     def serialize(self):
-        # WRITE JSON FILE
-        with open(self.settings_path, "w", encoding='utf-8') as write:
-            json.dump(self.items, write, indent=4)
+        # WRITE settings.json
+        with open(self.settings_path, "w", encoding='utf-8') as write_file:
+            json.dump(self.items, write_file, indent=4)
+        
+        # WRITE text_settings.json
+        with open(self.text_settings_path, "w", encoding='utf-8') as write_file:
+            json.dump(self.text_items, write_file, indent=4)
 
     # DESERIALIZE JSON
     # ///////////////////////////////////////////////////////////////
     def deserialize(self):
-        # READ JSON FILE
-        with open(self.settings_path, "r", encoding='utf-8') as reader:
-            settings = json.loads(reader.read())
-            self.items = settings
+        # READ settings.json
+        if os.path.isfile(self.settings_path):
+            with open(self.settings_path, "r", encoding='utf-8') as read_file:
+                self.items = json.load(read_file)
+
+        # READ text_settings.json
+        if os.path.isfile(self.text_settings_path):
+            with open(self.text_settings_path, "r", encoding='utf-8') as read_file:
+                self.text_items = json.load(read_file)
+

@@ -1,0 +1,11 @@
+{
+    "text_settings": {
+        "default": {
+            "font": "Roboto",
+            "font_size": 12,
+            "stroke_size": 5,
+            "stroke_color": "#000000",
+            "text_color": "#FFFFFF"  
+        }
+    }
+}

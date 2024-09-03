@@ -78,7 +78,7 @@ class PyVideoUpload(QWidget):
 
         # Create the QLineEdit with a validator
         self.word_limit_input = QLineEdit()
-        self.word_limit_input.setText('5')
+        self.word_limit_input.setText('2')
         self.word_limit_input.setAlignment(Qt.AlignCenter)
         self.word_limit_input.setStyleSheet("border: 2px solid #1B1E23; border-radius: 12px; background-color: #1B1E23;")
         self.word_limit_input.setMaximumWidth(100)

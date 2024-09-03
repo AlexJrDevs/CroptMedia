@@ -6,6 +6,11 @@ from gui.widgets import PyIconButton, PyToggle
 
 from pyqt_color_picker import ColorPickerWidget
 
+
+# IMPORT SETTINGS
+# ///////////////////////////////////////////////////////////////
+from gui.core.json_settings import Settings
+
 style_template = """ 
 QPushButton::menu-indicator {{ 
     width:0px;
@@ -27,6 +32,17 @@ class PyTextSettings(QWidget):
         self.item_layout_text = QGridLayout(self.item_widget_text)
 
         self._button_color = QColor("#343B48")
+
+        # LOAD SETTINGS
+        setup_settings = Settings()
+        _settings = setup_settings.text_items
+
+        # Access the default settings
+        default_settings = _settings['text_settings']['default']
+
+        self.font_text = default_settings['font']
+        self.font_size = default_settings['font_size']
+        self.stroke_size = default_settings['stroke_size']
 
 
         # FIRST ROW
@@ -53,7 +69,7 @@ class PyTextSettings(QWidget):
         # ///////////////////////////////////////////////////////////////
 
         # TEXT SIZE
-        self.text_size = QLineEdit(text="90")
+        self.text_size = QLineEdit(text=str(self.font_size))
         self.text_size.setValidator(QIntValidator())
         self.text_size.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
         self.text_size.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
@@ -61,7 +77,7 @@ class PyTextSettings(QWidget):
 
         # TEXT FONT
         self.text_font = QFontComboBox()
-        self.text_font.setCurrentFont("Roboto")
+        self.text_font.setCurrentFont(self.font_text)
         self.text_font.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
         self.text_font.setStyleSheet("Background-color: #2C313C;")
 
@@ -74,7 +90,7 @@ class PyTextSettings(QWidget):
         self.stroke_label.setStyleSheet("color: #c3ccdf")
 
         # Stroke Size Input
-        self.stroke_edit = QLineEdit(text="5")
+        self.stroke_edit = QLineEdit(text=str(self.stroke_size))
         self.stroke_edit.setValidator(QIntValidator())
         self.stroke_edit.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
         self.stroke_edit.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
@@ -273,23 +289,20 @@ class PyTextSettings(QWidget):
                 # THIRD ROW
                 # ///////////////////////////////////////////////////////////////
                 elif sender == self.top_text_align:
-                    x = (scene_rect.width() - text_rect.width()) / 2
+                    x = scene_rect.center().x() - widget.boundingRect().center().x()
                     y = 10
                     widget.setPos(x, y)
 
                 
                 elif sender == self.centre_text_align:
-
-
                     x = scene_rect.center().x() - widget.boundingRect().center().x()
                     y = scene_rect.center().y() - widget.boundingRect().center().y()
                     widget.setPos(x, y)
-                    print("Scene: ", scene_rect.width(), scene_rect.height(), "Text: ",text_rect.width(), text_rect.height())
-
 
                 elif sender == self.bottom_text_align:
-                    x = (scene_rect.width() - text_rect.width()) / 2
-                    y = scene_rect.height() - text_rect.height() - 10
+                    x = scene_rect.center().x() - widget.boundingRect().center().x()
+                    y = scene_rect.height() - widget.boundingRect().height() - 10
+
                     widget.setPos(x, y)
 
                 # FOURTH ROW
@@ -344,9 +357,9 @@ class PyTextSettings(QWidget):
     
 
     def reset_text_settings(self):
-        self.text_size.setText("90")
-        self.stroke_edit.setText("5")
-        self.text_font.setCurrentFont("Roboto")
+        self.text_size.setText(str(self.font_size))
+        self.stroke_edit.setText(str(self.stroke_size))
+        self.text_font.setCurrentFont(self.font_text)
 
 
 

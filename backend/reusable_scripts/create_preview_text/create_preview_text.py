@@ -4,6 +4,11 @@ from gui.widgets import PyGraphicsTextItem
 import re, os
 import uuid
 
+
+# IMPORT SETTINGS
+# ///////////////////////////////////////////////////////////////
+from gui.core.json_settings import Settings
+
 class CreatePreviewText(QObject):
     text_data_updated = Signal(dict)
 
@@ -23,6 +28,19 @@ class CreatePreviewText(QObject):
         self.transcript_model.dataChanged.connect(self.handle_model_data_changed)
         self.transcript_delegate.add_transcript.connect(self.add_transcript)
         self.transcript_delegate.remove_transcript.connect(self.remove_transcript_widgets)
+
+        # LOAD SETTINGS
+        setup_settings = Settings()
+        _settings = setup_settings.text_items
+
+        # Access the default settings
+        default_settings = _settings['text_settings']['default']
+
+        self.font_text = default_settings['font']
+        self.font_size = default_settings['font_size']
+        self.stroke_size = default_settings['stroke_size']
+        self.stroke_color = default_settings['stroke_color']
+        self.text_color = default_settings['text_color']
 
     # LOADS THE SRT FILE TO THE QAbstractItemModel
     # ///////////////////////////////////////////////////////////////
@@ -74,12 +92,12 @@ class CreatePreviewText(QObject):
         text_option.setAlignment(Qt.AlignCenter)
 
         text_preview = PyGraphicsTextItem()
-        text_preview.setDefaultTextColor(QColor("White"))
         text_preview.setPlainText(subtitle_text)
-        text_preview.setFont(QFont("Roboto", 90))
+        text_preview.setFont(QFont(self.font_text, self.font_size))
+        text_preview.set_outline_size(self.stroke_size)
+        text_preview.set_outline_color(QColor(self.stroke_color))
+        text_preview.setDefaultTextColor(QColor(self.text_color))
         text_preview.adjustSize()
-
-        text_preview.setPos(self.graphics_scene.sceneRect().center().x() - text_preview.boundingRect().center().x(), self.graphics_scene.sceneRect().center().y() - text_preview.boundingRect().center().y())
         
         text_preview.setFlags(QGraphicsTextItem.ItemIsSelectable | QGraphicsTextItem.ItemIsMovable | QGraphicsTextItem.ItemIsFocusable)
 

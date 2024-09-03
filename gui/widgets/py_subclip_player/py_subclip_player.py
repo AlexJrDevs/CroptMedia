@@ -19,7 +19,6 @@ class PyThumbnailCapture(QThread):
     def __init__(self, file_location):
         super().__init__()
         self.file_location = file_location
-        print("File location: ", file_location)
 
     def run(self):
 
@@ -350,7 +349,6 @@ class PySubclipPlayer(QWidget):
     def resize_graphic_scene(self):
         try:
             if self.video_item.boundingRect().isValid() and not self.video_item.boundingRect().isEmpty():
-                print("Update Video size")
                 self.graphic_scene.setSceneRect(self.video_item.boundingRect())
                 self.graphics_view.fitInView(self.graphic_scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
             else:

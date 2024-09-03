@@ -43,8 +43,6 @@ class PyGraphicsScene(QGraphicsScene):
         super().mousePressEvent(event)
         item = self.itemAt(event.scenePos(), QTransform())
         if item and isinstance(item, QGraphicsTextItem):
-            print("Selected: ", item)
-
             self.moving_item = item  # Start tracking the moving item
         else:
             self.moving_item = None
