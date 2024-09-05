@@ -1,241 +1,224 @@
 from bs4 import BeautifulSoup
-from qt_core import *
-
-import subprocess, cv2, datetime, os
+from qt_core import QThread, Signal
+import subprocess
+import datetime
+import os, re
 
 class ExportVideo(QThread):
-
     exporting_video = Signal(str)
     video_completed = Signal()
 
     def __init__(self, save_location, text_and_stroke, video_location, ffmpeg_logger):
         super().__init__()
+        self.save_dir = save_location
+        self.temp_dir = os.path.abspath(r'backend\tempfile')
+        os.makedirs(self.temp_dir, exist_ok=True)
+
         self.text_and_stroke = text_and_stroke
         self.video_location = video_location
-        print("Video Name: ", self.video_location)
         self.ffmpeg_logger = ffmpeg_logger
-        self.save_dir = save_location
-    
-    # CREATES THE VIDEO TEXT AND ADDS IT TO THE VIDEO
-    # ///////////////////////////////////////////////////////////////
+        print("Video Name: ", self.video_location)
 
     def run(self):
-        dialogues = []
+        dialogues = self._create_dialogues()
+        ass_content = self._create_ass_content(dialogues)
+        ass_file_location = self._save_ass_file(ass_content)
+        self._add_subtitle_to_video(ass_file_location)
 
-        for html_file_path, pos_x, pos_y, stroke_size, stroke_color, start, end in self.text_and_stroke:
+
+    def _create_dialogues(self):
+        dialogues = []
+        for html_file_path, pos_x, pos_y, stroke_size, stroke_color, start, end, scale_factor in self.text_and_stroke:
             with open(html_file_path, 'r') as file:
                 html_content = file.read()
-                
+            
             soup = BeautifulSoup(html_content, 'html.parser')
             body_tag = soup.find('body')
 
-
             if body_tag:
-                self.styles_attributes = self.retrieve_text_style(body_tag.get('style'))
-                text_style = self.text_styles(soup, stroke_size, stroke_color)
+                body_tag_style = body_tag.get('style')
 
-                self.styles_attributes = ",".join(self.styles_attributes)
-                text_style = "".join(text_style)
+                print("Stroke: ", stroke_size, stroke_color)
+                text_styles = self.text_styles(soup, body_tag_style, stroke_size, stroke_color, scale_factor)
+                text_styles = "".join(text_styles)
+                
+            new_dialogue = f"""Dialogue: {start},{end},Default,{{\pos({pos_x},{pos_y})}}{text_styles}"""
+            dialogues.append(new_dialogue)
 
-                text_stroke = ""
+        return dialogues
 
-                # Handle strokes
-                if stroke_size > 0:
-                    hex_qcolor = stroke_color.name()  # Converts QColor to hex
-                    hex_color = hex_qcolor.replace('#', '')
-                    red = int(hex_color[0:2], 16)
-                    green = int(hex_color[2:4], 16)
-                    blue = int(hex_color[4:6], 16)
-                    text_stroke = f"\\bord{stroke_size}\\3c&H{blue:02X}{green:02X}{red:02X}&"
+    
+
+    def text_styles(self, soup, body_tag_style, stroke_size, stroke_color, scale_factor):
+        text_styles = []
+        
+        # Get all paragraphs
+        paragraphs = soup.find_all('p')
+        body_font_size = ""
+
+        for style in body_tag_style.split(';'):
+            if 'font-size' in style:
+                body_font_size = style.split(':')[1].strip()
+                body_font_size = (float(body_font_size.replace('pt', '')) * scale_factor) * 1.55
+                body_font_size = f"{{\\fs{body_font_size}}}"
+
+        stroke_style = ""
+        if stroke_size > 0:
+            print("Applying stroke to all text")
+            hex_qcolor = stroke_color.name()  # Converts QColor to hex
+            hex_color = hex_qcolor.replace('#', '')
+            red = int(hex_color[0:2], 16)
+            green = int(hex_color[2:4], 16)
+            blue = int(hex_color[4:6], 16)
+            text_stroke = f"{{\\bord{(stroke_size * scale_factor ) * 1.55}\\3c&H{blue:02X}{green:02X}{red:02X}&}}"
+
+        for paragraph in paragraphs:
+            paragraph_texts = []
+            last_pos = 0
+            
+            # Apply body_font_size at the start of each paragraph
+            paragraph_style = body_font_size + text_stroke
+            
+            # Iterate over all content inside the paragraph
+            for content in paragraph.contents:
+                if isinstance(content, str):
+                    # Handle plain text
+                    paragraph_texts.append((last_pos, last_pos + len(content), content, {}))
+                    last_pos += len(content)
+                elif content.name == 'span':
+                    # Handle styled text in spans
+                    style_attr = content.get('style', '')
+                    style_and_name = style_attr.split(';')
+                    
+                    # Collect style attributes
+                    style_modifiers = {
+                        "italic": "",
+                        "underline": "",
+                        "font-weight": "",
+                        "font-size": "",
+                        "font-family": "",
+                        "color": "",
+                        "background-color": "",
+                        "outline-color": "",
+                        "outline": ""
+                    }
+
+                    for text in style_and_name:
+                        if ':' in text:
+                            style, value = map(str.strip, text.split(':'))
+
+                            if style == 'color':
+                                hex_color = value.replace('#', '')
+                                red = int(hex_color[0:2], 16)
+                                green = int(hex_color[2:4], 16)
+                                blue = int(hex_color[4:6], 16)
+                                style_modifiers['color'] = "\\c&H{0:02X}{1:02X}{2:02X}&".format(blue, green, red)
+
+                            elif style == 'font-size':
+                                font_size = (float(value.replace('pt', '')) * scale_factor) * (1920 / 1080)
+                                style_modifiers['font-size'] = "\\fs{}".format(font_size)
+
+                            elif style == 'font-family':
+                                style_modifiers['font-family'] = "\\fn{}".format(value.replace('\'', ''))
+
+                            elif style == 'font-weight':
+                                style_modifiers['font-weight'] = "\\b1" if value == '700' else ""
+
+                            elif style == 'italic':
+                                style_modifiers['italic'] = "\\i1" if value == 'italic' else ""
+
+                            elif style == 'underline':
+                                style_modifiers['underline'] = "\\u1" if value == 'underline' else ""
+
+                            elif style == 'background-color':
+                                hex_color = value.replace('#', '')
+                                red = int(hex_color[0:2], 16)
+                                green = int(hex_color[2:4], 16)
+                                blue = int(hex_color[4:6], 16)
+                                style_modifiers['background-color'] = f"\\rBackground\\bord1\\3c&H{blue:02X}{green:02X}{red:02X}&"
+                    
+
+                    # Append styled text segment
+                    styled_text = "{{{}}}{}{{\\r}}".format("".join([v for v in style_modifiers.values() if v]), content.text)
+                    paragraph_texts.append((last_pos, last_pos + len(content.text), styled_text, style_modifiers))
+                    last_pos += len(content.text)
+            
+            # Handle any trailing text
+            if last_pos < len(paragraph.get_text()):
+                trailing_text = paragraph.get_text()[last_pos:]
+                paragraph_texts.append((last_pos, last_pos + len(trailing_text), trailing_text, {}))
+            
+            # Combine and format text segments
+            formatted_text = paragraph_style  # Start with the body font size
+            for start, end, text, styles in paragraph_texts:
+                formatted_text += text
+            
+            text_styles.append(formatted_text)
+
+        return " ".join(text_styles).strip()
 
 
-                new_dialogue = f"""Dialogue: {start},{end},Default,{{\q0\pos({pos_x},{pos_y}){text_stroke}}}{text_style}"""
-                dialogues.append(new_dialogue)
 
-            file.close()
-            #os.remove(html_file_path)
+        
 
-
-
-        create_ass_file = f"""[Script Info]
-Title: Video Subtitles
-ScriptType: v4.00+
-Collisions: Normal
-PlayDepth: 0
-PlayResX: 1080
-PlayResY: 1920
-
-[V4+ Styles]
-Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BorderStyle, Encoding, Alignment
-Style: Default,{self.styles_attributes},&H00FFFFFF,&HFFFF00,&H00FFFFFF,0,0,5
-Style: Background,{self.styles_attributes},&H00FFFFFF,&H000000FF,&H00000000,3,0,5
-
-[Events]
-Format: Start, End, Style, Text
-"""
-        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        folder_path = "backend/tempfile/"
-        ass_file_location = f"{folder_path}Subtitle_{timestamp}.ass"
-        if not os.path.exists(self.save_dir):
-            self.save_dir = QStandardPaths.writableLocation(QStandardPaths.MoviesLocation)
-        output_file = os.path.join(self.save_dir, f"Video_{timestamp}.mp4")
-
+    def _create_ass_content(self, dialogues):
+        ass_content = [
+            "[Script Info]",
+            "Title: Video Subtitles",
+            "ScriptType: v4.00+",
+            "Collisions: Normal",
+            "WrapStyle: 2"
+            "PlayDepth: 0",
+            "PlayResX: 1080",
+            "PlayResY: 1920",
+            "",
+            "[V4+ Styles]",
+            "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BorderStyle, Encoding, Alignment",
+            f"Style: Default,Roboto,148.8,&H00FFFFFF,&HFFFF00,&H00FFFFFF,0,0,5",
+            f"Style: Background,Roboto,148.8,&H00FFFFFF,&H000000FF,&H00000000,3,0,5",
+            "",
+            "[Events]",
+            "Format: Start, End, Style, Text"
+        ]
+        
         for dialogue in dialogues:
-            create_ass_file += f"{dialogue}\n"
-
-        with open(ass_file_location, 'w') as file:
-            file.write(create_ass_file)
-
-        file.close()
+            ass_content.append(dialogue)
         
-        self.add_subtitle_to_video(self.video_location, ass_file_location, self.ffmpeg_logger, output_file)
+        return "\n".join(ass_content)
 
-    # FFMPEG CONVERTS SUBTITLES TO TEXT AND OVERLAPS IT ON VIDEO
-    # ///////////////////////////////////////////////////////////////
+    def _save_ass_file(self, ass_content):
+        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        ass_file_location = os.path.join(self.temp_dir, f"Subtitle_{timestamp}.ass")
         
-    def add_subtitle_to_video(self, video_file, ass_file, ffmpeg_logger, output_file):
+        with open(ass_file_location, 'w', encoding='utf-8') as file:
+            file.write(ass_content)
         
-        self.exporting_video.emit("Exporting Video...")
+        return ass_file_location
 
+    def _generate_output_filename(self):
+        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
-        video_text = [
+        return f"Video_{timestamp}.mp4"
+
+    def _add_subtitle_to_video(self, ass_file):
+        ffmpeg_command = [
             "ffmpeg",
             "-y",
-            "-i", video_file,
+            "-i", self.video_location,
             "-vf", f"subtitles={ass_file}",
             "-c:a", "copy",
-            output_file
+            self.save_dir
         ]
-        process = subprocess.Popen(video_text, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
-
-
-
-        video = cv2.VideoCapture(video_file)
-        total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-        video.release()
-
-        ffmpeg_logger.video_logger(process, total_frames)
-
-        process.wait()
         
-        # Ensure the process has completed and all handles are released
+        process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        stdout, stderr = process.communicate()
+
         if process.returncode == 0:
             print("Successfully Exported Video")
-        else:
-            print("Error Exporting Video, File: Export_video")
-            
-
-        if process.returncode == 0:
             self.video_completed.emit()
-
-
-
-    # ADDS ANY TEXT STYLE TO THE TEXT
-    # ///////////////////////////////////////////////////////////////
-
-    def text_styles(self, soup, stroke_size, stroke_color):
-        text_styles = []
-        paragraph = soup.find_all('p')
-        span_elements = soup.find_all('span')
-        last_part = ""
-
-        if paragraph:
-            for paragraph_element in paragraph:
-                for index, content in enumerate(paragraph_element.contents):
-                    if isinstance(content, str):
-                        written_text = content.strip()
-                        if index == 0:
-                            text_styles.append(written_text)
-                        elif index == len(paragraph_element.contents) - 1:
-                            last_part = written_text
-                        else:
-                            text_styles.append(written_text)
-
-        
-
-
-        if span_elements:
-
-            for span in span_elements:
-
-                style_attr = span.get('style')
-                style_and_name = style_attr.split(';')
-
-                # Initialize variables to hold style modifications
-                italic_str = underline_str = ""
-                color_str = background_color_str = ""
-                font_weight_str = font_size_str = ""
-                font_family_str = ""
-
-                for text in style_and_name:
-                    if ':' in text:
-                        style = text.split(':')[0].strip()
-                        style_name = text.split(':')[1].strip()
-
-                        # Modify text based on style
-                        if style_name == 'italic':
-                            italic_str = "\\i1"
-
-                        elif style_name == 'underline':
-                            underline_str = "\\u1"
-
-                        elif style == 'color':
-                            hex_color = style_name.replace('#', '')
-                            red = int(hex_color[0:2], 16)
-                            green = int(hex_color[2:4], 16)
-                            blue = int(hex_color[4:6], 16)
-                            color_str = f"\\c&H{blue:02X}{green:02X}{red:02X}&"
-
-                        elif style == 'background-color' and stroke_size <= 0:
-                            hex_color = style_name.replace('#', '')
-                            red = int(hex_color[0:2], 16)
-                            green = int(hex_color[2:4], 16)
-                            blue = int(hex_color[4:6], 16)
-                            background_color_str = f"\\rBackground\\bord1\\3c&H{blue:02X}{green:02X}{red:02X}&"
-
-                        elif style == 'font-weight':
-                            font_weight_str = "\\b1"
-
-                        elif style == 'font-size':
-                            font_size = style_name.replace('pt', '')
-                            font_size = float(font_size) * (1920 / 1080)
-                            font_size_str = f"\\fs{font_size}"
-                        
-                        elif style == 'font-family':
-                            style_name = style_name.replace("'", '')
-                            font_family_str = f"\\fn{style_name}"
-
-                        
-                        # Combine all style modifications
-                        text_style = "{" + background_color_str + color_str + italic_str + underline_str + font_size_str + font_family_str + font_weight_str + "}"  
-                        text_with_styles = f"{{\\q2}}{text_style}{span.text}{{\\r}}" # \\r resets the style
-            
-                # Append modified text to the list
-                text_styles.append(text_with_styles + last_part)
         else:
-            text_styles.append(f"{last_part}" )
+            print("Error Exporting Video")
+            print("FFmpeg stdout:", stdout)
+            print("FFmpeg stderr:", stderr)
+            self.exporting_video.emit("Error occurred during video export")
 
-        return text_styles
-    
-    
-
-    # Retrive the basic text style attributes
-    # ///////////////////////////////////////////////////////////////
-
-    def retrieve_text_style(self, style_attr):
-        style_and_name = style_attr.split(';')
-        style_attributes = []
-        
-        for text in style_and_name:
-            if ':' in text:
-                style_name = text.split(':')[1].strip().replace("'", '')
-                if 'pt' in style_name:
-                    style_name = style_name.replace('pt', '')
-                    style_name = float(style_name) * 1.33
-                    style_attributes.append(str(style_name))
-                    break
-                
-                style_attributes.append(style_name)
-        
-        return style_attributes
-    

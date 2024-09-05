@@ -13,12 +13,7 @@ class PyGraphicsTextItem(QGraphicsTextItem):
         self.setCursor(Qt.SizeAllCursor)
 
         self.outline_format = QTextCharFormat()
-        self.outline_format.setTextOutline(QPen(
-            Qt.GlobalColor.black, 0, 
-            Qt.PenStyle.SolidLine, 
-            Qt.PenCapStyle.RoundCap, 
-            Qt.PenJoinStyle.RoundJoin
-        ))
+
         self.dummy_format = QTextCharFormat()
         self.dummy_format.setTextOutline(QPen(Qt.GlobalColor.transparent))
 

@@ -187,18 +187,25 @@ class PyVideoPlayer(QWidget):
             temp_location = os.path.abspath(r'backend\tempfile')
             text_html_location = os.path.join(temp_location, f"Subtitle_{subtitle_index}.html")
 
+            # Calculate relative position of the text to the video
+            # Get the size / pos of the text's bounding box
+            text_bounding_box = text_preview.boundingRect()
+            text_preview_pos =  text_preview.pos()
 
-            # ACTUAL TEXT POSITION
-            # /////////////////////
-            x = (self.video_item.nativeSize().width() / self.graphic_scene.width()) * text_preview.pos().x()
-            y = (self.video_item.nativeSize().height() / self.graphic_scene.height()) * text_preview.pos().y()
-            # /////////////////////
+            # Calculate the center of the text
+            text_center_x = text_preview_pos.x() + text_bounding_box.width() / 2
+            text_center_y = text_preview_pos.y() + text_bounding_box.height() / 2
+
+            # Calculate the position relative to the video using the center point
+            scale_factor = ( self.video_item.nativeSize().toSize().width() / self.graphic_scene.sceneRect().width() )
+            relative_pos = ( QPointF(text_center_x, text_center_y) - self.video_item.boundingRect().topLeft() ) * scale_factor
+
 
             with open(text_html_location, "w") as file:
                 file.write(text_preview.toHtml())
-
-            text_html.append([text_html_location, str(text_preview.pos().x()), str(text_preview.pos().y()), stroke_size, stroke_color, start_time, end_time])
-            print(str(text_preview.pos().x()), str(text_preview.pos().y()), stroke_size, stroke_color, start_time, end_time)
+            print("Append: ", stroke_size)
+            text_html.append([text_html_location, relative_pos.x(), relative_pos.y(), stroke_size, stroke_color, start_time, end_time, scale_factor])
+            print(text_preview.pos(), self.graphic_scene.sceneRect().size())
             file.close()
         
         return text_html
