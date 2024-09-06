@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_pagesrOXGHf.ui'
+## Form generated from reading UI file 'main_pagesGBvXpw.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -15,16 +15,15 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFormLayout, QFrame, QGridLayout,
-    QHBoxLayout, QLabel, QLayout, QLineEdit,
-    QPushButton, QSizePolicy, QSpacerItem, QStackedWidget,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
+    QLayout, QPushButton, QSizePolicy, QSpacerItem,
+    QStackedWidget, QVBoxLayout, QWidget)
 
 class Ui_MainPages(object):
     def setupUi(self, MainPages):
         if not MainPages.objectName():
             MainPages.setObjectName(u"MainPages")
-        MainPages.resize(912, 674)
+        MainPages.resize(761, 661)
         font = QFont()
         font.setFamilies([u"Roboto"])
         font.setBold(True)
@@ -44,144 +43,35 @@ class Ui_MainPages(object):
 "background: #343b48;\n"
 "border-radius: 15px;\n"
 "}\n"
-"\n"
-"#loginframe {\n"
-"background: #343b48;\n"
-"padding: 50px;\n"
-"}\n"
-"\n"
-"QLabel{\n"
-"color:white;\n"
-"font-size: 18px;\n"
-"margin-top: 10px;\n"
-"}\n"
-"\n"
-"#login_title{\n"
-"font-size: 50px;\n"
-"font-weight: bold;\n"
-"margin-top:10px;\n"
-"}\n"
-"\n"
-"\n"
-"#email_text{\n"
-"margin-left: 50px;\n"
-"}\n"
-"\n"
-"#password_text{\n"
-"margin-left: 50px;\n"
-"}\n"
-"\n"
-"#signup_text{\n"
-"margin-left: 240px;\n"
-"margin-top: 5px;\n"
-"}\n"
-"\n"
-"\n"
-"\n"
-"QLineEdit{\n"
-"height:35px;\n"
-"margin-top: 10px;\n"
-"font-size: 15px;\n"
-"border:2px solid gray;\n"
-"padding: 5px 15px;\n"
-"margin-left: 50px;\n"
-"margin-right: 50px;\n"
-"}\n"
-"\n"
-"QLineEdit:hover{\n"
-"border: 2px solid #1b1e23;\n"
-"}\n"
-"\n"
-"#login_btn{\n"
-"margin-top: 15px;\n"
-"margin-left: 200px;\n"
-"margin-right: 200px;\n"
-"\n"
-"height: 50px;\n"
-"width: 180px;\n"
-"color: white;\n"
-"background-color: #3c4454;\n"
-"border-radius: 15px;\n"
-"font-size: 18px;\n"
-"}\n"
-"\n"
-"#login_btn:hover{\n"
-"borde"
-                        "r:2px  #3c4454;\n"
-"color: white;\n"
-"background-color: #272c36;\n"
-"}\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
 "")
         self.gridLayout = QGridLayout(self.page_1)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.login_and_register = QStackedWidget(self.page_1)
+        self.login_and_register.setObjectName(u"login_and_register")
+        self.login_page_parent = QWidget()
+        self.login_page_parent.setObjectName(u"login_page_parent")
+        self.gridLayout_9 = QGridLayout(self.login_page_parent)
+        self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.gridLayout_9.setContentsMargins(0, 0, 0, 0)
+        self.login_page_layout = QHBoxLayout()
+        self.login_page_layout.setObjectName(u"login_page_layout")
 
-        self.gridLayout.addItem(self.verticalSpacer, 0, 1, 1, 1)
+        self.gridLayout_9.addLayout(self.login_page_layout, 0, 0, 1, 1)
 
-        self.loginframe = QFrame(self.page_1)
-        self.loginframe.setObjectName(u"loginframe")
-        self.loginframe.setFrameShape(QFrame.StyledPanel)
-        self.loginframe.setFrameShadow(QFrame.Raised)
-        self.formLayout = QFormLayout(self.loginframe)
-        self.formLayout.setObjectName(u"formLayout")
-        self.login_title = QLabel(self.loginframe)
-        self.login_title.setObjectName(u"login_title")
-        self.login_title.setAlignment(Qt.AlignCenter)
+        self.login_and_register.addWidget(self.login_page_parent)
+        self.register_page_parent = QWidget()
+        self.register_page_parent.setObjectName(u"register_page_parent")
+        self.gridLayout_19 = QGridLayout(self.register_page_parent)
+        self.gridLayout_19.setObjectName(u"gridLayout_19")
+        self.gridLayout_19.setContentsMargins(0, 0, 0, 0)
+        self.register_page_layout = QHBoxLayout()
+        self.register_page_layout.setObjectName(u"register_page_layout")
 
-        self.formLayout.setWidget(0, QFormLayout.SpanningRole, self.login_title)
+        self.gridLayout_19.addLayout(self.register_page_layout, 0, 0, 1, 1)
 
-        self.email_text = QLabel(self.loginframe)
-        self.email_text.setObjectName(u"email_text")
-        font2 = QFont()
-        font2.setFamilies([u"Segoe UI"])
-        self.email_text.setFont(font2)
+        self.login_and_register.addWidget(self.register_page_parent)
 
-        self.formLayout.setWidget(1, QFormLayout.SpanningRole, self.email_text)
-
-        self.email_entry = QLineEdit(self.loginframe)
-        self.email_entry.setObjectName(u"email_entry")
-
-        self.formLayout.setWidget(2, QFormLayout.SpanningRole, self.email_entry)
-
-        self.password_text = QLabel(self.loginframe)
-        self.password_text.setObjectName(u"password_text")
-
-        self.formLayout.setWidget(3, QFormLayout.SpanningRole, self.password_text)
-
-        self.password_entry = QLineEdit(self.loginframe)
-        self.password_entry.setObjectName(u"password_entry")
-        self.password_entry.setEchoMode(QLineEdit.Password)
-
-        self.formLayout.setWidget(4, QFormLayout.SpanningRole, self.password_entry)
-
-        self.login_btn = QPushButton(self.loginframe)
-        self.login_btn.setObjectName(u"login_btn")
-        self.login_btn.setCursor(QCursor(Qt.PointingHandCursor))
-
-        self.formLayout.setWidget(5, QFormLayout.SpanningRole, self.login_btn)
-
-
-        self.gridLayout.addWidget(self.loginframe, 1, 1, 1, 1)
-
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout.addItem(self.horizontalSpacer_2, 1, 2, 1, 1)
-
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout.addItem(self.horizontalSpacer, 1, 0, 1, 1)
-
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout.addItem(self.verticalSpacer_2, 2, 1, 1, 1)
+        self.gridLayout.addWidget(self.login_and_register, 0, 0, 1, 1)
 
         self.pages.addWidget(self.page_1)
         self.page_2 = QWidget()
@@ -303,11 +193,6 @@ class Ui_MainPages(object):
 "border-radius: 15px;\n"
 "}\n"
 "\n"
-"#files_bg{\n"
-"border-radius: 15px;\n"
-"background: #343B48;\n"
-"border-radius: 15px;\n"
-"}\n"
 "\n"
 "\n"
 "#video_bg{\n"
@@ -463,9 +348,9 @@ class Ui_MainPages(object):
         self.create_next_button = QPushButton(self.gridWidget1)
         self.create_next_button.setObjectName(u"create_next_button")
         self.create_next_button.setMaximumSize(QSize(16777215, 30))
-        font3 = QFont()
-        font3.setBold(True)
-        self.create_next_button.setFont(font3)
+        font2 = QFont()
+        font2.setBold(True)
+        self.create_next_button.setFont(font2)
 
         self.gridLayout_18.addWidget(self.create_next_button, 0, 1, 1, 1)
 
@@ -573,7 +458,7 @@ class Ui_MainPages(object):
 
         self.retranslateUi(MainPages)
 
-        self.pages.setCurrentIndex(1)
+        self.pages.setCurrentIndex(0)
         self.page_2_layout.setCurrentIndex(0)
         self.video_pages.setCurrentIndex(0)
 
@@ -583,12 +468,6 @@ class Ui_MainPages(object):
 
     def retranslateUi(self, MainPages):
         MainPages.setWindowTitle(QCoreApplication.translate("MainPages", u"Form", None))
-        self.login_title.setText(QCoreApplication.translate("MainPages", u"Login Page", None))
-        self.email_text.setText(QCoreApplication.translate("MainPages", u"Email", None))
-        self.email_entry.setPlaceholderText(QCoreApplication.translate("MainPages", u"Email", None))
-        self.password_text.setText(QCoreApplication.translate("MainPages", u"Password", None))
-        self.password_entry.setPlaceholderText(QCoreApplication.translate("MainPages", u"Password", None))
-        self.login_btn.setText(QCoreApplication.translate("MainPages", u"Login", None))
         self.create_subclips_btn.setText(QCoreApplication.translate("MainPages", u"Create Subclips", None))
         self.create_next_button.setText(QCoreApplication.translate("MainPages", u"Next", None))
     # retranslateUi

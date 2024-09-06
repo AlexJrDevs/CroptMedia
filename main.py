@@ -118,6 +118,7 @@ class MainWindow(QMainWindow):
     def btn_clicked(self):
         # GET BTN CLICKED
         btn = SetupMainWindow.setup_btns(self)
+        print(btn)
 
         # LEFT MENU
         # ///////////////////////////////////////////////////////////////
@@ -218,9 +219,62 @@ class MainWindow(QMainWindow):
 
     # PAGE 1 - Login / Signup Page
     # ///////////////////////////////////////////////////////////////
-    def logindata(self):
-        self.is_logged_in = MainFunctions.login_system(self)
-        print(self.is_logged_in)
+    def login_register(self):
+        sender = self.sender()
+
+        if sender == self.ui.login_page.register_label:
+            self.ui.load_pages.login_and_register.setCurrentWidget(self.ui.load_pages.register_page_parent)
+
+        if sender == self.ui.register_page.already_have_account_label:
+            self.ui.load_pages.login_and_register.setCurrentWidget(self.ui.load_pages.login_page_parent)
+
+        if sender == self.ui.login_page.login_button:
+            self.login_and_register = LoginAndRegister(
+                self.ui.login_page.email_input.text(),
+                self.ui.login_page.password_input.text()
+            )
+            self.is_logged_in = self.login_and_register.start()
+            self.login_and_register.login_and_register_signal.connect(self.popup_message)
+            self.login_and_register.sign_in_successful.connect(self.succesfully_sign)
+
+
+        if sender == self.ui.register_page.register_button:
+            self.login_and_register = LoginAndRegister(
+                self.ui.register_page.email_input.text(),
+                self.ui.register_page.password_input.text(),
+                self.ui.register_page.confirm_password_input.text()
+            )
+            self.login_and_register.start()
+
+            self.login_and_register.login_and_register_signal.connect(self.popup_message)
+            self.login_and_register.sign_in_successful.connect(self.succesfully_sign)
+
+    def succesfully_sign(self):
+        self.is_logged_in = True
+
+
+        self.ui.left_menu.select_only_one("btn_video")
+
+        MainFunctions.set_page(self, self.ui.load_pages.page_2)
+        SetupMainWindow.resize_main_widget(self)
+
+        btn_home = self.ui.left_menu.findChild(QPushButton, "btn_home")
+        btn_home.hide()
+
+        #self.ui.left_menu.toggle_button.hide()
+        self.ui.load_pages.page_1.setDisabled(True)
+        self.ui.load_pages.page_1.hide()
+
+
+
+    def popup_message(self, message):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText(message)
+        msg.setWindowTitle("Info")
+        msg.exec()
+
+
 
     # PAGE 2 - Video Creation
     # ///////////////////////////////////////////////////////////////

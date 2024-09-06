@@ -84,6 +84,8 @@ class CreatePreviewText(QObject):
         subtitle_duration = subtitle['duration']
         subtitle_text = subtitle['text']
 
+        print(subtitle_text)
+
         start_time, end_time = subtitle_duration.split(' --> ')
         start_total_milliseconds, end_total_milliseconds = self.convert_to_ms(start_time, end_time)
 

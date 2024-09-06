@@ -4,6 +4,8 @@ import subprocess
 import datetime
 import os, re
 
+import shlex
+
 class ExportVideo(QThread):
     exporting_video = Signal(str)
     video_completed = Signal()
@@ -11,9 +13,10 @@ class ExportVideo(QThread):
     def __init__(self, save_location, text_and_stroke, video_location, ffmpeg_logger):
         super().__init__()
         self.save_dir = save_location
+
         self.temp_dir = os.path.abspath(r'backend\tempfile')
         os.makedirs(self.temp_dir, exist_ok=True)
-
+        
         self.text_and_stroke = text_and_stroke
         self.video_location = video_location
         self.ffmpeg_logger = ffmpeg_logger
@@ -70,7 +73,7 @@ class ExportVideo(QThread):
             red = int(hex_color[0:2], 16)
             green = int(hex_color[2:4], 16)
             blue = int(hex_color[4:6], 16)
-            text_stroke = f"{{\\bord{(stroke_size * scale_factor ) * 1.55}\\3c&H{blue:02X}{green:02X}{red:02X}&}}"
+            text_stroke = f"{{\\bord{((stroke_size * scale_factor) * (1080/1920) )}\\3c&H{blue:02X}{green:02X}{red:02X}&}}"
 
         for paragraph in paragraphs:
             paragraph_texts = []
@@ -188,26 +191,30 @@ class ExportVideo(QThread):
 
     def _save_ass_file(self, ass_content):
         timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        ass_file_location = os.path.join(self.temp_dir, f"Subtitle_{timestamp}.ass")
+        ass_file_location = f"backend/tempfile/Subtitle_{timestamp}.ass"
+        print(ass_file_location)
+        
         
         with open(ass_file_location, 'w', encoding='utf-8') as file:
             file.write(ass_content)
         
         return ass_file_location
 
-    def _generate_output_filename(self):
-        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-
-        return f"Video_{timestamp}.mp4"
 
     def _add_subtitle_to_video(self, ass_file):
+
+        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+
+        output_file = os.path.join(self.save_dir, f"Video__{timestamp}.mp4")
+
+
         ffmpeg_command = [
             "ffmpeg",
             "-y",
             "-i", self.video_location,
-            "-vf", f"subtitles={ass_file}",
+            "-filter_complex", f"subtitles='{ass_file}'",
             "-c:a", "copy",
-            self.save_dir
+            output_file
         ]
         
         process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)

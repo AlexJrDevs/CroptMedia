@@ -203,7 +203,8 @@ class PyVideoPlayer(QWidget):
 
             with open(text_html_location, "w") as file:
                 file.write(text_preview.toHtml())
-            print("Append: ", stroke_size)
+
+            print("Scale: ", scale_factor)
             text_html.append([text_html_location, relative_pos.x(), relative_pos.y(), stroke_size, stroke_color, start_time, end_time, scale_factor])
             print(text_preview.pos(), self.graphic_scene.sceneRect().size())
             file.close()

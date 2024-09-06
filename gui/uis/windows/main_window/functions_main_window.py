@@ -16,7 +16,6 @@
 
 # IMPORT PACKAGES AND MODULES
 # ///////////////////////////////////////////////////////////////
-import pyrebase
 import os
 
 # IMPORT QT CORE
@@ -156,42 +155,6 @@ class MainFunctions():
         self.group.finished.connect(self.resize_widget)
         self.group.start()
     
-    # Login System
-    def login_system(self):
-
-        
-        firebaseConfig = {
-                    'apiKey': "AIzaSyBoLHqzaRmlp_J0CcjVnW8gghWkSxjiU4g",
-                    'authDomain': "croptmedia-5adb9.firebaseapp.com",
-                    'projectId': "croptmedia-5adb9",
-                    'storageBucket': "croptmedia-5adb9.appspot.com",
-                    'messagingSenderId': "714450047320",
-                    'appId': "1:714450047320:web:015da592562a3db031152d",
-                    'measurementId': "G-NZLNLXTXTJ",
-                    "databaseURL": "https://croptmedia-5adb9-default-rtdb.firebaseio.com/"
-                }
-        
-        firebase = pyrebase.initialize_app(firebaseConfig)
-        auth=firebase.auth()
-
-        # storage=firebase.storage()
-        # db = firebase.database()
-
-        # Login System
-        email = self.ui.load_pages.email_entry.text()
-        password = self.ui.load_pages.password_entry.text()
-        try:
-            auth.sign_in_with_email_and_password(email, password)
-            print("successfully signed in")
-            return True  # User is logged in
-        except:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Incorrect Email OR Password")
-            msg.setWindowTitle("Info")
-            msg.exec()
-            print("Displayed")
-            return False  # User is logged in
         
 
 

@@ -289,6 +289,19 @@ class UI_MainWindow(object):
         self.left_column.menus.save_location_layout.addWidget(self.folder_picker)
 
 
+        # LOGIN / REGISTER PAGE
+
+        self.login_page = PyLoginPage()
+        self.login_page.register_label.linkActivated.connect(parent.login_register)
+        self.login_page.login_button.clicked.connect(parent.login_register)
+        self.load_pages.login_page_layout.addWidget(self.login_page)
+
+        self.register_page = PyRegisterPage()
+        self.register_page.already_have_account_label.linkActivated.connect(parent.login_register)
+        self.register_page.register_button.clicked.connect(parent.login_register)
+        self.load_pages.register_page_layout.addWidget(self.register_page)
+
+
 
         # CREDITS / BOTTOM APP FRAME
         # ///////////////////////////////////////////////////////////////

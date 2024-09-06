@@ -266,6 +266,7 @@ class PyTextSettings(QWidget):
                 # ///////////////////////////////////////////////////////////////
                 if sender == self.text_first_uppercase:
                     cursor.select(QTextCursor.Document)
+
                     new_format.setFontCapitalization(QFont.Capitalize)
 
 

@@ -213,7 +213,6 @@ class SetupMainWindow:
         # All calls go to main.py so functions have to be called there
         # Page 1
 
-        self.ui.load_pages.login_btn.clicked.connect(self.logindata)
         self.ui.load_pages.create_subclips_btn.clicked.connect(self.check_file_paths)
         self.ui.load_pages.create_next_button.clicked.connect(self.export_video_file)
 

@@ -33,8 +33,8 @@ class PyIconButton(QPushButton):
         width = 30,
         height = 30,
         radius = 8,
-        bg_color = "#343b48",
-        bg_color_hover = "#3c4454",
+        bg_color = "#343b48", # Normal Button Color
+        bg_color_hover = "#3c4454", # When clicked it keeps this bg colour
         bg_color_pressed = "#2c313c",
         icon_color = "#c3ccdf",
         icon_color_hover = "#dce1ec",
