@@ -291,9 +291,15 @@ class UI_MainWindow(object):
 
         # LOGIN / REGISTER PAGE
 
-        self.login_page = PyLoginPage()
+        self.login_page = PyLoginPage(parent)
         self.login_page.register_label.linkActivated.connect(parent.login_register)
         self.login_page.login_button.clicked.connect(parent.login_register)
+
+        self.login_page.google_button.clicked.connect(parent.login_register)
+        self.login_page.facebook_button.clicked.connect(parent.login_register)
+        self.login_page.apple_button.clicked.connect(parent.login_register)
+        self.login_page.twitter_button.clicked.connect(parent.login_register)
+
         self.load_pages.login_page_layout.addWidget(self.login_page)
 
         self.register_page = PyRegisterPage()

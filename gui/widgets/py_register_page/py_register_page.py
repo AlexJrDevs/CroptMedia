@@ -87,11 +87,36 @@ class PyRegisterPage(QWidget):
         self.already_have_account_label.setOpenExternalLinks(False)
         inner_layout.addWidget(self.already_have_account_label)
 
+        inner_layout.addStretch(1)
+
+        # OR Label with lines on each side
+        or_layout = QHBoxLayout()
+        or_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Line on the left
+        left_line = QFrame()
+        left_line.setFrameShape(QFrame.HLine)
+        left_line.setFrameShadow(QFrame.Sunken)
+        left_line.setStyleSheet("border: 2px solid #1B1E23;")
+        or_layout.addWidget(left_line)
+
         # OR Label
         self.or_label = QLabel("OR")
         self.or_label.setAlignment(Qt.AlignCenter)
         self.or_label.setStyleSheet("color: grey;")
-        inner_layout.addWidget(self.or_label)
+        or_layout.addWidget(self.or_label)
+
+        # Line on the right
+        right_line = QFrame()
+        right_line.setFrameShape(QFrame.HLine)
+        right_line.setFrameShadow(QFrame.Sunken)
+        right_line.setStyleSheet("border: 2px solid #1B1E23;")
+        or_layout.addWidget(right_line)
+
+        # Add the OR section layout to the inner layout
+        inner_layout.addLayout(or_layout)
+
+        inner_layout.addStretch(1)
 
         # Social Media Buttons
         social_layout = QHBoxLayout()
@@ -106,12 +131,15 @@ class PyRegisterPage(QWidget):
                 height=60,
                 parent=self,
                 icon_margin=10,
+                bg_color = "#1B1E23",
                 bg_color_hover="#343b48",
             )
             social_layout.addWidget(button)
             self.social_buttons.append(button)
 
         inner_layout.addLayout(social_layout)
+
+        inner_layout.addStretch(1)
 
         # Add the inner widget (lighter background) to the outer layout
         outer_layout.addWidget(inner_widget)

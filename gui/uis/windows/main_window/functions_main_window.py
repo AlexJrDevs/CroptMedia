@@ -39,6 +39,7 @@ class MainFunctions():
         self.ui.setup_ui(self)
 
 
+
     # SET MAIN WINDOW PAGES
     # ///////////////////////////////////////////////////////////////
     def set_page(self, page):
@@ -156,24 +157,56 @@ class MainFunctions():
         self.group.start()
     
         
+    # NOTIFICATION POPUP ANIMATION
+    # ///////////////////////////////////////////////////////////////
 
 
-    
+    def showAlert(self, alerts_list, central_widget, message=None, timeout=250):
+        # Remove the previous alert if it exists
+        if alerts_list:
+            previous_alert = alerts_list.pop()
+            previous_alert.animation.finished.disconnect()
+            previous_alert.deleteLater()
 
-    
+        # Create and configure the new alert
+        alert = PyNotificationPopup(central_widget, message or 'Some message to the user')
+        alerts_list.append(alert)
+        
+        alert.slideIn.setDuration(timeout)
+        alert.slideOut.setDuration(timeout)
+        
+        def deleteLater():
+            alerts_list.remove(alert)
+            alert.deleteLater()
+        
+        alert.animation.finished.connect(deleteLater)
+        MainFunctions.updateAlertAnimation(self, central_widget, alert)
+        alert.show()
+        alert.animation.start()
 
 
-    
+    def updateAlertAnimation(self, central_widget, alert):
+        width = alert.width()
+        height = alert.height()
+        x = central_widget.width()  # Start from the right edge
+        startRect = QRect(x, 10, width, height)
+        endRect = startRect.translated(-width, 0)
+        alert.updateGeometry(startRect, endRect)
 
 
 
-    
 
-    
-    
-
-
-
-    
-    
+    def updateAllAlertAnimations(self, alerts_list, central_widget):
+        x = central_widget.width()
+        for alert in reversed(alerts_list):
+            width = alert.width()
+            height = alert.height()
+            x -= width
+            startRect = QRect(x + width, 10, width, height)
+            endRect = QRect(x, 10, width, height)
+            alert.updateGeometry(startRect, endRect)
+            
+            # Update current geometry if in pause state
+            if isinstance(alert.animation.currentAnimation(), QPauseAnimation):
+                alert.setGeometry(endRect)
 

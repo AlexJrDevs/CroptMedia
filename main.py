@@ -69,7 +69,9 @@ class MainWindow(QMainWindow):
         # SETUP MAIN WINDOW
         # ///////////////////////////////////////////////////////////////
         self.hide_grips = True  # Show/Hide resize grips
+        self.popup_alers = []
         SetupMainWindow.setup_gui(self)
+        self.centralWidget().installEventFilter(self)
 
         # VIDEO CREATION SCRIPTS
         # ///////////////////////////////////////////////////////////////
@@ -139,13 +141,7 @@ class MainWindow(QMainWindow):
                 MainFunctions.set_page(self, self.ui.load_pages.page_2)
                 SetupMainWindow.resize_main_widget(self)
             else:
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Information)
-                msg.setText("Login First")
-                msg.setWindowTitle("Info")
-                msg.exec()
-                print("Displayed")
-                print("Login to start")
+                self.popup_message("Please login. You must own a membership.")
 
         # Remove Selection If Clicked By "btn_close_left_column"
         if btn.objectName() != "btn_settings":
@@ -204,9 +200,13 @@ class MainWindow(QMainWindow):
         event.accept()
 
     def resize_widget(self):
-        print("Resize")
         SetupMainWindow.resize_main_widget(self)
         SetupMainWindow.resize_grips(self)
+
+    def eventFilter(self, obj, event):
+        if obj == self.centralWidget() and event.type() == QEvent.Resize and self.popup_alers:
+            MainFunctions.updateAllAlertAnimations(self, self.popup_alers, self.ui.load_pages.pages)
+        return super().eventFilter(obj, event)
 
     # MOUSE CLICK EVENTS
     # ///////////////////////////////////////////////////////////////
@@ -221,33 +221,54 @@ class MainWindow(QMainWindow):
     # ///////////////////////////////////////////////////////////////
     def login_register(self):
         sender = self.sender()
+        
+        page_switches = {
+            self.ui.login_page.register_label: self.ui.load_pages.register_page_parent,
+            self.ui.register_page.already_have_account_label: self.ui.load_pages.login_page_parent
+        }
 
-        if sender == self.ui.login_page.register_label:
-            self.ui.load_pages.login_and_register.setCurrentWidget(self.ui.load_pages.register_page_parent)
+        if sender in page_switches:
+            self.ui.load_pages.login_and_register.setCurrentWidget(page_switches[sender])
+            return
 
-        if sender == self.ui.register_page.already_have_account_label:
-            self.ui.load_pages.login_and_register.setCurrentWidget(self.ui.load_pages.login_page_parent)
+        action_handlers = {
+            self.ui.login_page.login_button: self.handle_login,
+            self.ui.register_page.register_button: self.handle_register,
+            self.ui.login_page.google_button: lambda: self.handle_social_login("Google"),
+            self.ui.login_page.facebook_button: lambda: self.handle_social_login("Facebook"),
+            self.ui.login_page.apple_button: lambda: self.handle_social_login("Apple"),
+            self.ui.login_page.twitter_button: lambda: self.handle_social_login("Twitter")
+        }
 
-        if sender == self.ui.login_page.login_button:
-            self.login_and_register = LoginAndRegister(
-                self.ui.login_page.email_input.text(),
-                self.ui.login_page.password_input.text()
-            )
-            self.is_logged_in = self.login_and_register.start()
-            self.login_and_register.login_and_register_signal.connect(self.popup_message)
-            self.login_and_register.sign_in_successful.connect(self.succesfully_sign)
+        if sender in action_handlers:
+            action_handlers[sender]()
 
+    def handle_login(self):
+        self.login_and_register = LoginAndRegister(
+            self.ui.login_page.email_input.text(),
+            self.ui.login_page.password_input.text()
+        )
+        self.is_logged_in = self.login_and_register.start()
+        self.connect_signals()
 
-        if sender == self.ui.register_page.register_button:
-            self.login_and_register = LoginAndRegister(
-                self.ui.register_page.email_input.text(),
-                self.ui.register_page.password_input.text(),
-                self.ui.register_page.confirm_password_input.text()
-            )
-            self.login_and_register.start()
+    def handle_register(self):
+        self.login_and_register = LoginAndRegister(
+            self.ui.register_page.email_input.text(),
+            self.ui.register_page.password_input.text(),
+            self.ui.register_page.confirm_password_input.text()
+        )
+        self.login_and_register.start()
+        self.connect_signals()
 
-            self.login_and_register.login_and_register_signal.connect(self.popup_message)
-            self.login_and_register.sign_in_successful.connect(self.succesfully_sign)
+    def connect_signals(self):
+        self.login_and_register.login_and_register_signal.connect(self.popup_message)
+        self.login_and_register.sign_in_successful.connect(self.succesfully_sign)
+
+    def handle_social_login(self, platform):
+        print(platform)
+        self.login_and_register = LoginAndRegister(social_provider=platform)
+        self.login_and_register.start()
+        self.connect_signals()
 
     def succesfully_sign(self):
         self.is_logged_in = True
@@ -268,11 +289,10 @@ class MainWindow(QMainWindow):
 
 
     def popup_message(self, message):
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setText(message)
-        msg.setWindowTitle("Info")
-        msg.exec()
+        MainFunctions.showAlert(self, self.popup_alers, self.ui.load_pages.pages, message)
+
+        if "Registration successful" in message:
+            self.ui.load_pages.login_and_register.setCurrentWidget(self.ui.load_pages.login_page_parent)
 
 
 
@@ -375,6 +395,7 @@ class MainWindow(QMainWindow):
         )
         self.export_video.exporting_video.connect(self.update_text_loading)
         self.export_video.video_completed.connect(self.video_exported)
+        self.export_video.noti_popup.connect(self.popup_message)
         self.export_video.start()
 
     def video_exported(self):

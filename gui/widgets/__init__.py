@@ -132,3 +132,8 @@ from . py_login_page import PyLoginPage
 # ///////////////////////////////////////////////////////////////
 from . py_register_page import PyRegisterPage
 
+
+# PY REGISTER PAGE
+# ///////////////////////////////////////////////////////////////
+from . py_notification_popup import PyNotificationPopup
+

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_pagesGBvXpw.ui'
+## Form generated from reading UI file 'main_pageskZhhsN.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -23,7 +23,7 @@ class Ui_MainPages(object):
     def setupUi(self, MainPages):
         if not MainPages.objectName():
             MainPages.setObjectName(u"MainPages")
-        MainPages.resize(761, 661)
+        MainPages.resize(795, 661)
         font = QFont()
         font.setFamilies([u"Roboto"])
         font.setBold(True)

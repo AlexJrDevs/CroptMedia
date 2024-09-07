@@ -2,13 +2,13 @@ from bs4 import BeautifulSoup
 from qt_core import QThread, Signal
 import subprocess
 import datetime
-import os, re
+import os, re, cv2
 
-import shlex
 
 class ExportVideo(QThread):
+    noti_popup = Signal(str)
     exporting_video = Signal(str)
-    video_completed = Signal()
+    video_completed = Signal(bool)
 
     def __init__(self, save_location, text_and_stroke, video_location, ffmpeg_logger):
         super().__init__()
@@ -20,7 +20,6 @@ class ExportVideo(QThread):
         self.text_and_stroke = text_and_stroke
         self.video_location = video_location
         self.ffmpeg_logger = ffmpeg_logger
-        print("Video Name: ", self.video_location)
 
     def run(self):
         dialogues = self._create_dialogues()
@@ -65,9 +64,7 @@ class ExportVideo(QThread):
                 body_font_size = (float(body_font_size.replace('pt', '')) * scale_factor) * 1.55
                 body_font_size = f"{{\\fs{body_font_size}}}"
 
-        stroke_style = ""
         if stroke_size > 0:
-            print("Applying stroke to all text")
             hex_qcolor = stroke_color.name()  # Converts QColor to hex
             hex_color = hex_qcolor.replace('#', '')
             red = int(hex_color[0:2], 16)
@@ -218,14 +215,35 @@ class ExportVideo(QThread):
         ]
         
         process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-        stdout, stderr = process.communicate()
 
-        if process.returncode == 0:
-            print("Successfully Exported Video")
-            self.video_completed.emit()
-        else:
-            print("Error Exporting Video")
-            print("FFmpeg stdout:", stdout)
-            print("FFmpeg stderr:", stderr)
-            self.exporting_video.emit("Error occurred during video export")
+        try:
+            video = cv2.VideoCapture(self.video_location)
+            total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+            video.release()
+
+            self.ffmpeg_logger.video_logger(process, total_frames)
+
+            process.wait()
+            
+            # Ensure the process has completed and all handles are released
+            if process.returncode == 0:
+                self.video_completed.emit(True)
+                self.noti_popup.emit(f"File Saved: {output_file}")
+            else:
+                self.video_completed.emit(False)
+                self.noti_popup.emit("Error occurred during video export")
+            
+        finally:
+            # Attempt to delete files
+            try:
+                os.remove(ass_file)
+                os.remove(self.video_location)
+            except FileNotFoundError:
+                print(f"File not found: {ass_file} or {self.video_location}")
+            except PermissionError as e:
+                print(f"Permission error: {e}")
+            except Exception as e:
+                print(f"Error deleting file: {e}")
+
+
 
