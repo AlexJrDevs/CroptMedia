@@ -1,7 +1,6 @@
 from qt_core import *
 from gui.widgets import PyIconButton
 
-import pyrebase, re
 
 class PyRegisterPage(QWidget):
     def __init__(self):
@@ -121,21 +120,23 @@ class PyRegisterPage(QWidget):
         # Social Media Buttons
         social_layout = QHBoxLayout()
         social_layout.setContentsMargins(0, 0, 0, 5)
-        social_layout.setSpacing(5)
+        social_layout.setSpacing(40)
 
-        self.social_buttons = []
-        for icon in ['google', 'apple', 'facebook', 'twitter']:
-            button = PyIconButton(
-                icon_path=f"gui/images/svg_icons/icon_{icon}.svg",
-                width=60,
-                height=60,
-                parent=self,
-                icon_margin=10,
-                bg_color = "#1B1E23",
-                bg_color_hover="#343b48",
-            )
-            social_layout.addWidget(button)
-            self.social_buttons.append(button)
+        self.google_button = QPushButton(parent=self)
+        self.google_button.setIcon(QIcon("gui/images/svg_icons/icon_google.svg"))
+        self.google_button.setCursor(QCursor(Qt.PointingHandCursor))
+        self.google_button.setStyleSheet("background-color: #1B1E23; color: #C3CCDF; padding: 10px;")
+
+        social_layout.addWidget(self.google_button)
+
+
+        self.facebook_button = QPushButton(parent=self)
+        self.facebook_button.setIcon(QIcon("gui/images/svg_icons/icon_facebook.svg"))
+        self.facebook_button.setCursor(QCursor(Qt.PointingHandCursor))
+        self.facebook_button.setStyleSheet("background-color: #1B1E23; color: #C3CCDF; padding: 10px;")
+
+        
+        social_layout.addWidget(self.facebook_button)
 
         inner_layout.addLayout(social_layout)
 
@@ -151,10 +152,10 @@ class PyRegisterPage(QWidget):
         self.setLayout(main_layout)
 
         # Set up dynamic font scaling
-        self.setupDynamicFontScaling()
+        self.setup_dynamic_font_scaling()
 
 
-    def setupDynamicFontScaling(self):
+    def setup_dynamic_font_scaling(self):
         self.base_width = 600
         self.base_height = 600
         self.base_font_sizes = {
@@ -170,9 +171,15 @@ class PyRegisterPage(QWidget):
             self.or_label: 10
         }
 
-        self.outer_frame.resizeEvent = self.onResize
+        self.base_button_sizes = {
+            self.register_button: (36, 46),
+            self.google_button: (36, 23),  # Base sizes for Google button
+            self.facebook_button: (36, 23)  # Base sizes for Facebook button
+        }
 
-    def onResize(self, event):
+        self.outer_frame.resizeEvent = self.on_resize
+
+    def on_resize(self, event):
         width = self.outer_frame.width()
         height = self.outer_frame.height()
         scale_factor = min(width / self.base_width, height / self.base_height)
@@ -183,17 +190,16 @@ class PyRegisterPage(QWidget):
             font.setPointSize(int(base_size * scale_factor))
             widget.setFont(font)
 
-        # Adjust button sizes
-        for button in self.social_buttons:
-            new_size = int(60 * scale_factor)
-            button.setFixedSize(new_size, new_size)
 
-        # Adjust register button
-        register_button_min_height = int(36 * scale_factor)
-        register_button_max_height = int(46 * scale_factor)
-        self.register_button.setMinimumHeight(register_button_min_height)
-        self.register_button.setMaximumHeight(register_button_max_height)
-        self.register_button.setStyleSheet(f"background-color: #3995F1; color: #C3CCDF; padding: {int(10 * scale_factor)}px;")
+        for button, (base_min_height, base_max_height) in self.base_button_sizes.items():
+            if button == self.register_button:
+                register_button_min_height = int(36 * scale_factor)
+                register_button_max_height = int(46 * scale_factor)
+                self.register_button.setMinimumHeight(register_button_min_height)
+                self.register_button.setMaximumHeight(register_button_max_height)
+                button.setStyleSheet(f"background-color: #3995F1; color: #C3CCDF; padding: {int(10 * scale_factor)}px;")
+            else:
+                button.setStyleSheet(f"background-color: #1B1E23; color: #C3CCDF; padding: {int(10 * scale_factor)}px;")
 
         # Adjust input field sizes
         input_min_height = int(36 * scale_factor)

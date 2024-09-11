@@ -104,6 +104,7 @@ class MainWindow(QMainWindow):
         # Sets login
         # ///////////////////////////////////////////////////////////////
         self.is_logged_in = True
+        self.login_and_register = None
 
         temp_dir = os.path.abspath(r'backend/tempfile')
         if not os.path.exists(temp_dir):
@@ -232,18 +233,16 @@ class MainWindow(QMainWindow):
             return
 
         action_handlers = {
-            self.ui.login_page.login_button: self.handle_login,
-            self.ui.register_page.register_button: self.handle_register,
+            self.ui.login_page.login_button: self.handle_login_email,
+            self.ui.register_page.register_button: self.handle_register_email,
             self.ui.login_page.google_button: lambda: self.handle_social_login("Google"),
             self.ui.login_page.facebook_button: lambda: self.handle_social_login("Facebook"),
-            self.ui.login_page.apple_button: lambda: self.handle_social_login("Apple"),
-            self.ui.login_page.twitter_button: lambda: self.handle_social_login("Twitter")
         }
 
         if sender in action_handlers:
             action_handlers[sender]()
 
-    def handle_login(self):
+    def handle_login_email(self):
         self.login_and_register = LoginAndRegister(
             self.ui.login_page.email_input.text(),
             self.ui.login_page.password_input.text()
@@ -251,7 +250,8 @@ class MainWindow(QMainWindow):
         self.is_logged_in = self.login_and_register.start()
         self.connect_signals()
 
-    def handle_register(self):
+    def handle_register_email(self):
+
         self.login_and_register = LoginAndRegister(
             self.ui.register_page.email_input.text(),
             self.ui.register_page.password_input.text(),
@@ -260,15 +260,20 @@ class MainWindow(QMainWindow):
         self.login_and_register.start()
         self.connect_signals()
 
+    def handle_social_login(self, platform):
+        if self.login_and_register is not None and self.login_and_register.isRunning():
+            self.login_and_register.open_auth_url()
+            return
+        self.login_and_register = LoginAndRegister(social_provider=platform)
+        self.login_and_register.start()
+        self.connect_signals()
+
     def connect_signals(self):
         self.login_and_register.login_and_register_signal.connect(self.popup_message)
         self.login_and_register.sign_in_successful.connect(self.succesfully_sign)
 
-    def handle_social_login(self, platform):
-        print(platform)
-        self.login_and_register = LoginAndRegister(social_provider=platform)
-        self.login_and_register.start()
-        self.connect_signals()
+
+
 
     def succesfully_sign(self):
         self.is_logged_in = True

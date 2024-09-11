@@ -297,14 +297,19 @@ class UI_MainWindow(object):
 
         self.login_page.google_button.clicked.connect(parent.login_register)
         self.login_page.facebook_button.clicked.connect(parent.login_register)
-        self.login_page.apple_button.clicked.connect(parent.login_register)
-        self.login_page.twitter_button.clicked.connect(parent.login_register)
+
 
         self.load_pages.login_page_layout.addWidget(self.login_page)
+
+        
 
         self.register_page = PyRegisterPage()
         self.register_page.already_have_account_label.linkActivated.connect(parent.login_register)
         self.register_page.register_button.clicked.connect(parent.login_register)
+        
+        self.register_page.google_button.clicked.connect(parent.login_register)
+        self.register_page.facebook_button.clicked.connect(parent.login_register)
+
         self.load_pages.register_page_layout.addWidget(self.register_page)
 
 
