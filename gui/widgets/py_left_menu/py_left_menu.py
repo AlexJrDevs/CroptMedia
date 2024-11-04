@@ -55,8 +55,8 @@ class PyLeftMenu(QWidget):
         maximum_width = 240,
         icon_path = "icon_menu.svg",
         icon_path_close = "icon_menu_close.svg",
-        toggle_text = "Hide Menu",
-        toggle_tooltip = "Show menu"
+        toggle_text = None,
+        toggle_tooltip = None
     ):
         super().__init__()
 
@@ -109,7 +109,7 @@ class PyLeftMenu(QWidget):
             text_active = self._text_active,
             icon_path = icon_path
         )
-        self.toggle_button.clicked.connect(self.toggle_animation)
+        #self.toggle_button.clicked.connect(self.toggle_animation) IF YOU WANT TO TOGGLE MENU AGAIN ACTIVATED
         self.div_top = PyDiv(dark_four)
 
         # ADD TO TOP LAYOUT
@@ -164,6 +164,7 @@ class PyLeftMenu(QWidget):
                 else:
                     self.div_bottom.show()
                     self.bottom_layout.addWidget(self.menu)
+
 
     # LEFT MENU EMIT SIGNALS
     # ///////////////////////////////////////////////////////////////

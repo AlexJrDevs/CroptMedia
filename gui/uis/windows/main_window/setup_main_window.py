@@ -88,6 +88,14 @@ class SetupMainWindow:
             "is_active" : False
         },
         {
+            "btn_icon" : "account_icon.svg",
+            "btn_id" : "btn_account",
+            "btn_text" : "Account",
+            "btn_tooltip" : "Account",
+            "show_top" : False,
+            "is_active" : False
+        },
+        {
             "btn_icon" : "icon_settings.svg",
             "btn_id" : "btn_settings",
             "btn_text" : "Settings",

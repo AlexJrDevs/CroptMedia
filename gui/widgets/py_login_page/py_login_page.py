@@ -4,7 +4,7 @@ from gui.widgets import PyIconButton
 
 
 class PyLoginPage(QWidget):
-    def __init__(self, parent):
+    def __init__(self):
         super().__init__()
 
         # Create the outer dark background
@@ -56,17 +56,17 @@ class PyLoginPage(QWidget):
         inner_layout.addWidget(self.password_input)
 
         # Forgot Password Label
-        self.forgot_password = QLabel("<a style='color:#3995F1;' href='#'>Forgot password?</a>")
+        self.forgot_password = QLabel("<a style='color:#3995F1;' href='resetPassword'>Forgot password?</a>")
         self.forgot_password.setAlignment(Qt.AlignLeft)
         self.forgot_password.setTextFormat(Qt.RichText)
-        self.forgot_password.setOpenExternalLinks(True)
+        self.forgot_password.setOpenExternalLinks(False)
         inner_layout.addWidget(self.forgot_password)
 
         inner_layout.addStretch(1)
         
         # Login Button
         self.login_button = QPushButton("Log In")
-        self.login_button.setStyleSheet("background-color: #3995F1; color: #C3CCDF; padding: 10px;")
+        self.login_button.setStyleSheet("background-color: #3995F1; color: #DCE1EC; padding: 10px;")
         self.login_button.setMinimumHeight(36)
         self.login_button.setMaximumHeight(46)
         self.login_button.setCursor(QCursor(Qt.PointingHandCursor))

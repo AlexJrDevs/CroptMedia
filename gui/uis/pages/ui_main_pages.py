@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_pageskZhhsN.ui'
+## Form generated from reading UI file 'main_pagesxGDlqD.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -48,17 +48,16 @@ class Ui_MainPages(object):
         self.gridLayout.setObjectName(u"gridLayout")
         self.login_and_register = QStackedWidget(self.page_1)
         self.login_and_register.setObjectName(u"login_and_register")
-        self.login_page_parent = QWidget()
-        self.login_page_parent.setObjectName(u"login_page_parent")
-        self.gridLayout_9 = QGridLayout(self.login_page_parent)
-        self.gridLayout_9.setObjectName(u"gridLayout_9")
-        self.gridLayout_9.setContentsMargins(0, 0, 0, 0)
-        self.login_page_layout = QHBoxLayout()
-        self.login_page_layout.setObjectName(u"login_page_layout")
+        self.reset_pass_page_parent = QWidget()
+        self.reset_pass_page_parent.setObjectName(u"reset_pass_page_parent")
+        self.gridLayout_20 = QGridLayout(self.reset_pass_page_parent)
+        self.gridLayout_20.setObjectName(u"gridLayout_20")
+        self.reset_pass_page_layout = QHBoxLayout()
+        self.reset_pass_page_layout.setObjectName(u"reset_pass_page_layout")
 
-        self.gridLayout_9.addLayout(self.login_page_layout, 0, 0, 1, 1)
+        self.gridLayout_20.addLayout(self.reset_pass_page_layout, 0, 0, 1, 1)
 
-        self.login_and_register.addWidget(self.login_page_parent)
+        self.login_and_register.addWidget(self.reset_pass_page_parent)
         self.register_page_parent = QWidget()
         self.register_page_parent.setObjectName(u"register_page_parent")
         self.gridLayout_19 = QGridLayout(self.register_page_parent)
@@ -70,6 +69,17 @@ class Ui_MainPages(object):
         self.gridLayout_19.addLayout(self.register_page_layout, 0, 0, 1, 1)
 
         self.login_and_register.addWidget(self.register_page_parent)
+        self.login_page_parent = QWidget()
+        self.login_page_parent.setObjectName(u"login_page_parent")
+        self.gridLayout_9 = QGridLayout(self.login_page_parent)
+        self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.gridLayout_9.setContentsMargins(0, 0, 0, 0)
+        self.login_page_layout = QHBoxLayout()
+        self.login_page_layout.setObjectName(u"login_page_layout")
+
+        self.gridLayout_9.addLayout(self.login_page_layout, 0, 0, 1, 1)
+
+        self.login_and_register.addWidget(self.login_page_parent)
 
         self.gridLayout.addWidget(self.login_and_register, 0, 0, 1, 1)
 
@@ -459,6 +469,7 @@ class Ui_MainPages(object):
         self.retranslateUi(MainPages)
 
         self.pages.setCurrentIndex(0)
+        self.login_and_register.setCurrentIndex(2)
         self.page_2_layout.setCurrentIndex(0)
         self.video_pages.setCurrentIndex(0)
 

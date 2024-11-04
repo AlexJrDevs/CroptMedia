@@ -267,6 +267,12 @@ class UI_MainWindow(object):
         self.content_area_layout.addWidget(self.content_area_left_frame)
         self.content_area_layout.addWidget(self.right_column_frame)
 
+        # Create a new popup
+        self.account_popup = PyUserAccountPopup(self.central_widget)
+        self.account_popup.logout_button.clicked.connect(parent.logout_user)
+        self.account_popup.hide()
+
+
         # ADD VIDEO PLAYER TO LAYOUT
         self.video_player_subclip = PySubclipPlayer(parent=parent)
         self.video_player_main = PyVideoPlayer(parent=parent)
@@ -291,9 +297,10 @@ class UI_MainWindow(object):
 
         # LOGIN / REGISTER PAGE
 
-        self.login_page = PyLoginPage(parent)
+        self.login_page = PyLoginPage()
         self.login_page.register_label.linkActivated.connect(parent.login_register)
         self.login_page.login_button.clicked.connect(parent.login_register)
+        self.login_page.forgot_password.linkActivated.connect(parent.login_register)
 
         self.login_page.google_button.clicked.connect(parent.login_register)
         self.login_page.facebook_button.clicked.connect(parent.login_register)
@@ -302,7 +309,6 @@ class UI_MainWindow(object):
         self.load_pages.login_page_layout.addWidget(self.login_page)
 
         
-
         self.register_page = PyRegisterPage()
         self.register_page.already_have_account_label.linkActivated.connect(parent.login_register)
         self.register_page.register_button.clicked.connect(parent.login_register)
@@ -311,6 +317,13 @@ class UI_MainWindow(object):
         self.register_page.facebook_button.clicked.connect(parent.login_register)
 
         self.load_pages.register_page_layout.addWidget(self.register_page)
+
+
+        self.reset_password_page = PyResetPassPage()
+        self.reset_password_page.back_to_login_label.linkActivated.connect(parent.login_register)
+
+        self.reset_password_page.reset_button.clicked.connect(parent.login_register)
+        self.load_pages.reset_pass_page_layout.addWidget(self.reset_password_page)
 
 
 

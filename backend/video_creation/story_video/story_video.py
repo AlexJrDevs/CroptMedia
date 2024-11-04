@@ -71,7 +71,16 @@ class StoryVideo(QThread):
                 '-y',
                 audio_file
             ]
-            subprocess.run(ffmpeg_audio, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+            process = subprocess.Popen(ffmpeg_audio, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+            # Capture stdout and stderr
+            stdout, stderr = process.communicate()
+            
+            # Wait for the process to complete
+            process.wait()
+
+            # Check if ffmpeg process was successful
+            if process.returncode != 0:
+                raise RuntimeError(f"ffmpeg process failed with return code {process.returncode}\nOutput:\n{stdout}")
 
             self.audio_transcribe.start_transcribe(audio_file, self.text_word_amount, timestamp)
 

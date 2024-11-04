@@ -73,7 +73,7 @@ class PyRegisterPage(QWidget):
 
         # Register Button
         self.register_button = QPushButton("Register")
-        self.register_button.setStyleSheet("background-color: #3995F1; color: #C3CCDF; padding: 10px;")
+        self.register_button.setStyleSheet("background-color: #3995F1; color: #DCE1EC; padding: 10px;")
         self.register_button.setMinimumHeight(36)
         self.register_button.setMaximumHeight(46)
         self.register_button.setCursor(QCursor(Qt.PointingHandCursor))

@@ -45,6 +45,9 @@ border-radius: 15px;
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
         <widget class="QStackedWidget" name="login_and_register">
+         <property name="currentIndex">
+          <number>2</number>
+         </property>
          <widget class="QWidget" name="login_page_parent">
           <layout class="QGridLayout" name="gridLayout_9">
            <property name="leftMargin">
@@ -80,6 +83,13 @@ border-radius: 15px;
            </property>
            <item row="0" column="0">
             <layout class="QHBoxLayout" name="register_page_layout"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="reset_pass_page_parent">
+          <layout class="QGridLayout" name="gridLayout_20">
+           <item row="0" column="0">
+            <layout class="QHBoxLayout" name="reset_pass_page_layout"/>
            </item>
           </layout>
          </widget>

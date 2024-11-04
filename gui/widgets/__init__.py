@@ -132,8 +132,17 @@ from . py_login_page import PyLoginPage
 # ///////////////////////////////////////////////////////////////
 from . py_register_page import PyRegisterPage
 
+# PY RESET PASSWORD PAGE
+# ///////////////////////////////////////////////////////////////
+from . py_reset_pass_page import PyResetPassPage
 
-# PY REGISTER PAGE
+
+# PY NOTIFICATION POPUP
 # ///////////////////////////////////////////////////////////////
 from . py_notification_popup import PyNotificationPopup
+
+
+# PY USER ACCOUNT POPUP
+# ///////////////////////////////////////////////////////////////
+from . py_user_account_popup import PyUserAccountPopup
 

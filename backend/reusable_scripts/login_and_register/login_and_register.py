@@ -1,10 +1,12 @@
+import firebase_admin._auth_client
+import firebase_admin.auth
 from qt_core import *
 import pyrebase
 
 
 import re
 
-import os
+import json
 import base64
 import hashlib
 import secrets
@@ -17,12 +19,19 @@ from google.oauth2 import id_token
 import firebase_admin
 from firebase_admin import credentials, auth
 import threading
+from datetime import datetime, timedelta
+from dotenv import set_key, dotenv_values
 
-# OAuth credentials
-GOOGLE_CLIENT_ID = '945419716964-16gsh5dlcd0lvlpdueovhchq31tcb58c.apps.googleusercontent.com'
-GOOGLE_CLIENT_SECRET = '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'
-FACEBOOK_CLIENT_ID = '922140056392006'
-FACEBOOK_CLIENT_SECRET = '6e2557a1633d3833ee829309faaf4a63'
+config = {**dotenv_values(".env.secret")}
+
+# Load sensitive data from environment variables
+GOOGLE_CLIENT_ID = config.get('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = config.get('GOOGLE_CLIENT_SECRET')
+FACEBOOK_CLIENT_ID = config.get('FACEBOOK_CLIENT_ID')
+FACEBOOK_CLIENT_SECRET = config.get('FACEBOOK_CLIENT_SECRET')
+FIREBASE_SECRET = config.get('FIREBASE_SECRET')
+FIREBASE_CONFIG = config.get('FIREBASE_CONFIG')
+FIREBASE_TOKENS = config.get('FIREBASE_TOKENS')
 
 REDIRECT_URI = 'http://localhost:8080/'  # Added trailing slash
 
@@ -36,24 +45,13 @@ FACEBOOK_TOKEN_URL = 'https://graph.facebook.com/v12.0/oauth/access_token'
 FACEBOOK_USER_INFO_URL = 'https://graph.facebook.com/me'
 FACEBOOK_DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token'
 
-firebase_config = {
-    "apiKey": "AIzaSyBoLHqzaRmlp_J0CcjVnW8gghWkSxjiU4g",
-    "authDomain": "croptmedia-5adb9.firebaseapp.com",
-    "databaseURL": "https://croptmedia-5adb9-default-rtdb.firebaseio.com",
-    "projectId": "croptmedia-5adb9",
-    "storageBucket": "croptmedia-5adb9.appspot.com",
-    "messagingSenderId": "714450047320",
-    "appId": "1:714450047320:web:015da592562a3db031152d",
-    "measurementId": "G-NZLNLXTXTJ"
-}
-
 # Initialize Firebase
-cred = credentials.Certificate('fire_priv_key.json')
-firebase = firebase_admin.initialize_app(cred)
+cred = credentials.Certificate(json.loads(FIREBASE_SECRET))
+firebase_admin.initialize_app(cred)
 
 
 # Initialize Firebase
-firebase = pyrebase.initialize_app(firebase_config)
+firebase = pyrebase.initialize_app(json.loads(FIREBASE_CONFIG))
 auths = firebase.auth()
 
 
@@ -63,23 +61,86 @@ class LoginAndRegister(QThread):
     login_and_register_signal = Signal(str)
     sign_in_successful = Signal(bool)
 
-    def __init__(self, email=None, password=None, confirm_pass=None, social_provider=None):
+    def __init__(self, operation=None, email=None, password=None, confirm_pass=None, social_provider=None):
         super().__init__()
         self.email = email
         self.password = password
         self.confirm_pass = confirm_pass
         self.social_provider = social_provider
+        self.operation = operation
 
         self.authorization_code = None
         self.state = None
 
     def run(self):
-        if self.social_provider:
+
+        if self.operation == "social_login":
             self.social_login()
-        elif self.confirm_pass is None:
+
+        if self.operation == "email_login":
             self.email_login()
-        else:
+        
+        if self.operation == "email_register":
             self.email_register()
+
+
+    def logout_user(self):
+        try:
+            # Load saved tokens
+            tokens_data = self.load_tokens()
+            if tokens_data is None:
+                print("No tokens found to revoke")
+                return
+
+            # Revoke tokens based on provider
+            provider = tokens_data.get('provider')
+            access_token = tokens_data.get('access_token')
+            
+            if provider and access_token:
+                if provider == 'Google':
+                    self.revoke_google_token(access_token)
+                elif provider == 'Facebook':
+                    self.revoke_facebook_token(access_token)
+
+            # Clear stored tokens
+            set_key(dotenv_path=".env.secret", key_to_set="FIREBASE_TOKENS", value_to_set="")
+            print("FIREBASE_TOKENS cleared.")
+            
+            # Clear current user
+            auths.current_user = None
+            
+            print("Logout completed successfully")
+            self.login_and_register_signal.emit("Logged out successfully")
+            
+        except Exception as e:
+            print(f"Error during logout process: {e}")
+            self.login_and_register_signal.emit("Error during logout")
+
+
+
+
+
+
+    def reset_password(self):
+        print("Starting reset_password function")
+        print("Email: ", self.email)
+        try:
+            # Email validation regex pattern
+            email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            # Then validate email format
+            if not re.match(email_pattern, self.email):
+                print("Email validation failed")
+                self.login_and_register_signal.emit("Invalid email format. Please try again.")
+                return
+            
+            print("About to send reset email")
+            auths.send_password_reset_email(self.email)
+            print("Reset email sent successfully")
+            self.login_and_register_signal.emit("Password reset email sent. Please check your inbox / spam.")
+        except Exception as e:
+            print(f"Exception occurred: {str(e)}")
+            self.login_and_register_signal.emit("Failed to send password reset email... Try Again.")
+
 
     def email_login(self):
         try:
@@ -90,6 +151,10 @@ class LoginAndRegister(QThread):
             if users:
                 email_verified = users[0].get('emailVerified')
             if email_verified:
+                expires_in = int(user.get('expiresIn', 3600))
+                expiration_time = datetime.now() + timedelta(seconds=expires_in)
+                self.save_tokens(user['idToken'], user['refreshToken'], expiration_time.isoformat())
+                self.login_and_register_signal.emit("Successfully signed in!")
                 self.sign_in_successful.emit(True)
             else:
                 self.login_and_register_signal.emit("Email not verified. Please verify your email before logging in.")
@@ -138,12 +203,27 @@ class LoginAndRegister(QThread):
     # ///////////////////////////////////////////////////////////////
 
     def social_login(self):
+        id_token = self.get_valid_id_token()
+
+        if id_token:
+            try:
+                decoded_token = auth.verify_id_token(id_token)
+                uid = decoded_token.get('uid')
+                email = decoded_token.get('email')
+
+                print(f"User already authenticated:\nUID: {uid}\nEmail: {email}")
+                self.sign_in_successful.emit(True)
+                return
+            except Exception as e:
+                print(f"Error verifying existing token: {e}")
+
+    
         if self.social_provider == 'Google':
             self.auth_url, code_verifier, expected_state = self.google_user_authentication()
         elif self.social_provider == 'Facebook':
             self.auth_url, code_verifier, expected_state = self.facebook_user_authentication()
         else:
-            self.login_and_register_signal.emit("Unsupported social provider")
+            print("Unsupported social provider")
             return
 
         self.open_auth_url()
@@ -155,25 +235,25 @@ class LoginAndRegister(QThread):
         # Wait for server to handle the request
         server_thread.join()
 
-        if self.authorization_code and self.state == expected_state:
+        if self.authorization_code and self.state:
             try:
-                tokens = self.exchange_code_for_token(self.social_provider, self.authorization_code, code_verifier)
-                access_token = tokens.get('access_token')
-                id_token_str = tokens.get('id_token')  # This will be None for Facebook
-                user_info = self.get_user_info(self.social_provider, access_token)
+                token_data = self.exchange_code_for_token(code_verifier)
 
-                firebase_user, custom_token = self.authenticate_user_with_firebase(self.social_provider, user_info, id_token_str, access_token)
-                
+                id_token_str = token_data.get('id_token')
+                access_token = token_data.get('access_token')
+
+                user_info = self.get_user_info(access_token)
+
+                firebase_user = self.authenticate_user_with_firebase(user_info, id_token_str, access_token)
                 if firebase_user:
-                    self.login_and_register_signal.emit(f"Succesfully signed in")
+                    print(f"Authenticated Firebase user: {firebase_user.uid}")
                     self.sign_in_successful.emit(True)
                 else:
-                    self.login_and_register_signal.emit("Signed failed. Try Again.")
+                    self.login_and_register_signal("Failed to sign in. Please try again.")
             except Exception as e:
-                self.login_and_register_signal.emit(f"An error occurred during social login: {str(e)}")
+                print(f"Error during authentication process: {e}")
         else:
-            print("Failed to obtain valid authorization code or state mismatch.")
-            self.login_and_register_signal.emit(f"Signed failed. Try Again.")
+            print("Authorization failed")
 
     def open_auth_url(self):
         webbrowser.open(self.auth_url)
@@ -189,13 +269,22 @@ class LoginAndRegister(QThread):
         print("Starting server...")
         server = HTTPServer(('localhost', 8080), OAuthHandler)
         server.timeout = 60
+        
         # Store the instance's data into the server
         server.auth_data = {}
         server.handle_request()  # This will block until a request is received
         print("Server stopped.")
+
         # Access the data after the request is handled
         self.authorization_code = server.auth_data.get('code')
         self.state = server.auth_data.get('state')
+
+
+        #if server.success:
+            #self.login_and_register_signal.emit("Successfully signed in!")
+       # else:
+            #self.login_and_register_signal.emit("Sign in failed. Please try again.")
+
 
 
     def google_user_authentication(self):
@@ -229,22 +318,22 @@ class LoginAndRegister(QThread):
     
         return auth_url, None, state
 
-    def exchange_code_for_token(self, provider, code, code_verifier):
-        if provider == 'Google':
+    def exchange_code_for_token(self, code_verifier):
+        if self.social_provider == 'Google':
             data = {
                 'client_id': GOOGLE_CLIENT_ID,
                 'client_secret': GOOGLE_CLIENT_SECRET,
-                'code': code,
+                'code': self.authorization_code,
                 'code_verifier': code_verifier,
                 'grant_type': 'authorization_code',
                 'redirect_uri': REDIRECT_URI
             }
             response = requests.post(GOOGLE_TOKEN_URL, data=data)
-        elif provider == 'Facebook':
+        elif self.social_provider == 'Facebook':
             params = {
                 'client_id': FACEBOOK_CLIENT_ID,
                 'client_secret': FACEBOOK_CLIENT_SECRET,
-                'code': code,
+                'code': self.authorization_code,
                 'redirect_uri': REDIRECT_URI
             }
             response = requests.get(FACEBOOK_TOKEN_URL, params=params)
@@ -254,11 +343,11 @@ class LoginAndRegister(QThread):
         response.raise_for_status()
         return response.json()
 
-    def get_user_info(self, provider, access_token):
-        if provider == 'Google':
+    def get_user_info(self, access_token):
+        if self.social_provider == 'Google':
             headers = {'Authorization': f'Bearer {access_token}'}
             response = requests.get(GOOGLE_USER_INFO_URL, headers=headers)
-        elif provider == 'Facebook':
+        elif self.social_provider == 'Facebook':
             params = {
                 'fields': 'id,name,email',
                 'access_token': access_token
@@ -283,8 +372,104 @@ class LoginAndRegister(QThread):
             return data['user_id']
         else:
             raise ValueError("Invalid Facebook access token")
+    
+    def refresh_firebase_token(self, refresh_token):
+        try:
+            user = auths.refresh(refresh_token)
+            return user['idToken'], user['refreshToken'], user['expiresIn']
+        except Exception as e:
+            print(f"Error refreshing token: {e}")
+            return None, None, None
+        
+    def get_valid_id_token(self):
+        id_token, refresh_token, expiration_time = self.get_token_values()
+        
+        if id_token and refresh_token and expiration_time:
+            if datetime.now() < expiration_time:
+                return id_token
+            else:
+                new_id_token, new_refresh_token, expiration_time = self.refresh_firebase_token(refresh_token)
+                if new_id_token and new_refresh_token:
+                    expiration_time = datetime.now() + timedelta(seconds=int(expiration_time))
+                    self.save_tokens(new_id_token, new_refresh_token, expiration_time.isoformat())
+                    return new_id_token
+        
+        return None
+    
 
-    def authenticate_user_with_firebase(self, provider, user_info, id_token_str=None, access_token=None):
+    def load_tokens(self):
+        if FIREBASE_TOKENS:
+            try:
+                data = json.loads(FIREBASE_TOKENS)
+                tokens_data = {
+                    'id_token': data.get('id_token'),
+                    'refresh_token': data.get('refresh_token'),
+                    'expiration_time': datetime.fromisoformat(data.get('expiration_time')) if data.get('expiration_time') else None,
+                    'access_token': data.get('access_token'),
+                    'provider': data.get('provider')
+                }
+                return tokens_data
+            except (json.JSONDecodeError, TypeError) as e:
+                print(f"Error decoding FIREBASE_TOKENS: {e}")
+                return None
+        return None
+
+    def get_token_values(self):
+        tokens_data = self.load_tokens()
+        if tokens_data:
+            return (
+                tokens_data.get('id_token'),
+                tokens_data.get('refresh_token'),
+                tokens_data.get('expiration_time')
+            )
+        return None, None, None
+
+    def save_tokens(self, id_token, refresh_token, expiration_time, access_token=None, provider=None):
+        tokens_data = {
+            'id_token': id_token,
+            'refresh_token': refresh_token,
+            'expiration_time': expiration_time,
+            'access_token': access_token,  # Save access token
+            'provider': provider  # Save provider information
+        }
+        set_key(dotenv_path=".env.secret", key_to_set="FIREBASE_TOKENS", value_to_set=json.dumps(tokens_data))
+        print("Tokens saved in environment variable.")
+
+    def revoke_google_token(self, access_token):
+        try:
+            response = requests.post(
+                'https://oauth2.googleapis.com/revoke',
+                params={'token': access_token},
+                headers={'content-type': 'application/x-www-form-urlencoded'}
+            )
+            if response.status_code == 200:
+                print("Google token revoked successfully")
+                return True
+            else:
+                print(f"Failed to revoke Google token: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"Error revoking Google token: {e}")
+            return False
+
+    def revoke_facebook_token(self, access_token):
+        try:
+            response = requests.delete(
+                'https://graph.facebook.com/v12.0/me/permissions',
+                params={'access_token': access_token}
+            )
+            if response.status_code == 200:
+                print("Facebook token revoked successfully")
+                return True
+            else:
+                print(f"Failed to revoke Facebook token: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"Error revoking Facebook token: {e}")
+            return False
+
+
+    def authenticate_user_with_firebase(self, user_info, id_token_str=None, access_token=None):
         try:
             email = user_info.get('email')
             if not email:
@@ -299,21 +484,37 @@ class LoginAndRegister(QThread):
                     photo_url=user_info.get('picture')
                 )
 
-            if provider == 'Google' and id_token_str:
+            if self.social_provider == 'Google' and id_token_str:
                 decoded_token = id_token.verify_oauth2_token(id_token_str, Request(), GOOGLE_CLIENT_ID)
                 if decoded_token['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
                     raise ValueError("Invalid token issuer")
-            elif provider == 'Facebook' and access_token:
+            elif self.social_provider == 'Facebook' and access_token:
                 facebook_user_id = self.verify_facebook_token(access_token)
                 if facebook_user_id != user_info['id']:
                     raise ValueError("Facebook user ID mismatch")
 
             custom_token = auth.create_custom_token(firebase_user.uid)
-            return firebase_user, custom_token
+            custom_token_str = custom_token.decode('utf-8')
+
+            user = auths.sign_in_with_custom_token(custom_token_str)
+            expires_in = int(user.get('expiresIn', 3600))
+            expiration_time = datetime.now() + timedelta(seconds=expires_in)
+            
+            # Save tokens with provider information and access token
+            self.save_tokens(
+                user['idToken'], 
+                user['refreshToken'], 
+                expiration_time.isoformat(),
+                access_token=access_token,
+                provider=self.social_provider
+            )
+
+            print(f"All tokens saved.")
+            return firebase_user
 
         except ValueError as e:
-            self.login_and_register_signal.emit(f"Authentication error: {str(e)}")
-            return None, None
+            print(f"Authentication error: {str(e)}")
+            return None
 
 class OAuthHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -340,3 +541,4 @@ class OAuthHandler(BaseHTTPRequestHandler):
         else:
             self.wfile.write(b'Authorization failed. Please try again.')
 
+ 

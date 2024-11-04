@@ -18,6 +18,7 @@
 # ///////////////////////////////////////////////////////////////
 import sys
 import os
+from time import time
 
 from VideoTalkingTracker import VideoTalkingTracker
 
@@ -94,8 +95,6 @@ class MainWindow(QMainWindow):
 
         # Main functions before page open
         # ///////////////////////////////////////////////////////////////
-        MainFunctions.set_page(self, self.ui.load_pages.page_1)
-        MainFunctions.set_video_page(self, self.ui.load_pages.upload_page)
 
         # Slots for all pages created to resize
         self.ui.load_pages.video_pages.currentChanged.connect(self.resizeEvent)
@@ -103,8 +102,11 @@ class MainWindow(QMainWindow):
 
         # Sets login
         # ///////////////////////////////////////////////////////////////
-        self.is_logged_in = True
+        self.is_logged_in = False
         self.login_and_register = None
+        self.last_reset_time = 0
+        self.reset_password_period = 60  # 1 minute in reset password cooldown
+        self.check_session_sign_in()
 
         temp_dir = os.path.abspath(r'backend/tempfile')
         if not os.path.exists(temp_dir):
@@ -142,7 +144,12 @@ class MainWindow(QMainWindow):
                 MainFunctions.set_page(self, self.ui.load_pages.page_2)
                 SetupMainWindow.resize_main_widget(self)
             else:
-                self.popup_message("Please login. You must own a membership.")
+                self.popup_message("Please sign in.")
+
+        # Account button
+        if btn.objectName() == "btn_account":
+            MainFunctions.show_account_popup(self, btn)
+            print("Clicked on acc btn")
 
         # Remove Selection If Clicked By "btn_close_left_column"
         if btn.objectName() != "btn_settings":
@@ -201,13 +208,15 @@ class MainWindow(QMainWindow):
         event.accept()
 
     def resize_widget(self):
+        MainFunctions.update_all_alert_animations(self, self.popup_alers, self.ui.load_pages.pages)
         SetupMainWindow.resize_main_widget(self)
         SetupMainWindow.resize_grips(self)
 
     def eventFilter(self, obj, event):
-        if obj == self.centralWidget() and event.type() == QEvent.Resize and self.popup_alers:
-            MainFunctions.updateAllAlertAnimations(self, self.popup_alers, self.ui.load_pages.pages)
+        if obj == self.centralWidget() and event.type() == QEvent.Resize:
+            MainFunctions.update_all_alert_animations(self, self.popup_alers, self.ui.load_pages.pages)
         return super().eventFilter(obj, event)
+
 
     # MOUSE CLICK EVENTS
     # ///////////////////////////////////////////////////////////////
@@ -225,18 +234,30 @@ class MainWindow(QMainWindow):
         
         page_switches = {
             self.ui.login_page.register_label: self.ui.load_pages.register_page_parent,
-            self.ui.register_page.already_have_account_label: self.ui.load_pages.login_page_parent
+            self.ui.login_page.forgot_password: self.ui.load_pages.reset_pass_page_parent,
+            self.ui.register_page.already_have_account_label: self.ui.load_pages.login_page_parent,
+            self.ui.reset_password_page.back_to_login_label: self.ui.load_pages.login_page_parent
         }
 
         if sender in page_switches:
+            # Clear input fields on the current page
+            current_page = self.ui.load_pages.login_and_register.currentWidget()
+            for line_edit in current_page.findChildren(QLineEdit):
+                line_edit.clear()
+            
+            # Now switch to the target page
             self.ui.load_pages.login_and_register.setCurrentWidget(page_switches[sender])
             return
 
         action_handlers = {
             self.ui.login_page.login_button: self.handle_login_email,
             self.ui.register_page.register_button: self.handle_register_email,
+            self.ui.register_page.google_button: lambda: self.handle_social_login("Google"),
+            self.ui.register_page.facebook_button: lambda: self.handle_social_login("Facebook"),
             self.ui.login_page.google_button: lambda: self.handle_social_login("Google"),
             self.ui.login_page.facebook_button: lambda: self.handle_social_login("Facebook"),
+
+            self.ui.reset_password_page.reset_button: self.handle_reset_password,
         }
 
         if sender in action_handlers:
@@ -244,38 +265,69 @@ class MainWindow(QMainWindow):
 
     def handle_login_email(self):
         self.login_and_register = LoginAndRegister(
+            "email_login",
             self.ui.login_page.email_input.text(),
             self.ui.login_page.password_input.text()
         )
-        self.is_logged_in = self.login_and_register.start()
         self.connect_signals()
+        self.is_logged_in = self.login_and_register.start()
 
     def handle_register_email(self):
 
         self.login_and_register = LoginAndRegister(
+            "email_register",
             self.ui.register_page.email_input.text(),
             self.ui.register_page.password_input.text(),
             self.ui.register_page.confirm_password_input.text()
         )
-        self.login_and_register.start()
         self.connect_signals()
+        self.login_and_register.start()
+
+    def handle_reset_password(self):
+        try:
+            if self.ui.reset_password_page.email_input.text():
+                current_time = time()
+                time_elapsed = current_time - self.last_reset_time
+
+                if time_elapsed < self.reset_password_period:
+                    remaining_time = round(self.reset_password_period - time_elapsed)
+                    self.popup_message(f"Please wait {remaining_time} seconds before requesting another password reset")
+                    return
+
+                self.login_and_register = LoginAndRegister(
+                    email=self.ui.reset_password_page.email_input.text()
+                )
+
+                self.connect_signals()  # Make sure this is called before reset_password
+                self.login_and_register.reset_password()
+                self.login_and_register.start()
+                
+                self.last_reset_time = current_time
+
+            else:
+                self.popup_message("Please enter your email address. To receive a password reset link.")
+        except Exception as e:
+            print(f"Handle reset password error: {str(e)}")
+            self.popup_message("An error occurred while processing your request.")
 
     def handle_social_login(self, platform):
         if self.login_and_register is not None and self.login_and_register.isRunning():
             self.login_and_register.open_auth_url()
             return
-        self.login_and_register = LoginAndRegister(social_provider=platform)
-        self.login_and_register.start()
+        self.login_and_register = LoginAndRegister(
+            "social_login",
+            social_provider=platform
+        )
         self.connect_signals()
+        self.login_and_register.start()
 
     def connect_signals(self):
         self.login_and_register.login_and_register_signal.connect(self.popup_message)
         self.login_and_register.sign_in_successful.connect(self.succesfully_sign)
 
 
-
-
     def succesfully_sign(self):
+        print("Signed in")
         self.is_logged_in = True
 
 
@@ -287,14 +339,48 @@ class MainWindow(QMainWindow):
         btn_home = self.ui.left_menu.findChild(QPushButton, "btn_home")
         btn_home.hide()
 
+        btn_account = self.ui.left_menu.findChild(QPushButton, "btn_account")
+        btn_account.show()
+
         #self.ui.left_menu.toggle_button.hide()
         self.ui.load_pages.page_1.setDisabled(True)
         self.ui.load_pages.page_1.hide()
 
+    def check_session_sign_in(self):
+        self.login_and_register = LoginAndRegister()
+        user_info = self.login_and_register.get_valid_id_token()
+
+        if user_info:
+            self.succesfully_sign()
+        
+        else:
+            btn_account = self.ui.left_menu.findChild(QPushButton, "btn_account")
+            btn_account.hide()
+
+    def logout_user(self):
+        self.login_and_register = LoginAndRegister()
+        self.login_and_register.logout_user()
+
+        self.is_logged_in = False
+
+        self.ui.left_menu.select_only_one("btn_home")
+
+        MainFunctions.set_page(self, self.ui.load_pages.page_1)
+
+
+        btn_home = self.ui.left_menu.findChild(QPushButton, "btn_home")
+        btn_home.show()
+
+        btn_account = self.ui.left_menu.findChild(QPushButton, "btn_account")
+        btn_account.hide()
+        MainFunctions.show_account_popup(self, btn_account)
+
+        self.ui.load_pages.page_1.setDisabled(False)
+        self.ui.load_pages.page_1.show()
 
 
     def popup_message(self, message):
-        MainFunctions.showAlert(self, self.popup_alers, self.ui.load_pages.pages, message)
+        MainFunctions.show_popup_alert(self, self.popup_alers, self.ui.load_pages.pages, message)
 
         if "Registration successful" in message:
             self.ui.load_pages.login_and_register.setCurrentWidget(self.ui.load_pages.login_page_parent)

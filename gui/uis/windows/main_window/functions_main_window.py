@@ -155,13 +155,37 @@ class MainFunctions():
         self.group.addAnimation(self.right_box)
         self.group.finished.connect(self.resize_widget)
         self.group.start()
-    
+
+    def show_account_popup(self, button):
+        # Set the popup's position relative to the button
+        button_pos = button.mapToGlobal(button.rect().topRight())
+        popup_pos = self.ui.left_menu_frame.mapFromGlobal(button_pos)
+        
+        # Adjust for the popup's width to align its right edge with the button
+        popup_pos.setX(popup_pos.x() - self.ui.account_popup.width())
+        
+        # Ensure the popup doesn't go off-screen
+        if popup_pos.x() < 0:
+                popup_pos.setX(self.ui.left_column_frame.pos().x())
+        if popup_pos.y() + self.ui.account_popup.height() > self.ui.left_menu_frame.height():
+            popup_pos.setY(self.ui.left_menu_frame.height() - self.ui.account_popup.height())
+
+        # Move the popup to the desired position and show it without animation
+        self.ui.account_popup.move(popup_pos.x(), popup_pos.y() - 3)
+
+
+        # Show the popup
+        if self.ui.account_popup.isHidden():
+            self.ui.account_popup.show()
+        else:
+            self.ui.account_popup.hide()
+
+
+
         
     # NOTIFICATION POPUP ANIMATION
     # ///////////////////////////////////////////////////////////////
-
-
-    def showAlert(self, alerts_list, central_widget, message=None, timeout=250):
+    def show_popup_alert(self, alerts_list, central_widget, message=None, timeout=250):
         # Remove the previous alert if it exists
         if alerts_list:
             previous_alert = alerts_list.pop()
@@ -180,23 +204,20 @@ class MainFunctions():
             alert.deleteLater()
         
         alert.animation.finished.connect(deleteLater)
-        MainFunctions.updateAlertAnimation(self, central_widget, alert)
+        MainFunctions.update_alert_animation(self, alert)
         alert.show()
         alert.animation.start()
 
 
-    def updateAlertAnimation(self, central_widget, alert):
+    def update_alert_animation(self, alert):
         width = alert.width()
         height = alert.height()
-        x = central_widget.width()  # Start from the right edge
+        x = self.ui.load_pages.pages.width()  # Start from the right edge
         startRect = QRect(x, 10, width, height)
         endRect = startRect.translated(-width, 0)
         alert.updateGeometry(startRect, endRect)
 
-
-
-
-    def updateAllAlertAnimations(self, alerts_list, central_widget):
+    def update_all_alert_animations(self, alerts_list, central_widget):
         x = central_widget.width()
         for alert in reversed(alerts_list):
             width = alert.width()
@@ -209,4 +230,10 @@ class MainFunctions():
             # Update current geometry if in pause state
             if isinstance(alert.animation.currentAnimation(), QPauseAnimation):
                 alert.setGeometry(endRect)
+
+
+
+
+
+
 
