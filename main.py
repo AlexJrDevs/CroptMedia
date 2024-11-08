@@ -74,6 +74,26 @@ class MainWindow(QMainWindow):
         SetupMainWindow.setup_gui(self)
         self.centralWidget().installEventFilter(self)
 
+        # USER ACCOUNT SETTUP
+        # ///////////////////////////////////////////////////////////////
+        self.account_thread = QThread()
+        self.user_account_manager = UserAccountManager()
+        self.user_account_manager.moveToThread(self.account_thread)
+        self.account_thread.start()
+
+
+        self.user_account_manager.login_and_register_signal.connect(self.popup_message)
+        self.user_account_manager.sign_in_successful.connect(self.succesfully_sign)
+
+        self.is_logged_in = False
+        self.last_reset_time = 0
+        self.reset_password_period = 60  # 1 minute in reset password cooldown
+        self.check_session_sign_in()
+
+        temp_dir = os.path.abspath(r'backend/tempfile')
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
         # VIDEO CREATION SCRIPTS
         # ///////////////////////////////////////////////////////////////
         self.percentage_logger = BarLogger()
@@ -99,18 +119,6 @@ class MainWindow(QMainWindow):
         # Slots for all pages created to resize
         self.ui.load_pages.video_pages.currentChanged.connect(self.resizeEvent)
         self.ui.load_pages.page_2_layout.currentChanged.connect(self.resizeEvent)
-
-        # Sets login
-        # ///////////////////////////////////////////////////////////////
-        self.is_logged_in = False
-        self.login_and_register = None
-        self.last_reset_time = 0
-        self.reset_password_period = 60  # 1 minute in reset password cooldown
-        self.check_session_sign_in()
-
-        temp_dir = os.path.abspath(r'backend/tempfile')
-        if not os.path.exists(temp_dir):
-            os.makedirs(temp_dir)
 
         # SHOW MAIN WINDOW
         # ///////////////////////////////////////////////////////////////
@@ -216,6 +224,11 @@ class MainWindow(QMainWindow):
         if obj == self.centralWidget() and event.type() == QEvent.Resize:
             MainFunctions.update_all_alert_animations(self, self.popup_alers, self.ui.load_pages.pages)
         return super().eventFilter(obj, event)
+    
+    def cleanupThreads(self):
+        # Quit the thread and wait for it to finish
+        self.account_thread.quit()
+        self.account_thread.wait()
 
 
     # MOUSE CLICK EVENTS
@@ -264,24 +277,15 @@ class MainWindow(QMainWindow):
             action_handlers[sender]()
 
     def handle_login_email(self):
-        self.login_and_register = LoginAndRegister(
-            "email_login",
-            self.ui.login_page.email_input.text(),
-            self.ui.login_page.password_input.text()
-        )
-        self.connect_signals()
-        self.is_logged_in = self.login_and_register.start()
+        self.user_account_manager.email_sign_signal.emit(self.ui.login_page.email_input.text(), self.ui.login_page.password_input.text())
 
     def handle_register_email(self):
-
-        self.login_and_register = LoginAndRegister(
-            "email_register",
-            self.ui.register_page.email_input.text(),
-            self.ui.register_page.password_input.text(),
+        self.user_account_manager.email_register_signal.emit(
+            self.ui.register_page.email_input.text(), 
+            self.ui.register_page.password_input.text(), 
             self.ui.register_page.confirm_password_input.text()
         )
-        self.connect_signals()
-        self.login_and_register.start()
+
 
     def handle_reset_password(self):
         try:
@@ -294,13 +298,7 @@ class MainWindow(QMainWindow):
                     self.popup_message(f"Please wait {remaining_time} seconds before requesting another password reset")
                     return
 
-                self.login_and_register = LoginAndRegister(
-                    email=self.ui.reset_password_page.email_input.text()
-                )
-
-                self.connect_signals()  # Make sure this is called before reset_password
-                self.login_and_register.reset_password()
-                self.login_and_register.start()
+                self.user_account_manager.user_reset_password.emit(self.ui.reset_password_page.email_input.text())
                 
                 self.last_reset_time = current_time
 
@@ -311,23 +309,11 @@ class MainWindow(QMainWindow):
             self.popup_message("An error occurred while processing your request.")
 
     def handle_social_login(self, platform):
-        if self.login_and_register is not None and self.login_and_register.isRunning():
-            self.login_and_register.open_auth_url()
-            return
-        self.login_and_register = LoginAndRegister(
-            "social_login",
-            social_provider=platform
-        )
-        self.connect_signals()
-        self.login_and_register.start()
+        self.user_account_manager.social_login_signal.emit(platform)
 
-    def connect_signals(self):
-        self.login_and_register.login_and_register_signal.connect(self.popup_message)
-        self.login_and_register.sign_in_successful.connect(self.succesfully_sign)
 
 
     def succesfully_sign(self):
-        print("Signed in")
         self.is_logged_in = True
 
 
@@ -346,9 +332,10 @@ class MainWindow(QMainWindow):
         self.ui.load_pages.page_1.setDisabled(True)
         self.ui.load_pages.page_1.hide()
 
+        self.popup_message("Sign-in successful. Welcome!")
+
     def check_session_sign_in(self):
-        self.login_and_register = LoginAndRegister()
-        user_info = self.login_and_register.get_valid_id_token()
+        user_info = self.user_account_manager.get_valid_id_token()
 
         if user_info:
             self.succesfully_sign()
@@ -358,8 +345,7 @@ class MainWindow(QMainWindow):
             btn_account.hide()
 
     def logout_user(self):
-        self.login_and_register = LoginAndRegister()
-        self.login_and_register.logout_user()
+        self.user_account_manager.user_logout.emit()
 
         self.is_logged_in = False
 
@@ -532,6 +518,8 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon("icon.ico"))
     window = MainWindow()
+
+    app.aboutToQuit.connect(window.cleanupThreads)
 
     # EXEC APP
     # ///////////////////////////////////////////////////////////////

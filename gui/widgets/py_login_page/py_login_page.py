@@ -66,7 +66,7 @@ class PyLoginPage(QWidget):
         
         # Login Button
         self.login_button = QPushButton("Log In")
-        self.login_button.setStyleSheet("background-color: #3995F1; color: #DCE1EC; padding: 10px;")
+        self.login_button.setStyleSheet("background-color: #3995F1; color: #f5f6f9; padding: 10px;")
         self.login_button.setMinimumHeight(36)
         self.login_button.setMaximumHeight(46)
         self.login_button.setCursor(QCursor(Qt.PointingHandCursor))
@@ -116,18 +116,18 @@ class PyLoginPage(QWidget):
         social_layout.setSpacing(40)
         
 
-        self.google_button = QPushButton(parent=self)
+        self.google_button = QPushButton(" Google", parent=self)
         self.google_button.setIcon(QIcon("gui/images/svg_icons/icon_google.svg"))
         self.google_button.setCursor(QCursor(Qt.PointingHandCursor))
-        self.google_button.setStyleSheet("background-color: #1B1E23; color: #C3CCDF; padding: 10px;")
+        self.google_button.setStyleSheet("background-color: #1B1E23; color: #C3CCDF; padding: 10px; font-weight: bold;")
 
         social_layout.addWidget(self.google_button)
 
 
-        self.facebook_button = QPushButton(parent=self)
+        self.facebook_button = QPushButton("Facebook", parent=self)
         self.facebook_button.setIcon(QIcon("gui/images/svg_icons/icon_facebook.svg"))
         self.facebook_button.setCursor(QCursor(Qt.PointingHandCursor))
-        self.facebook_button.setStyleSheet("background-color: #1B1E23; color: #C3CCDF; padding: 10px;")
+        self.facebook_button.setStyleSheet("background-color: #1B1E23; color: #C3CCDF; padding: 10px; font-weight: bold;")
 
         
         social_layout.addWidget(self.facebook_button)
@@ -190,9 +190,9 @@ class PyLoginPage(QWidget):
                 max_height = int(base_max_height * scale_factor)
                 button.setMinimumHeight(min_height)
                 button.setMaximumHeight(max_height)
-                button.setStyleSheet(f"background-color: #3995F1; color: #C3CCDF; padding: {int(10 * scale_factor)}px;")
+                button.setStyleSheet(f"background-color: #3995F1; color: #f5f6f9; padding: {int(10 * scale_factor)}px;")
             else:
-                button.setStyleSheet(f"background-color: #1B1E23; color: #C3CCDF; padding: {int(10 * scale_factor)}px;")
+                button.setStyleSheet(f"background-color: #1B1E23; font-weight: bold; color: #C3CCDF; padding: {int(10 * scale_factor)}px;")
         
         # Adjust input field sizes
         email_input_min_height = int(36 * scale_factor)

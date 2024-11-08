@@ -16,4 +16,4 @@
 
 # CREATE TEXT
 # ///////////////////////////////////////////////////////////////
-from .login_and_register import LoginAndRegister
+from .user_account_manager import UserAccountManager
