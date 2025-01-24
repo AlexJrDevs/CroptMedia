@@ -146,3 +146,8 @@ from . py_notification_popup import PyNotificationPopup
 # ///////////////////////////////////////////////////////////////
 from . py_user_account_popup import PyUserAccountPopup
 
+
+# PY COLOR PICKER
+# ///////////////////////////////////////////////////////////////
+from . py_color_picker import ColorPickerWidget
+

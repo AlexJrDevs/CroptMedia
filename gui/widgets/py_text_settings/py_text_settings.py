@@ -4,7 +4,7 @@ from qt_core import *
 
 from gui.widgets import PyIconButton, PyToggle
 
-from pyqt_color_picker import ColorPickerWidget
+from gui.widgets.py_color_picker import ColorPickerWidget
 
 
 # IMPORT SETTINGS
@@ -133,7 +133,7 @@ class PyTextSettings(QWidget):
         stroke_color_picker_action.setDefaultWidget(self.stroke_color_picker)
         self.stroke_color_menu.addAction(stroke_color_picker_action)
 
-        self.stroke_color_menu.setStyleSheet("QLineEdit { border: 2px solid #1B1E23; }")
+        self.stroke_color_picker.setStyleSheet("QLineEdit { border: 2px solid #1B1E23; }")
         self.stroke_color_menu.setStyleSheet("Background-color: #2C313C;")
 
         self.stroke_color_btn = QPushButton()

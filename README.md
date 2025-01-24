@@ -1,25 +1,26 @@
-# PyOneDark Qt Widgets Modern GUI - With PySide6
+# CroptMedia
 
-![PyOneDark - Capa](https://user-images.githubusercontent.com/60605512/127739671-653eccb8-49da-4244-ae48-a8ae9b9b6fb2.png)
+A Python program that allows users to create TikTok-style videos by combining two video sources: one for gameplay (bottom) and one for a talking person (top). Customize with features like tracking the speaker, clip selection, transcription, and text editing.
 
-> ## :gift: **//// DONATE ////**
-> ## 🔗 Donate (Gumroad): https://gum.co/mHsRC
-> This interface is free for any use, but if you are going to use it commercially, consider helping to maintain this project and others with a donation by Gumroado at the link above. This helps to keep this and other projects active.
+---
 
-> **Warning**: this project was created using PySide6 and Python 3.9, using previous versions can cause compatibility problems.
+## Features
 
-# YouTube - Presentation And Tutorials
-Presentation and tutorial video with the main functions of the user interface.
-> 🔗 Presentation - https://youtu.be/1v5errwE8ew
+- **Combine Two Videos**: Merge a gameplay video at the bottom and another video at the top for a TikTok-style video.
+- **Talking Head Tracking**: Optionally track the person in the top video or keep the view static.
+- **Clip Selection**: Choose specific sections of each video to include in the final edit.
+- **Multiple Clips**: Add multiple clips for a dynamic final video.
+- **Transcription and Text Editing**: Automatically generate a transcript with options to edit and style text for subtitles or annotations.
 
-> 🔗 Trailer - https://youtu.be/EJ8XApAl4aw
+## Requirements
 
-> **TUTORIALS:**
+- **Python 3.7+**
+- **FFmpeg** (for video processing)
+- **OpenCV** (for face tracking)
+- **Speech Recognition API** (optional, for transcription)
+- **PyDub** (for audio manipulation)
 
-> Tutorial 01: https://youtu.be/QQGlTGYCMg0
+Install dependencies with:
 
-> Tutorial 02: https://youtu.be/LwKre2proDk
-
-> Tutorial 03: https://youtu.be/eUT4J9Ukg8g
-
-> Simple Text Editor - https://youtu.be/v7nh_bSumNQ
+```bash
+pip install -r requirements.txt
