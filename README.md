@@ -1,4 +1,4 @@
-# CroptMedia
+# CroptMedia - Create Short Form Videos
 
 A Python program that allows users to create TikTok-style videos by combining two video sources: one for gameplay (bottom) and one for a talking person (top). Customize with features like tracking the speaker, clip selection, transcription, and text editing.
 
